@@ -73,9 +73,15 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m25(count) => "${count} 項目が選択されています";
 
-  static String m26(label) => "${label}はURLである必要があります";
+  static String m26(value) => "${value}Mbit/s";
 
-  static String m27(count) => "${count}年前";
+  static String m27(count) => "${count}日";
+
+  static String m28(value) => "${value}G";
+
+  static String m29(label) => "${label}はURLである必要があります";
+
+  static String m30(count) => "${count}年前";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -792,6 +798,19 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "settings": MessageLookupByLibrary.simpleMessage("設定"),
     "shop": MessageLookupByLibrary.simpleMessage("ショップ"),
+    "shopBandwidth": MessageLookupByLibrary.simpleMessage("帯域幅"),
+    "shopBandwidthMbps": m26,
+    "shopBuyNow": MessageLookupByLibrary.simpleMessage("今すぐ購入"),
+    "shopDayCount": m27,
+    "shopDays": MessageLookupByLibrary.simpleMessage("日数"),
+    "shopDevices": MessageLookupByLibrary.simpleMessage("端末数"),
+    "shopLoadFailed": MessageLookupByLibrary.simpleMessage("プランを読み込めません"),
+    "shopNoPlans": MessageLookupByLibrary.simpleMessage("利用可能なプランはありません"),
+    "shopPlanTitle": MessageLookupByLibrary.simpleMessage("Plan"),
+    "shopTime": MessageLookupByLibrary.simpleMessage("期間"),
+    "shopTraffic": MessageLookupByLibrary.simpleMessage("通信量"),
+    "shopTrafficGigabytes": m28,
+    "shopUnlimited": MessageLookupByLibrary.simpleMessage("無制限"),
     "show": MessageLookupByLibrary.simpleMessage("表示"),
     "shrink": MessageLookupByLibrary.simpleMessage("縮小"),
     "silentLaunch": MessageLookupByLibrary.simpleMessage("バックグラウンド起動"),
@@ -870,7 +889,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "update": MessageLookupByLibrary.simpleMessage("更新"),
     "upload": MessageLookupByLibrary.simpleMessage("アップロード"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m26,
+    "urlTip": m29,
     "useHosts": MessageLookupByLibrary.simpleMessage("ホストを使用"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage("システムホストを使用"),
     "userAgent": MessageLookupByLibrary.simpleMessage("ユーザーエージェント"),
@@ -886,7 +905,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnTip": MessageLookupByLibrary.simpleMessage("変更はVPN再起動後に有効"),
     "webDAVConfiguration": MessageLookupByLibrary.simpleMessage("WebDAV設定"),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("ホワイトリストモード"),
-    "yearsAgo": m27,
+    "yearsAgo": m30,
     "zh_CN": MessageLookupByLibrary.simpleMessage("簡体字中国語"),
   };
 }

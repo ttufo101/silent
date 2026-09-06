@@ -80,9 +80,15 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m25(count) => "${count} items have been selected";
 
-  static String m26(label) => "${label} must be a url";
+  static String m26(value) => "${value}mbits/s";
 
-  static String m27(count) =>
+  static String m27(count) => "${count} days";
+
+  static String m28(value) => "${value}G";
+
+  static String m29(label) => "${label} must be a url";
+
+  static String m30(count) =>
       "${Intl.plural(count, one: '1 year ago', other: '${count} years ago')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -978,6 +984,21 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "settings": MessageLookupByLibrary.simpleMessage("Settings"),
     "shop": MessageLookupByLibrary.simpleMessage("Shop"),
+    "shopBandwidth": MessageLookupByLibrary.simpleMessage("Bandwidth"),
+    "shopBandwidthMbps": m26,
+    "shopBuyNow": MessageLookupByLibrary.simpleMessage("Buy now"),
+    "shopDayCount": m27,
+    "shopDays": MessageLookupByLibrary.simpleMessage("Days"),
+    "shopDevices": MessageLookupByLibrary.simpleMessage("Devices"),
+    "shopLoadFailed": MessageLookupByLibrary.simpleMessage(
+      "Unable to load plans",
+    ),
+    "shopNoPlans": MessageLookupByLibrary.simpleMessage("No plans available"),
+    "shopPlanTitle": MessageLookupByLibrary.simpleMessage("Plan"),
+    "shopTime": MessageLookupByLibrary.simpleMessage("Time"),
+    "shopTraffic": MessageLookupByLibrary.simpleMessage("Traffic"),
+    "shopTrafficGigabytes": m28,
+    "shopUnlimited": MessageLookupByLibrary.simpleMessage("Unlimited"),
     "show": MessageLookupByLibrary.simpleMessage("Show"),
     "shrink": MessageLookupByLibrary.simpleMessage("Shrink"),
     "silentLaunch": MessageLookupByLibrary.simpleMessage("SilentLaunch"),
@@ -1072,7 +1093,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "update": MessageLookupByLibrary.simpleMessage("Update"),
     "upload": MessageLookupByLibrary.simpleMessage("Upload"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m26,
+    "urlTip": m29,
     "useHosts": MessageLookupByLibrary.simpleMessage("Use hosts"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage("Use system hosts"),
     "userAgent": MessageLookupByLibrary.simpleMessage("User-Agent"),
@@ -1092,7 +1113,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "WebDAV configuration",
     ),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("Whitelist mode"),
-    "yearsAgo": m27,
+    "yearsAgo": m30,
     "zh_CN": MessageLookupByLibrary.simpleMessage("Simplified Chinese"),
   };
 }

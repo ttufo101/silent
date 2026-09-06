@@ -575,5 +575,18 @@
   "authLoading": "お待ちください",
   "serverProfileLoadFailed": "プロキシ設定を読み込めません",
   "serverProfileSyncFailed": "プロキシ設定を更新できません",
-  "retry": "再試行"
+  "retry": "再試行",
+  "shopPlanTitle": "Plan",
+  "shopTime": "期間",
+  "shopTraffic": "通信量",
+  "shopDays": "日数",
+  "shopDevices": "端末数",
+  "shopBandwidth": "帯域幅",
+  "shopBuyNow": "今すぐ購入",
+  "shopUnlimited": "無制限",
+  "shopNoPlans": "利用可能なプランはありません",
+  "shopLoadFailed": "プランを読み込めません",
+  "shopDayCount": "{count}日",
+  "shopTrafficGigabytes": "{value}G",
+  "shopBandwidthMbps": "{value}Mbit/s"
 }

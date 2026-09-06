@@ -109,7 +109,7 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: const MaterialApp(home: HomePage()),
+          child: const _TestApp(child: HomePage()),
         ),
       );
       await tester.pump();
@@ -289,13 +289,17 @@ void main() {
           child: const _TestApp(child: HomePage()),
         ),
       );
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       final logItem = find.text('Logcat');
+      final toolsScrollable = find.descendant(
+        of: find.byType(ToolsView),
+        matching: find.byType(Scrollable),
+      );
       await tester.scrollUntilVisible(
         logItem,
         500,
-        scrollable: find.byType(Scrollable).first,
+        scrollable: toolsScrollable,
       );
       await tester.tap(logItem);
       await tester.pumpAndSettle();
@@ -775,6 +779,7 @@ class _TestApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: TDesignThemeData.build(brightness: Brightness.light),
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -798,6 +803,7 @@ class _ThemeManagedTestApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: TDesignThemeData.build(brightness: Brightness.light),
       navigatorKey: globalState.navigatorKey,
       localizationsDelegates: const [
         AppLocalizations.delegate,

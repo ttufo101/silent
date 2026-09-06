@@ -5,18 +5,6 @@ import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ShopPlaceholderView extends StatelessWidget {
-  const ShopPlaceholderView({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return _PlaceholderView(
-      title: context.appLocalizations.shop,
-      icon: Icons.shopping_bag_outlined,
-    );
-  }
-}
-
 class PersonalCenterView extends ConsumerStatefulWidget {
   const PersonalCenterView({super.key});
 
@@ -71,35 +59,6 @@ class _PersonalCenterViewState extends ConsumerState<PersonalCenterView> {
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _PlaceholderView extends StatelessWidget {
-  final String title;
-  final IconData icon;
-
-  const _PlaceholderView({required this.title, required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return CommonScaffold(
-      title: title,
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 48, color: context.colorScheme.onSurfaceVariant),
-            const SizedBox(height: 12),
-            Text(
-              context.appLocalizations.comingSoon,
-              style: context.textTheme.bodyLarge?.copyWith(
-                color: context.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
         ),
       ),
     );

@@ -575,5 +575,18 @@
   "authLoading": "Подождите",
   "serverProfileLoadFailed": "Не удалось загрузить конфигурацию прокси",
   "serverProfileSyncFailed": "Не удалось обновить конфигурацию прокси",
-  "retry": "Повторить"
+  "retry": "Повторить",
+  "shopPlanTitle": "Plan",
+  "shopTime": "Время",
+  "shopTraffic": "Трафик",
+  "shopDays": "Дни",
+  "shopDevices": "Устройства",
+  "shopBandwidth": "Скорость",
+  "shopBuyNow": "Купить",
+  "shopUnlimited": "Без ограничений",
+  "shopNoPlans": "Нет доступных тарифов",
+  "shopLoadFailed": "Не удалось загрузить тарифы",
+  "shopDayCount": "{count} дн.",
+  "shopTrafficGigabytes": "{value} ГБ",
+  "shopBandwidthMbps": "{value} Мбит/с"
 }

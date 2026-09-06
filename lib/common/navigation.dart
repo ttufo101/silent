@@ -21,8 +21,7 @@ class Navigation {
       NavigationItem(
         icon: const Icon(Icons.shopping_bag_outlined),
         label: PageLabel.shop,
-        builder: (_) =>
-            const ShopPlaceholderView(key: GlobalObjectKey(PageLabel.shop)),
+        builder: (_) => const ShopView(key: GlobalObjectKey(PageLabel.shop)),
         modes: const [NavigationItemMode.mobile],
       ),
       NavigationItem(

@@ -11,4 +11,5 @@ export 'logs.dart';
 export 'mobile_navigation.dart';
 export 'proxies/proxies.dart';
 export 'resources.dart';
+export 'shop/shop.dart';
 export 'tools.dart';

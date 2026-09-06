@@ -575,5 +575,18 @@
   "authLoading": "请稍候",
   "serverProfileLoadFailed": "无法加载代理配置",
   "serverProfileSyncFailed": "无法更新代理配置",
-  "retry": "重试"
+  "retry": "重试",
+  "shopPlanTitle": "Plan",
+  "shopTime": "时间",
+  "shopTraffic": "流量",
+  "shopDays": "天数",
+  "shopDevices": "设备数",
+  "shopBandwidth": "带宽",
+  "shopBuyNow": "立即购买",
+  "shopUnlimited": "不限量",
+  "shopNoPlans": "暂无套餐",
+  "shopLoadFailed": "无法加载套餐",
+  "shopDayCount": "{count}天",
+  "shopTrafficGigabytes": "{value}G",
+  "shopBandwidthMbps": "{value}mbits/s"
 }
