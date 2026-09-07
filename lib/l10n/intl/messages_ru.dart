@@ -79,9 +79,15 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m25(count) => "Выбрано ${count} элементов";
 
-  static String m26(label) => "${label} должен быть URL";
+  static String m26(value) => "${value} Мбит/с";
 
-  static String m27(count) =>
+  static String m27(count) => "${count} дн.";
+
+  static String m28(value) => "${value} ГБ";
+
+  static String m29(label) => "${label} должен быть URL";
+
+  static String m30(count) =>
       "${Intl.plural(count, one: '${count} год назад', few: '${count} года назад', many: '${count} лет назад', other: '${count} года назад')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -1023,6 +1029,23 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "settings": MessageLookupByLibrary.simpleMessage("Настройки"),
     "shop": MessageLookupByLibrary.simpleMessage("Магазин"),
+    "shopBandwidth": MessageLookupByLibrary.simpleMessage("Скорость"),
+    "shopBandwidthMbps": m26,
+    "shopBuyNow": MessageLookupByLibrary.simpleMessage("Купить"),
+    "shopDayCount": m27,
+    "shopDays": MessageLookupByLibrary.simpleMessage("Дни"),
+    "shopDevices": MessageLookupByLibrary.simpleMessage("Устройства"),
+    "shopLoadFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось загрузить тарифы",
+    ),
+    "shopNoPlans": MessageLookupByLibrary.simpleMessage(
+      "Нет доступных тарифов",
+    ),
+    "shopPlanTitle": MessageLookupByLibrary.simpleMessage("Plan"),
+    "shopTime": MessageLookupByLibrary.simpleMessage("Время"),
+    "shopTraffic": MessageLookupByLibrary.simpleMessage("Трафик"),
+    "shopTrafficGigabytes": m28,
+    "shopUnlimited": MessageLookupByLibrary.simpleMessage("Без ограничений"),
     "show": MessageLookupByLibrary.simpleMessage("Показать"),
     "shrink": MessageLookupByLibrary.simpleMessage("Сжать"),
     "silentLaunch": MessageLookupByLibrary.simpleMessage("Тихий запуск"),
@@ -1131,7 +1154,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "update": MessageLookupByLibrary.simpleMessage("Обновить"),
     "upload": MessageLookupByLibrary.simpleMessage("Загрузка"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m26,
+    "urlTip": m29,
     "useHosts": MessageLookupByLibrary.simpleMessage("Использовать hosts"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage(
       "Использовать системные hosts",
@@ -1155,7 +1178,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "whitelistMode": MessageLookupByLibrary.simpleMessage(
       "Режим белого списка",
     ),
-    "yearsAgo": m27,
+    "yearsAgo": m30,
     "zh_CN": MessageLookupByLibrary.simpleMessage("Упрощенный китайский"),
   };
 }

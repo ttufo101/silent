@@ -4698,6 +4698,96 @@ class AppLocalizations {
   String get retry {
     return Intl.message('Retry', name: 'retry', desc: '', args: []);
   }
+
+  /// `Plan`
+  String get shopPlanTitle {
+    return Intl.message('Plan', name: 'shopPlanTitle', desc: '', args: []);
+  }
+
+  /// `Time`
+  String get shopTime {
+    return Intl.message('Time', name: 'shopTime', desc: '', args: []);
+  }
+
+  /// `Traffic`
+  String get shopTraffic {
+    return Intl.message('Traffic', name: 'shopTraffic', desc: '', args: []);
+  }
+
+  /// `Days`
+  String get shopDays {
+    return Intl.message('Days', name: 'shopDays', desc: '', args: []);
+  }
+
+  /// `Devices`
+  String get shopDevices {
+    return Intl.message('Devices', name: 'shopDevices', desc: '', args: []);
+  }
+
+  /// `Bandwidth`
+  String get shopBandwidth {
+    return Intl.message('Bandwidth', name: 'shopBandwidth', desc: '', args: []);
+  }
+
+  /// `Buy now`
+  String get shopBuyNow {
+    return Intl.message('Buy now', name: 'shopBuyNow', desc: '', args: []);
+  }
+
+  /// `Unlimited`
+  String get shopUnlimited {
+    return Intl.message('Unlimited', name: 'shopUnlimited', desc: '', args: []);
+  }
+
+  /// `No plans available`
+  String get shopNoPlans {
+    return Intl.message(
+      'No plans available',
+      name: 'shopNoPlans',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unable to load plans`
+  String get shopLoadFailed {
+    return Intl.message(
+      'Unable to load plans',
+      name: 'shopLoadFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} days`
+  String shopDayCount(Object count) {
+    return Intl.message(
+      '$count days',
+      name: 'shopDayCount',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{value}G`
+  String shopTrafficGigabytes(Object value) {
+    return Intl.message(
+      '${value}G',
+      name: 'shopTrafficGigabytes',
+      desc: '',
+      args: [value],
+    );
+  }
+
+  /// `{value}mbits/s`
+  String shopBandwidthMbps(Object value) {
+    return Intl.message(
+      '${value}mbits/s',
+      name: 'shopBandwidthMbps',
+      desc: '',
+      args: [value],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

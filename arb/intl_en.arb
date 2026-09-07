@@ -575,5 +575,18 @@
   "authLoading": "Please wait",
   "serverProfileLoadFailed": "Unable to load proxy configuration",
   "serverProfileSyncFailed": "Unable to update proxy configuration",
-  "retry": "Retry"
+  "retry": "Retry",
+  "shopPlanTitle": "Plan",
+  "shopTime": "Time",
+  "shopTraffic": "Traffic",
+  "shopDays": "Days",
+  "shopDevices": "Devices",
+  "shopBandwidth": "Bandwidth",
+  "shopBuyNow": "Buy now",
+  "shopUnlimited": "Unlimited",
+  "shopNoPlans": "No plans available",
+  "shopLoadFailed": "Unable to load plans",
+  "shopDayCount": "{count} days",
+  "shopTrafficGigabytes": "{value}G",
+  "shopBandwidthMbps": "{value}mbits/s"
 }

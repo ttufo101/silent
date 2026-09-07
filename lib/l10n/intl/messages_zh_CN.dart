@@ -73,9 +73,15 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m25(count) => "已选择 ${count} 项";
 
-  static String m26(label) => "${label}必须为URL";
+  static String m26(value) => "${value}mbits/s";
 
-  static String m27(count) => "${count} 年前";
+  static String m27(count) => "${count}天";
+
+  static String m28(value) => "${value}G";
+
+  static String m29(label) => "${label}必须为URL";
+
+  static String m30(count) => "${count} 年前";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -676,6 +682,19 @@ class MessageLookup extends MessageLookupByLibrary {
     "serverProfileSyncFailed": MessageLookupByLibrary.simpleMessage("无法更新代理配置"),
     "settings": MessageLookupByLibrary.simpleMessage("设置"),
     "shop": MessageLookupByLibrary.simpleMessage("商店"),
+    "shopBandwidth": MessageLookupByLibrary.simpleMessage("带宽"),
+    "shopBandwidthMbps": m26,
+    "shopBuyNow": MessageLookupByLibrary.simpleMessage("立即购买"),
+    "shopDayCount": m27,
+    "shopDays": MessageLookupByLibrary.simpleMessage("天数"),
+    "shopDevices": MessageLookupByLibrary.simpleMessage("设备数"),
+    "shopLoadFailed": MessageLookupByLibrary.simpleMessage("无法加载套餐"),
+    "shopNoPlans": MessageLookupByLibrary.simpleMessage("暂无套餐"),
+    "shopPlanTitle": MessageLookupByLibrary.simpleMessage("Plan"),
+    "shopTime": MessageLookupByLibrary.simpleMessage("时间"),
+    "shopTraffic": MessageLookupByLibrary.simpleMessage("流量"),
+    "shopTrafficGigabytes": m28,
+    "shopUnlimited": MessageLookupByLibrary.simpleMessage("不限量"),
     "show": MessageLookupByLibrary.simpleMessage("显示"),
     "shrink": MessageLookupByLibrary.simpleMessage("紧凑"),
     "silentLaunch": MessageLookupByLibrary.simpleMessage("静默启动"),
@@ -748,7 +767,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "update": MessageLookupByLibrary.simpleMessage("更新"),
     "upload": MessageLookupByLibrary.simpleMessage("上传"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m26,
+    "urlTip": m29,
     "useHosts": MessageLookupByLibrary.simpleMessage("使用Hosts"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage("使用系统Hosts"),
     "userAgent": MessageLookupByLibrary.simpleMessage("用户代理"),
@@ -764,7 +783,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnTip": MessageLookupByLibrary.simpleMessage("重启VPN后改变生效"),
     "webDAVConfiguration": MessageLookupByLibrary.simpleMessage("WebDAV配置"),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("白名单模式"),
-    "yearsAgo": m27,
+    "yearsAgo": m30,
     "zh_CN": MessageLookupByLibrary.simpleMessage("中文简体"),
   };
 }
