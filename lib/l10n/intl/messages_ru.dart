@@ -81,13 +81,17 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m26(value) => "${value} Мбит/с";
 
-  static String m27(count) => "${count} дн.";
+  static String m27(value) => "${value}M";
 
-  static String m28(value) => "${value} ГБ";
+  static String m28(count) => "${count} дн.";
 
-  static String m29(label) => "${label} должен быть URL";
+  static String m29(count) => "${count}";
 
-  static String m30(count) =>
+  static String m30(value) => "${value} ГБ";
+
+  static String m31(label) => "${label} должен быть URL";
+
+  static String m32(count) =>
       "${Intl.plural(count, one: '${count} год назад', few: '${count} года назад', many: '${count} лет назад', other: '${count} года назад')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -732,7 +736,56 @@ class MessageLookup extends MessageLookupByLibrary {
     "palette": MessageLookupByLibrary.simpleMessage("Палитра"),
     "password": MessageLookupByLibrary.simpleMessage("Пароль"),
     "paste": MessageLookupByLibrary.simpleMessage("Вставить"),
+    "personalAllOrders": MessageLookupByLibrary.simpleMessage("Все"),
+    "personalAppVersion": MessageLookupByLibrary.simpleMessage(
+      "Версия приложения",
+    ),
     "personalCenter": MessageLookupByLibrary.simpleMessage("Профиль"),
+    "personalChangePassword": MessageLookupByLibrary.simpleMessage(
+      "Изменить пароль",
+    ),
+    "personalChangePasswordFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось изменить пароль. Проверьте текущий пароль и повторите попытку.",
+    ),
+    "personalChangePasswordSuccess": MessageLookupByLibrary.simpleMessage(
+      "Пароль изменён",
+    ),
+    "personalConfirmChange": MessageLookupByLibrary.simpleMessage(
+      "Подтвердить изменение",
+    ),
+    "personalLoadFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось загрузить профиль",
+    ),
+    "personalLogout": MessageLookupByLibrary.simpleMessage("Выйти"),
+    "personalLogoutDescription": MessageLookupByLibrary.simpleMessage(
+      "При выходе текущее прокси-соединение будет остановлено.",
+    ),
+    "personalNoActivePlan": MessageLookupByLibrary.simpleMessage(
+      "Нет активного тарифа",
+    ),
+    "personalOldPassword": MessageLookupByLibrary.simpleMessage(
+      "Текущий пароль",
+    ),
+    "personalOrders": MessageLookupByLibrary.simpleMessage("Мои заказы"),
+    "personalPasswordLength": MessageLookupByLibrary.simpleMessage(
+      "Пароль должен содержать от 8 до 72 байт",
+    ),
+    "personalPendingPayment": MessageLookupByLibrary.simpleMessage(
+      "Ожидают оплаты",
+    ),
+    "personalPlan": MessageLookupByLibrary.simpleMessage("Мой тариф"),
+    "personalRemainingDays": MessageLookupByLibrary.simpleMessage(
+      "Осталось дней",
+    ),
+    "personalRemainingTraffic": MessageLookupByLibrary.simpleMessage(
+      "Осталось трафика",
+    ),
+    "personalUnlimitedDevices": MessageLookupByLibrary.simpleMessage(
+      "Без ограничения устройств",
+    ),
+    "personalUnlimitedSpeed": MessageLookupByLibrary.simpleMessage(
+      "Без ограничения скорости",
+    ),
     "pingEstimate": MessageLookupByLibrary.simpleMessage(
       "Задержка рассчитана приблизительно для вашего местоположения.",
     ),
@@ -1028,24 +1081,36 @@ class MessageLookup extends MessageLookupByLibrary {
       "Не удалось обновить конфигурацию прокси",
     ),
     "settings": MessageLookupByLibrary.simpleMessage("Настройки"),
-    "shop": MessageLookupByLibrary.simpleMessage("Магазин"),
+    "shop": MessageLookupByLibrary.simpleMessage("Тарифы"),
+    "shopAll": MessageLookupByLibrary.simpleMessage("Все"),
     "shopBandwidth": MessageLookupByLibrary.simpleMessage("Скорость"),
     "shopBandwidthMbps": m26,
-    "shopBuyNow": MessageLookupByLibrary.simpleMessage("Купить"),
-    "shopDayCount": m27,
-    "shopDays": MessageLookupByLibrary.simpleMessage("Дни"),
+    "shopBandwidthShort": m27,
+    "shopBuy": MessageLookupByLibrary.simpleMessage("Купить"),
+    "shopDayCount": m28,
+    "shopDeviceCount": m29,
     "shopDevices": MessageLookupByLibrary.simpleMessage("Устройства"),
+    "shopIntroDescription": MessageLookupByLibrary.simpleMessage(
+      "Безопасный и стабильный доступ по всему миру",
+    ),
+    "shopIntroTitle": MessageLookupByLibrary.simpleMessage(
+      "Выберите подходящий тариф",
+    ),
     "shopLoadFailed": MessageLookupByLibrary.simpleMessage(
       "Не удалось загрузить тарифы",
     ),
     "shopNoPlans": MessageLookupByLibrary.simpleMessage(
       "Нет доступных тарифов",
     ),
-    "shopPlanTitle": MessageLookupByLibrary.simpleMessage("Plan"),
-    "shopTime": MessageLookupByLibrary.simpleMessage("Время"),
-    "shopTraffic": MessageLookupByLibrary.simpleMessage("Трафик"),
-    "shopTrafficGigabytes": m28,
+    "shopPlanTitle": MessageLookupByLibrary.simpleMessage("Тарифы"),
+    "shopRecommended": MessageLookupByLibrary.simpleMessage("Рекомендуем"),
+    "shopTime": MessageLookupByLibrary.simpleMessage("По сроку"),
+    "shopTraffic": MessageLookupByLibrary.simpleMessage("По трафику"),
+    "shopTrafficGigabytes": m30,
+    "shopTrafficLabel": MessageLookupByLibrary.simpleMessage("Трафик"),
     "shopUnlimited": MessageLookupByLibrary.simpleMessage("Без ограничений"),
+    "shopUnlimitedShort": MessageLookupByLibrary.simpleMessage("∞"),
+    "shopValidity": MessageLookupByLibrary.simpleMessage("Срок"),
     "show": MessageLookupByLibrary.simpleMessage("Показать"),
     "shrink": MessageLookupByLibrary.simpleMessage("Сжать"),
     "silentLaunch": MessageLookupByLibrary.simpleMessage("Тихий запуск"),
@@ -1089,6 +1154,18 @@ class MessageLookup extends MessageLookupByLibrary {
       "Подправило не может быть пустым",
     ),
     "submit": MessageLookupByLibrary.simpleMessage("Отправить"),
+    "subscriptionPurchasePlan": MessageLookupByLibrary.simpleMessage(
+      "Купить тариф",
+    ),
+    "subscriptionRefresh": MessageLookupByLibrary.simpleMessage(
+      "Уже купили? Нажмите, чтобы обновить",
+    ),
+    "subscriptionUnavailableDescription": MessageLookupByLibrary.simpleMessage(
+      "Купите тариф, чтобы пользоваться сервисом ускорения",
+    ),
+    "subscriptionUnavailableTitle": MessageLookupByLibrary.simpleMessage(
+      "У вас нет активного тарифного плана",
+    ),
     "suspended": MessageLookupByLibrary.simpleMessage("Приостановлено..."),
     "sync": MessageLookupByLibrary.simpleMessage("Синхронизация"),
     "system": MessageLookupByLibrary.simpleMessage("Система"),
@@ -1154,7 +1231,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "update": MessageLookupByLibrary.simpleMessage("Обновить"),
     "upload": MessageLookupByLibrary.simpleMessage("Загрузка"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m29,
+    "urlTip": m31,
     "useHosts": MessageLookupByLibrary.simpleMessage("Использовать hosts"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage(
       "Использовать системные hosts",
@@ -1178,7 +1255,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "whitelistMode": MessageLookupByLibrary.simpleMessage(
       "Режим белого списка",
     ),
-    "yearsAgo": m30,
+    "yearsAgo": m32,
     "zh_CN": MessageLookupByLibrary.simpleMessage("Упрощенный китайский"),
   };
 }

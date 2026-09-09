@@ -10,6 +10,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
+enum _PlanFilter { all, time, traffic }
+
 class ShopView extends ConsumerStatefulWidget {
   const ShopView({super.key});
 
@@ -18,13 +20,11 @@ class ShopView extends ConsumerStatefulWidget {
 }
 
 class _ShopViewState extends ConsumerState<ShopView> {
-  var _selectedType = PlanType.time;
+  var _selectedFilter = _PlanFilter.all;
 
-  void _selectType(PlanType type) {
-    if (_selectedType == type) return;
-    setState(() {
-      _selectedType = type;
-    });
+  void _selectFilter(_PlanFilter filter) {
+    if (_selectedFilter == filter) return;
+    setState(() => _selectedFilter = filter);
   }
 
   void _goBack() {
@@ -35,7 +35,9 @@ class _ShopViewState extends ConsumerState<ShopView> {
   Widget build(BuildContext context) {
     final plans = ref.watch(plansProvider);
     return Scaffold(
-      backgroundColor: context.tDesign.pageBackground,
+      backgroundColor: Theme.of(context).brightness == Brightness.light
+          ? const Color(0xFFEEEEEE)
+          : context.tDesign.pageBackground,
       appBar: AppBar(
         toolbarHeight: 48,
         centerTitle: true,
@@ -56,15 +58,14 @@ class _ShopViewState extends ConsumerState<ShopView> {
       ),
       body: Column(
         children: [
-          const SizedBox(height: 16),
-          _PlanTypeTabs(selectedType: _selectedType, onSelected: _selectType),
+          _PlanFilterTabs(
+            selectedFilter: _selectedFilter,
+            onSelected: _selectFilter,
+          ),
           Expanded(
             child: plans.when(
-              data: (value) => _PlanList(
-                plans: value
-                    .where((plan) => plan.type == _selectedType)
-                    .toList(growable: false),
-              ),
+              data: (value) =>
+                  _PlanList(plans: _filterPlans(value, _selectedFilter)),
               error: (_, _) =>
                   _PlanLoadError(onRetry: () => ref.invalidate(plansProvider)),
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -76,92 +77,85 @@ class _ShopViewState extends ConsumerState<ShopView> {
   }
 }
 
-class _PlanTypeTabs extends StatelessWidget {
-  final PlanType selectedType;
-  final ValueChanged<PlanType> onSelected;
+class _PlanFilterTabs extends StatelessWidget {
+  final _PlanFilter selectedFilter;
+  final ValueChanged<_PlanFilter> onSelected;
 
-  const _PlanTypeTabs({required this.selectedType, required this.onSelected});
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: context.tDesign.container,
-        border: Border(
-          bottom: BorderSide(
-            color: context.tDesign.componentStroke,
-            width: 0.5,
-          ),
-        ),
-      ),
-      child: SizedBox(
-        height: 48,
-        child: Row(
-          children: [
-            Expanded(
-              child: _PlanTypeTab(
-                label: context.appLocalizations.shopTime,
-                selected: selectedType == PlanType.time,
-                onTap: () => onSelected(PlanType.time),
-              ),
-            ),
-            Expanded(
-              child: _PlanTypeTab(
-                label: context.appLocalizations.shopTraffic,
-                selected: selectedType == PlanType.traffic,
-                onTap: () => onSelected(PlanType.traffic),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _PlanTypeTab extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _PlanTypeTab({
-    required this.label,
-    required this.selected,
-    required this.onTap,
+  const _PlanFilterTabs({
+    required this.selectedFilter,
+    required this.onSelected,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      selected: selected,
-      child: InkWell(
-        onTap: onTap,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Text(
-              label,
-              style: selected
-                  ? context.textTheme.titleMedium?.copyWith(
-                      color: context.colorScheme.primary,
-                    )
-                  : context.textTheme.bodyLarge,
+    final tabs = [
+      (_PlanFilter.all, context.appLocalizations.shopAll),
+      (_PlanFilter.time, context.appLocalizations.shopTime),
+      (_PlanFilter.traffic, context.appLocalizations.shopTraffic),
+    ];
+    return ColoredBox(
+      color: context.tDesign.container,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final scale = MediaQuery.textScalerOf(context).scale(16) / 16;
+          final width = math.max(constraints.maxWidth / 3, 112 * scale);
+          return SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: tabs
+                  .map((tab) {
+                    final selected = selectedFilter == tab.$1;
+                    return SizedBox(
+                      width: width,
+                      height: 48,
+                      child: Semantics(
+                        button: true,
+                        selected: selected,
+                        child: InkWell(
+                          onTap: () => onSelected(tab.$1),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                ),
+                                child: Text(
+                                  tab.$2,
+                                  maxLines: 1,
+                                  textAlign: TextAlign.center,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: context.textTheme.titleMedium
+                                      ?.copyWith(
+                                        color: selected
+                                            ? context.colorScheme.primary
+                                            : context.colorScheme.onSurface,
+                                      ),
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                child: Container(
+                                  width: 16,
+                                  height: 3,
+                                  decoration: BoxDecoration(
+                                    color: selected
+                                        ? context.colorScheme.primary
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  })
+                  .toList(growable: false),
             ),
-            if (selected)
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  width: 16,
-                  height: 3,
-                  decoration: BoxDecoration(
-                    color: context.colorScheme.primary,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                ),
-              ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -178,10 +172,15 @@ class _PlanList extends StatelessWidget {
       return Center(child: Text(context.appLocalizations.shopNoPlans));
     }
     return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),
       itemCount: plans.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 16),
-      itemBuilder: (_, index) => PlanCard(plan: plans[index]),
+      separatorBuilder: (_, _) => const SizedBox(height: 20),
+      itemBuilder: (_, index) => Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: PlanCard(plan: plans[index]),
+        ),
+      ),
     );
   }
 }
@@ -216,173 +215,214 @@ class PlanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(9),
-      child: ColoredBox(
-        color: context.tDesign.pageBackground,
-        child: Column(
-          children: [
-            _PlanHeader(plan: plan),
-            const SizedBox(height: 1),
-            _PlanDetails(plan: plan),
-            const SizedBox(height: 1),
-            const _PurchaseDisplay(),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _PlanHeader extends StatelessWidget {
-  final Plan plan;
-
-  const _PlanHeader({required this.plan});
-
-  @override
-  Widget build(BuildContext context) {
     return Container(
-      height: 44,
-      color: context.tDesign.container,
-      padding: const EdgeInsets.symmetric(horizontal: 18),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              plan.name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+      constraints: const BoxConstraints(minHeight: 197),
+      padding: const EdgeInsets.fromLTRB(18, 12, 12, 14),
+      decoration: BoxDecoration(
+        color: context.tDesign.container,
+        borderRadius: BorderRadius.circular(9),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 1),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 5,
+            offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.12),
+            blurRadius: 4,
+            spreadRadius: -1,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final scale = MediaQuery.textScalerOf(context).scale(14) / 14;
+          final sideBySide = constraints.maxWidth >= 275 * scale;
+          final price = Text(
+            _formatPrice(context, plan),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.textTheme.titleMedium?.copyWith(
+              color: const Color(0xFF1265E8),
+              fontWeight: FontWeight.w600,
+            ),
+          );
+          final name = Text(
+            plan.name,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: context.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          );
+          final pricePainter = TextPainter(
+            text: TextSpan(
+              text: _formatPrice(context, plan),
               style: context.textTheme.titleMedium,
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              _formatPrice(context, plan),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: context.textTheme.titleMedium?.copyWith(
-                color: context.colorScheme.primary,
-              ),
-            ),
-          ),
-        ],
+            textDirection: Directionality.of(context),
+            textScaler: MediaQuery.textScalerOf(context),
+            locale: Localizations.localeOf(context),
+          )..layout();
+          final stackedHeader = pricePainter.width > constraints.maxWidth * 0.4;
+          pricePainter.dispose();
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (stackedHeader)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [name, const SizedBox(height: 8), price],
+                )
+              else
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: name),
+                    const SizedBox(width: 16),
+                    price,
+                  ],
+                ),
+              const SizedBox(height: 18),
+              if (sideBySide)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(child: _PlanBenefits(plan: plan)),
+                    const SizedBox(width: 12),
+                    const _PurchaseDisplay(),
+                  ],
+                )
+              else ...[
+                _PlanBenefits(plan: plan),
+                const SizedBox(height: 16),
+                const Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: _PurchaseDisplay(),
+                ),
+              ],
+            ],
+          );
+        },
       ),
     );
   }
 }
 
-class _PlanDetails extends StatelessWidget {
+class _PlanBenefits extends StatelessWidget {
   final Plan plan;
 
-  const _PlanDetails({required this.plan});
+  const _PlanBenefits({required this.plan});
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(
-      color: context.tDesign.container,
-      child: Column(
-        children: [
-          SizedBox(
-            height: 80,
-            child: Row(
-              children: [
-                Expanded(
-                  child: _PlanFeature(
-                    asset: 'assets/images/shop/time.svg',
-                    label: context.appLocalizations.shopDays,
-                    value: _formatDays(context, plan.durationDays),
-                  ),
-                ),
-                Expanded(
-                  child: _PlanFeature(
-                    asset: 'assets/images/shop/traffic.svg',
-                    label: context.appLocalizations.shopTraffic,
-                    value: _formatTraffic(context, plan.trafficBytes),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 80,
-            child: Row(
-              children: [
-                Expanded(
-                  child: _PlanFeature(
-                    asset: 'assets/images/shop/devices.svg',
-                    label: context.appLocalizations.shopDevices,
-                    value: '${plan.maxDevices}',
-                  ),
-                ),
-                Expanded(
-                  child: _PlanFeature(
-                    asset: 'assets/images/shop/bandwidth.svg',
-                    label: context.appLocalizations.shopBandwidth,
-                    value: _formatBandwidth(context, plan.speedLimitMbps),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+    final benefits = [
+      (
+        'assets/images/shop/time.svg',
+        _formatDays(context, plan.durationDays),
+        context.appLocalizations.shopValidity,
       ),
+      (
+        'assets/images/shop/traffic.svg',
+        _formatTraffic(context, plan.trafficBytes),
+        context.appLocalizations.shopTrafficLabel,
+      ),
+      (
+        'assets/images/shop/devices.svg',
+        context.appLocalizations.shopDeviceCount('${plan.maxDevices}'),
+        context.appLocalizations.shopDevices,
+      ),
+      (
+        'assets/images/shop/bandwidth.svg',
+        _formatBandwidth(context, plan.speedLimitMbps),
+        context.appLocalizations.shopBandwidth,
+      ),
+    ];
+    return Column(
+      children: [
+        _BenefitRow(benefits: benefits.take(2).toList(growable: false)),
+        const SizedBox(height: 8),
+        _BenefitRow(benefits: benefits.skip(2).toList(growable: false)),
+      ],
     );
   }
 }
 
-class _PlanFeature extends StatelessWidget {
-  final String asset;
-  final String label;
-  final String value;
+class _BenefitRow extends StatelessWidget {
+  final List<(String, String, String)> benefits;
 
-  const _PlanFeature({
+  const _BenefitRow({required this.benefits});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (var index = 0; index < benefits.length; index++) ...[
+          if (index > 0) const SizedBox(width: 12),
+          Expanded(
+            child: _PlanBenefit(
+              asset: benefits[index].$1,
+              value: benefits[index].$2,
+              label: benefits[index].$3,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _PlanBenefit extends StatelessWidget {
+  final String asset;
+  final String value;
+  final String label;
+
+  const _PlanBenefit({
     required this.asset,
-    required this.label,
     required this.value,
+    required this.label,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: context.tDesign.secondaryContainer,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: SvgPicture.asset(asset, width: 28, height: 28),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.textTheme.bodyMedium,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 3),
+          child: SvgPicture.asset(asset, width: 18, height: 18),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                value,
+                softWrap: true,
+                style: context.textTheme.bodySmall?.copyWith(
+                  color: context.colorScheme.onSurface,
                 ),
-                Text(
-                  value,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.textTheme.bodySmall?.copyWith(
-                    color: context.colorScheme.onSurface.withValues(alpha: 0.4),
-                  ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                softWrap: true,
+                style: context.textTheme.bodySmall?.copyWith(
+                  color: context.colorScheme.onSurface.withValues(alpha: 0.45),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -392,21 +432,36 @@ class _PurchaseDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = context.colorScheme.brightness == Brightness.light
-        ? const Color(0xFFD9E1FF)
-        : context.colorScheme.primaryContainer;
     return Container(
-      height: 44,
+      constraints: const BoxConstraints(minWidth: 72, minHeight: 44),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       alignment: Alignment.center,
-      color: backgroundColor,
+      decoration: BoxDecoration(
+        color: context.colorScheme.primary,
+        borderRadius: BorderRadius.circular(4),
+      ),
       child: Text(
-        context.appLocalizations.shopBuyNow,
+        context.appLocalizations.shopBuy,
+        maxLines: 1,
         style: context.textTheme.titleMedium?.copyWith(
-          color: context.colorScheme.primary,
+          color: context.colorScheme.onPrimary,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
   }
+}
+
+List<Plan> _filterPlans(List<Plan> plans, _PlanFilter filter) {
+  return switch (filter) {
+    _PlanFilter.all => plans,
+    _PlanFilter.time =>
+      plans.where((plan) => plan.type == PlanType.time).toList(growable: false),
+    _PlanFilter.traffic =>
+      plans
+          .where((plan) => plan.type == PlanType.traffic)
+          .toList(growable: false),
+  };
 }
 
 String _formatPrice(BuildContext context, Plan plan) {
@@ -430,7 +485,7 @@ String _formatDays(BuildContext context, int days) {
 }
 
 String _formatTraffic(BuildContext context, int bytes) {
-  if (bytes == 0) return context.appLocalizations.shopUnlimited;
+  if (bytes == 0) return context.appLocalizations.shopUnlimitedShort;
   final gigabytes = bytes / (1024 * 1024 * 1024);
   final value = gigabytes == gigabytes.roundToDouble()
       ? '${gigabytes.toInt()}'
@@ -440,6 +495,6 @@ String _formatTraffic(BuildContext context, int bytes) {
 
 String _formatBandwidth(BuildContext context, int mbps) {
   return mbps == 0
-      ? context.appLocalizations.shopUnlimited
-      : context.appLocalizations.shopBandwidthMbps('$mbps');
+      ? context.appLocalizations.shopUnlimitedShort
+      : context.appLocalizations.shopBandwidthShort('$mbps');
 }

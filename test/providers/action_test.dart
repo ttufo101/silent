@@ -75,6 +75,54 @@ void main() {
   });
 
   group('CoreAction', () {
+    test(
+      'publishes connected only after core initialization completes',
+      () async {
+        final container = ProviderContainer(
+          overrides: [coreActionProvider.overrideWith(_TestCoreAction.new)],
+        );
+        addTearDown(container.dispose);
+        final coreAction =
+            container.read(coreActionProvider.notifier) as _TestCoreAction;
+        final startCompleter = Completer<CoreLifecycleResult>();
+        final initCompleter = Completer<void>();
+        coreAction.startCompleter = startCompleter;
+        coreAction.initCompleter = initCompleter;
+
+        final start = coreAction.startCore();
+        await Future<void>.delayed(Duration.zero);
+        expect(container.read(coreStatusProvider), CoreStatus.connecting);
+
+        startCompleter.complete(_restartResult);
+        await Future<void>.delayed(Duration.zero);
+        expect(container.read(coreStatusProvider), CoreStatus.connecting);
+
+        initCompleter.complete();
+        await start;
+        expect(container.read(coreStatusProvider), CoreStatus.connected);
+      },
+    );
+
+    test('coalesces concurrent start requests', () async {
+      final container = ProviderContainer(
+        overrides: [coreActionProvider.overrideWith(_TestCoreAction.new)],
+      );
+      addTearDown(container.dispose);
+      final coreAction =
+          container.read(coreActionProvider.notifier) as _TestCoreAction;
+      final startCompleter = Completer<CoreLifecycleResult>();
+      coreAction.startCompleter = startCompleter;
+
+      final first = coreAction.startCore();
+      final second = coreAction.startCore();
+      await Future<void>.delayed(Duration.zero);
+
+      expect(coreAction.lifecycleStartCount, 1);
+      startCompleter.complete(_restartResult);
+      await Future.wait([first, second]);
+      expect(container.read(coreStatusProvider), CoreStatus.connected);
+    });
+
     test('applies the profile after restarting a stopped core', () async {
       final container = ProviderContainer(
         overrides: [
@@ -531,11 +579,22 @@ class _TestProfiles extends Profiles {
 }
 
 class _TestCoreAction extends CoreAction {
+  int lifecycleStartCount = 0;
   int lifecycleRestartCount = 0;
+  Completer<CoreLifecycleResult>? startCompleter;
   Completer<CoreLifecycleResult>? restartCompleter;
+  Completer<void>? initCompleter;
 
   @override
-  Future<void> initCore() async {}
+  Future<void> initCore() async {
+    await initCompleter?.future;
+  }
+
+  @override
+  Future<CoreLifecycleResult> startLifecycle() {
+    lifecycleStartCount++;
+    return startCompleter?.future ?? Future.value(_restartResult);
+  }
 
   @override
   Future<CoreLifecycleResult> restartLifecycle() {

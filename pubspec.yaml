@@ -113,7 +113,9 @@ flutter:
     - assets/images/empty/
     - assets/images/icon/
     - assets/images/dashboard/
+    - assets/images/personal/
     - assets/images/shop/
+    - assets/flags/
   fonts:
     - family: JetBrainsMono
       fonts:

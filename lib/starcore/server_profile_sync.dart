@@ -13,12 +13,17 @@ import 'package:fl_clash/providers/config.dart';
 import 'package:fl_clash/providers/database.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/starcore/data/starcore_api.dart';
+import 'package:fl_clash/starcore/subscription_access.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ServerProfileSyncResult {
-  const ServerProfileSyncResult({required this.changed});
+  const ServerProfileSyncResult({
+    required this.changed,
+    required this.hasSubscription,
+  });
 
   final bool changed;
+  final bool hasSubscription;
 }
 
 class ServerProfileSync {
@@ -49,8 +54,10 @@ class ServerProfileSync {
         : await _getValidCachedProfile(session.uid);
     if (cachedProfile != null) {
       _ref.read(currentProfileIdProvider.notifier).value = cachedProfile.id;
+      _setAccessStatus(SubscriptionAccessStatus.active);
       return true;
     }
+    _setAccessStatus(SubscriptionAccessStatus.checking);
     return false;
   }
 
@@ -100,6 +107,7 @@ class ServerProfileSync {
   void invalidate() {
     _generation++;
     _networkRecoveryTimer?.cancel();
+    _setAccessStatus(SubscriptionAccessStatus.checking);
   }
 
   void dispose() {
@@ -113,10 +121,18 @@ class ServerProfileSync {
     }
     final owner = session.uid;
     final generation = _generation;
+    var synchronizationCompleted = false;
     try {
       await _authController.ensureValidAccessToken();
-      final bytes = await _api.getLinks();
+      startupTiming.mark('access token ready');
+      final links = await _api.getLinks();
+      startupTiming.mark('subscription resolved');
       _ensureCurrent(owner, generation);
+      if (!links.hasSubscription) {
+        _setAccessStatus(SubscriptionAccessStatus.inactive);
+        return _removeSubscriptionAccess(owner, generation);
+      }
+      final bytes = links.content!;
       final contentHash = sha256.convert(bytes).toString();
       final cachedProfile = await _getValidCachedProfile(owner);
       if (cachedProfile != null) {
@@ -129,7 +145,11 @@ class ServerProfileSync {
           );
           _ref.read(currentProfileIdProvider.notifier).value = cachedProfile.id;
           _lastSyncFailed = false;
-          return const ServerProfileSyncResult(changed: false);
+          _setAccessStatus(SubscriptionAccessStatus.active);
+          return const ServerProfileSyncResult(
+            changed: false,
+            hasSubscription: true,
+          );
         }
       }
       final profiles = _ref.read(profilesProvider);
@@ -165,17 +185,61 @@ class ServerProfileSync {
         contentHash: contentHash,
         syncedAt: DateTime.now(),
       );
-      if (apply && _ref.read(initProvider)) {
-        await _ref
-            .read(setupActionProvider.notifier)
-            .applyProfile(force: true, silence: true);
-      }
       _lastSyncFailed = false;
-      return const ServerProfileSyncResult(changed: true);
+      synchronizationCompleted = true;
+      _setAccessStatus(SubscriptionAccessStatus.active);
+      startupTiming.mark('profile persisted');
+      if (apply) {
+        await applyCurrentProfile();
+      }
+      return const ServerProfileSyncResult(
+        changed: true,
+        hasSubscription: true,
+      );
     } catch (_) {
-      _lastSyncFailed = true;
+      if (!synchronizationCompleted) {
+        _lastSyncFailed = true;
+      }
       rethrow;
     }
+  }
+
+  Future<void> applyCurrentProfile() async {
+    if (!_ref.read(initProvider)) return;
+    if (_ref.read(coreStatusProvider) == CoreStatus.connected) {
+      await _ref
+          .read(setupActionProvider.notifier)
+          .applyProfile(force: true, silence: true);
+      return;
+    }
+    await globalState.ensureCoreReady();
+  }
+
+  Future<ServerProfileSyncResult> _removeSubscriptionAccess(
+    String owner,
+    int generation,
+  ) async {
+    if (_ref.read(initProvider) &&
+        _ref.read(coreStatusProvider) == CoreStatus.connected) {
+      await _ref.read(setupActionProvider.notifier).setRunning(false);
+    }
+    _ensureCurrent(owner, generation);
+    final profiles = _ref.read(profilesProvider);
+    await _ref.read(profilesProvider.notifier).replaceAll([]);
+    for (final profile in profiles) {
+      final file = File(await appPath.getProfilePath(profile.id.toString()));
+      if (await file.exists()) {
+        await file.safeDelete();
+      }
+    }
+    _ref.read(currentProfileIdProvider.notifier).value = null;
+    await preferences.clearServerProfileMetadata();
+    _ensureCurrent(owner, generation);
+    _lastSyncFailed = false;
+    return ServerProfileSyncResult(
+      changed: profiles.isNotEmpty,
+      hasSubscription: false,
+    );
   }
 
   Future<Profile?> _getValidCachedProfile(String owner) async {
@@ -194,5 +258,9 @@ class ServerProfileSync {
     if (generation != _generation || _authController.session?.uid != owner) {
       throw const GatewayException('Profile synchronization cancelled');
     }
+  }
+
+  void _setAccessStatus(SubscriptionAccessStatus value) {
+    _ref.read(subscriptionAccessStatusProvider.notifier).set(value);
   }
 }

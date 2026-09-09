@@ -169,9 +169,9 @@ class AppLocalizations {
     return Intl.message('Profiles', name: 'profiles', desc: '', args: []);
   }
 
-  /// `Shop`
+  /// `Plans`
   String get shop {
-    return Intl.message('Shop', name: 'shop', desc: '', args: []);
+    return Intl.message('Plans', name: 'shop', desc: '', args: []);
   }
 
   /// `Profile`
@@ -4699,24 +4699,59 @@ class AppLocalizations {
     return Intl.message('Retry', name: 'retry', desc: '', args: []);
   }
 
-  /// `Plan`
+  /// `Plans`
   String get shopPlanTitle {
-    return Intl.message('Plan', name: 'shopPlanTitle', desc: '', args: []);
+    return Intl.message('Plans', name: 'shopPlanTitle', desc: '', args: []);
   }
 
-  /// `Time`
+  /// `All`
+  String get shopAll {
+    return Intl.message('All', name: 'shopAll', desc: '', args: []);
+  }
+
+  /// `By time`
   String get shopTime {
-    return Intl.message('Time', name: 'shopTime', desc: '', args: []);
+    return Intl.message('By time', name: 'shopTime', desc: '', args: []);
+  }
+
+  /// `By traffic`
+  String get shopTraffic {
+    return Intl.message('By traffic', name: 'shopTraffic', desc: '', args: []);
+  }
+
+  /// `Choose a plan that fits you`
+  String get shopIntroTitle {
+    return Intl.message(
+      'Choose a plan that fits you',
+      name: 'shopIntroTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Secure, stable access worldwide`
+  String get shopIntroDescription {
+    return Intl.message(
+      'Secure, stable access worldwide',
+      name: 'shopIntroDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Validity`
+  String get shopValidity {
+    return Intl.message('Validity', name: 'shopValidity', desc: '', args: []);
   }
 
   /// `Traffic`
-  String get shopTraffic {
-    return Intl.message('Traffic', name: 'shopTraffic', desc: '', args: []);
-  }
-
-  /// `Days`
-  String get shopDays {
-    return Intl.message('Days', name: 'shopDays', desc: '', args: []);
+  String get shopTrafficLabel {
+    return Intl.message(
+      'Traffic',
+      name: 'shopTrafficLabel',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Devices`
@@ -4729,14 +4764,29 @@ class AppLocalizations {
     return Intl.message('Bandwidth', name: 'shopBandwidth', desc: '', args: []);
   }
 
-  /// `Buy now`
-  String get shopBuyNow {
-    return Intl.message('Buy now', name: 'shopBuyNow', desc: '', args: []);
+  /// `Buy`
+  String get shopBuy {
+    return Intl.message('Buy', name: 'shopBuy', desc: '', args: []);
+  }
+
+  /// `Recommended`
+  String get shopRecommended {
+    return Intl.message(
+      'Recommended',
+      name: 'shopRecommended',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Unlimited`
   String get shopUnlimited {
     return Intl.message('Unlimited', name: 'shopUnlimited', desc: '', args: []);
+  }
+
+  /// `∞`
+  String get shopUnlimitedShort {
+    return Intl.message('∞', name: 'shopUnlimitedShort', desc: '', args: []);
   }
 
   /// `No plans available`
@@ -4754,6 +4804,46 @@ class AppLocalizations {
     return Intl.message(
       'Unable to load plans',
       name: 'shopLoadFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You don't have an active subscription plan`
+  String get subscriptionUnavailableTitle {
+    return Intl.message(
+      'You don\'t have an active subscription plan',
+      name: 'subscriptionUnavailableTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Purchase a plan to use the acceleration service`
+  String get subscriptionUnavailableDescription {
+    return Intl.message(
+      'Purchase a plan to use the acceleration service',
+      name: 'subscriptionUnavailableDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Purchase a plan`
+  String get subscriptionPurchasePlan {
+    return Intl.message(
+      'Purchase a plan',
+      name: 'subscriptionPurchasePlan',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Already purchased? Tap to refresh`
+  String get subscriptionRefresh {
+    return Intl.message(
+      'Already purchased? Tap to refresh',
+      name: 'subscriptionRefresh',
       desc: '',
       args: [],
     );
@@ -4779,6 +4869,26 @@ class AppLocalizations {
     );
   }
 
+  /// `{count}`
+  String shopDeviceCount(Object count) {
+    return Intl.message(
+      '$count',
+      name: 'shopDeviceCount',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{value}M`
+  String shopBandwidthShort(Object value) {
+    return Intl.message(
+      '${value}M',
+      name: 'shopBandwidthShort',
+      desc: '',
+      args: [value],
+    );
+  }
+
   /// `{value}mbits/s`
   String shopBandwidthMbps(Object value) {
     return Intl.message(
@@ -4786,6 +4896,181 @@ class AppLocalizations {
       name: 'shopBandwidthMbps',
       desc: '',
       args: [value],
+    );
+  }
+
+  /// `My plan`
+  String get personalPlan {
+    return Intl.message('My plan', name: 'personalPlan', desc: '', args: []);
+  }
+
+  /// `Days remaining`
+  String get personalRemainingDays {
+    return Intl.message(
+      'Days remaining',
+      name: 'personalRemainingDays',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Traffic remaining`
+  String get personalRemainingTraffic {
+    return Intl.message(
+      'Traffic remaining',
+      name: 'personalRemainingTraffic',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No active plan`
+  String get personalNoActivePlan {
+    return Intl.message(
+      'No active plan',
+      name: 'personalNoActivePlan',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unable to load profile`
+  String get personalLoadFailed {
+    return Intl.message(
+      'Unable to load profile',
+      name: 'personalLoadFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unlimited devices`
+  String get personalUnlimitedDevices {
+    return Intl.message(
+      'Unlimited devices',
+      name: 'personalUnlimitedDevices',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unlimited speed`
+  String get personalUnlimitedSpeed {
+    return Intl.message(
+      'Unlimited speed',
+      name: 'personalUnlimitedSpeed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `My orders`
+  String get personalOrders {
+    return Intl.message(
+      'My orders',
+      name: 'personalOrders',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pending payment`
+  String get personalPendingPayment {
+    return Intl.message(
+      'Pending payment',
+      name: 'personalPendingPayment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All`
+  String get personalAllOrders {
+    return Intl.message('All', name: 'personalAllOrders', desc: '', args: []);
+  }
+
+  /// `Change password`
+  String get personalChangePassword {
+    return Intl.message(
+      'Change password',
+      name: 'personalChangePassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `App version`
+  String get personalAppVersion {
+    return Intl.message(
+      'App version',
+      name: 'personalAppVersion',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log out`
+  String get personalLogout {
+    return Intl.message('Log out', name: 'personalLogout', desc: '', args: []);
+  }
+
+  /// `Logging out will stop the current proxy connection.`
+  String get personalLogoutDescription {
+    return Intl.message(
+      'Logging out will stop the current proxy connection.',
+      name: 'personalLogoutDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Current password`
+  String get personalOldPassword {
+    return Intl.message(
+      'Current password',
+      name: 'personalOldPassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Confirm change`
+  String get personalConfirmChange {
+    return Intl.message(
+      'Confirm change',
+      name: 'personalConfirmChange',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Password must be between 8 and 72 bytes`
+  String get personalPasswordLength {
+    return Intl.message(
+      'Password must be between 8 and 72 bytes',
+      name: 'personalPasswordLength',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Password changed`
+  String get personalChangePasswordSuccess {
+    return Intl.message(
+      'Password changed',
+      name: 'personalChangePasswordSuccess',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unable to change password. Check your current password and try again.`
+  String get personalChangePasswordFailed {
+    return Intl.message(
+      'Unable to change password. Check your current password and try again.',
+      name: 'personalChangePasswordFailed',
+      desc: '',
+      args: [],
     );
   }
 }

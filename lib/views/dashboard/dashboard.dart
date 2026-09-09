@@ -3,6 +3,8 @@ import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
+import 'package:fl_clash/starcore/subscription_access.dart';
+import 'package:fl_clash/views/dashboard/no_subscription_view.dart';
 import 'package:fl_clash/views/dashboard/widgets/announcement_bar.dart';
 import 'package:fl_clash/views/dashboard/widgets/connected_location_card.dart';
 import 'package:fl_clash/views/proxies/home_selector.dart';
@@ -82,6 +84,46 @@ class _DashboardViewState extends ConsumerState<DashboardView>
 
   @override
   Widget build(BuildContext context) {
+    final subscriptionAccess = ref.watch(subscriptionAccessStatusProvider);
+    if (subscriptionAccess == SubscriptionAccessStatus.checking) {
+      final syncError = ref.watch(serverProfileSyncErrorProvider);
+      if (syncError != null) {
+        return Scaffold(
+          backgroundColor: context.tDesign.pageBackground,
+          body: const SafeArea(
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: _ProfileSyncFailureCard(),
+              ),
+            ),
+          ),
+        );
+      }
+      return Scaffold(
+        backgroundColor: context.tDesign.pageBackground,
+        body: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const CircularProgressIndicator(),
+                const SizedBox(height: 16),
+                Text(
+                  context.appLocalizations.loading,
+                  style: context.textTheme.bodyMedium?.copyWith(
+                    color: context.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+    if (subscriptionAccess == SubscriptionAccessStatus.inactive) {
+      return const NoSubscriptionView();
+    }
     final groups = ref.watch(currentGroupsStateProvider).value;
     final currentGroup = _currentGroup(groups);
     final connected = ref.watch(isStartProvider) && !ref.watch(suspendProvider);
@@ -575,11 +617,15 @@ class _HomeConnectButtonState extends ConsumerState<_HomeConnectButton> {
     final hasProfile = ref.watch(
       profilesProvider.select((state) => state.isNotEmpty),
     );
+    final coreStatus = ref.watch(coreStatusProvider);
     final isStart = ref.watch(isStartProvider);
     final suspend = ref.watch(suspendProvider);
     final isConnected = isStart && !suspend;
     final showDisconnectStyle = isConnected || _disconnecting;
-    final text = _switching
+    final preparing = coreStatus == CoreStatus.connecting && !_switching;
+    final text = preparing
+        ? context.appLocalizations.connecting
+        : _switching
         ? _disconnecting
               ? context.appLocalizations.disconnecting
               : context.appLocalizations.connecting
@@ -587,7 +633,7 @@ class _HomeConnectButtonState extends ConsumerState<_HomeConnectButton> {
         ? context.appLocalizations.disconnect
         : context.appLocalizations.connectNow;
     return FilledButton(
-      onPressed: !hasProfile || _switching ? null : _toggle,
+      onPressed: !hasProfile || _switching || preparing ? null : _toggle,
       style: FilledButton.styleFrom(
         backgroundColor: showDisconnectStyle ? context.colorScheme.error : null,
         foregroundColor: showDisconnectStyle

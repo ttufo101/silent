@@ -7,6 +7,7 @@ import 'package:fl_clash/views/proxies/common.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class HomeProxySelectorView extends ConsumerStatefulWidget {
   final String groupName;
@@ -77,6 +78,7 @@ class _HomeProxySelectorViewState extends ConsumerState<HomeProxySelectorView> {
         ),
     };
     final recommended = _recommendedProxy(proxies, delays);
+    final proxiesByName = {for (final proxy in proxies) proxy.name: proxy};
     return CommonScaffold(
       title: context.appLocalizations.proxies,
       centerTitle: true,
@@ -109,6 +111,7 @@ class _HomeProxySelectorViewState extends ConsumerState<HomeProxySelectorView> {
                           group: group,
                           proxy: recommended,
                           delay: delays[recommended.name],
+                          proxiesByName: proxiesByName,
                         ),
                       const SizedBox(height: 40),
                       Text(
@@ -126,6 +129,7 @@ class _HomeProxySelectorViewState extends ConsumerState<HomeProxySelectorView> {
                                         group: group,
                                         proxy: proxy,
                                         delay: delays[proxy.name],
+                                        proxiesByName: proxiesByName,
                                         isSelected:
                                             proxy.name == selectedProxyName,
                                       ),
@@ -160,15 +164,19 @@ class _RecommendedProxy extends StatelessWidget {
   final Group group;
   final Proxy proxy;
   final int? delay;
+  final Map<String, Proxy> proxiesByName;
 
   const _RecommendedProxy({
     required this.group,
     required this.proxy,
     required this.delay,
+    required this.proxiesByName,
   });
 
   @override
   Widget build(BuildContext context) {
+    final displayName = _ProxyDisplayName.parse(proxy.name);
+    final countryCode = _resolveCountryCode(proxy, proxiesByName);
     return Material(
       color: context.tDesign.container,
       shape: RoundedRectangleBorder(
@@ -188,31 +196,34 @@ class _RecommendedProxy extends StatelessWidget {
             Navigator.of(context).pop();
           }
         },
-        child: SizedBox(
-          height: 56,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 72),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 20,
-                  backgroundColor: context.colorScheme.primary,
-                  child: const Icon(Icons.bolt, color: Colors.white),
+                _ProxyFlag(
+                  countryCode: countryCode,
+                  size: 40,
+                  fallbackIcon: Icons.bolt,
+                  emphasized: true,
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       EmojiText(
-                        proxy.name,
+                        displayName.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: context.textTheme.titleMedium,
                       ),
                       Text(
                         context.appLocalizations.optimalPerformance,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: context.textTheme.bodySmall?.copyWith(
                           color: context.colorScheme.onSurfaceVariant,
                         ),
@@ -234,18 +245,21 @@ class _ProxyRow extends StatelessWidget {
   final Group group;
   final Proxy proxy;
   final int? delay;
+  final Map<String, Proxy> proxiesByName;
   final bool isSelected;
 
   const _ProxyRow({
     required this.group,
     required this.proxy,
     required this.delay,
+    required this.proxiesByName,
     required this.isSelected,
   });
 
   @override
   Widget build(BuildContext context) {
     final displayName = _ProxyDisplayName.parse(proxy.name);
+    final countryCode = _resolveCountryCode(proxy, proxiesByName);
     return InkWell(
       onTap: () {
         changeProxySelection(
@@ -263,20 +277,7 @@ class _ProxyRow extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              CircleAvatar(
-                radius: 16,
-                backgroundColor: context.colorScheme.primaryContainer,
-                child: displayName.flag == null
-                    ? Icon(
-                        Icons.public,
-                        size: 18,
-                        color: context.colorScheme.primary,
-                      )
-                    : Text(
-                        displayName.flag!,
-                        style: const TextStyle(fontSize: 18),
-                      ),
-              ),
+              _ProxyFlag(countryCode: countryCode, size: 32),
               const SizedBox(width: 16),
               Expanded(
                 child: EmojiText(
@@ -349,24 +350,86 @@ class _DelayStatus extends StatelessWidget {
 
 class _ProxyDisplayName {
   final String name;
-  final String? flag;
+  final String? countryCode;
 
-  const _ProxyDisplayName({required this.name, this.flag});
+  const _ProxyDisplayName({required this.name, this.countryCode});
 
   factory _ProxyDisplayName.parse(String value) {
-    final runes = value.runes.toList();
-    if (runes.length >= 2 &&
-        _isRegionalIndicator(runes[0]) &&
-        _isRegionalIndicator(runes[1])) {
+    if (value.length >= 4 &&
+        value[2] == ':' &&
+        _isAsciiLetter(value.codeUnitAt(0)) &&
+        _isAsciiLetter(value.codeUnitAt(1))) {
+      final name = value.substring(3).trimLeft();
       return _ProxyDisplayName(
-        name: String.fromCharCodes(runes.skip(2)).trimLeft(),
-        flag: String.fromCharCodes(runes.take(2)),
+        name: name.isEmpty ? value : name,
+        countryCode: value.substring(0, 2).toLowerCase(),
       );
     }
     return _ProxyDisplayName(name: value);
   }
 
-  static bool _isRegionalIndicator(int rune) {
-    return rune >= 0x1F1E6 && rune <= 0x1F1FF;
+  static bool _isAsciiLetter(int codeUnit) {
+    return (codeUnit >= 65 && codeUnit <= 90) ||
+        (codeUnit >= 97 && codeUnit <= 122);
+  }
+}
+
+String? _resolveCountryCode(Proxy proxy, Map<String, Proxy> proxiesByName) {
+  Proxy? current = proxy;
+  final visited = <String>{};
+  while (current != null && visited.add(current.name)) {
+    final directCode = _ProxyDisplayName.parse(current.name).countryCode;
+    if (directCode != null) return directCode;
+    final selectedName = current.now;
+    if (selectedName == null || selectedName.isEmpty) return null;
+    final selectedCode = _ProxyDisplayName.parse(selectedName).countryCode;
+    if (selectedCode != null) return selectedCode;
+    current = proxiesByName[selectedName];
+  }
+  return null;
+}
+
+class _ProxyFlag extends StatelessWidget {
+  const _ProxyFlag({
+    required this.countryCode,
+    required this.size,
+    this.fallbackIcon = Icons.public,
+    this.emphasized = false,
+  });
+
+  static const _assets = {
+    'sg': 'assets/flags/sg.svg',
+    'us': 'assets/flags/us.svg',
+  };
+
+  final String? countryCode;
+  final double size;
+  final IconData fallbackIcon;
+  final bool emphasized;
+
+  @override
+  Widget build(BuildContext context) {
+    final asset = _assets[countryCode];
+    if (asset != null) {
+      return SvgPicture.asset(
+        asset,
+        width: size,
+        height: size,
+        excludeFromSemantics: true,
+      );
+    }
+    return CircleAvatar(
+      radius: size / 2,
+      backgroundColor: emphasized
+          ? context.colorScheme.primary
+          : context.colorScheme.primaryContainer,
+      child: Icon(
+        fallbackIcon,
+        size: size * 0.56,
+        color: emphasized
+            ? context.colorScheme.onPrimary
+            : context.colorScheme.primary,
+      ),
+    );
   }
 }

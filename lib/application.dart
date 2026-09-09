@@ -33,6 +33,7 @@ class ApplicationState extends ConsumerState<Application> {
   late final ServerProfileSync _profileSync;
   bool _showSplash = true;
   bool _appAttached = false;
+  bool _authenticatedStartupStarted = false;
   Future<void>? _attachTask;
 
   final _pageTransitionsTheme = const PageTransitionsTheme(
@@ -57,20 +58,36 @@ class ApplicationState extends ConsumerState<Application> {
       ..addListener(_handleAuthChanged);
     _profileSync = ref.read(serverProfileSyncProvider);
     SystemNavigator.setFrameworkHandlesBack(true);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _initializeAuth());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!ref.read(appSettingProvider).silentLaunch) {
+        window?.show();
+      }
+      _initializeAuth();
+    });
   }
 
   Future<void> _initializeAuth() async {
     await _authController.initialize();
+    startupTiming.mark('authentication restored');
     if (_authController.status != AuthStatus.authenticated && mounted) {
       setState(() => _showSplash = false);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        startupTiming.finish('login screen first frame');
+      });
     }
   }
 
   void _handleAuthChanged() {
     if (_authController.status == AuthStatus.authenticated) {
+      if (!_authenticatedStartupStarted) {
+        _authenticatedStartupStarted = true;
+        startupTiming.start();
+        startupTiming.mark('authenticated session ready');
+      }
+      ref.read(serverProfileSyncErrorProvider.notifier).set(null);
       unawaited(_prepareAndAttach());
     } else if (mounted) {
+      _authenticatedStartupStarted = false;
       _profileSync.invalidate();
       if (_appAttached) {
         unawaited(ref.read(setupActionProvider.notifier).setRunning(false));
@@ -108,39 +125,90 @@ class ApplicationState extends ConsumerState<Application> {
       });
     }
     try {
-      await _profileSync.prepare();
+      final hasCachedProfile = await _profileSync.prepare();
+      startupTiming.mark(
+        hasCachedProfile ? 'profile cache ready' : 'profile cache missing',
+      );
       if (!_appAttached) {
         if (globalState.navigatorKey.currentContext == null) {
           exit(0);
         }
-        await globalState.attach();
+        await globalState.attach(startCore: false);
         _appAttached = true;
-        _requestInitialVpnPermissionAfterFrame();
-      } else {
-        await ref
-            .read(setupActionProvider.notifier)
-            .applyProfile(force: true, silence: true);
       }
       app?.initShortcuts();
       if (!mounted) return;
       setState(() => _showSplash = false);
-      unawaited(_synchronizeProfile());
+      startupTiming.mark('home requested');
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        startupTiming.mark('home first frame');
+      });
+      unawaited(_completeStartup(hasCachedProfile: hasCachedProfile));
     } catch (error) {
       if (!mounted) return;
       setState(() {
         _showSplash = false;
       });
       ref.read(serverProfileSyncErrorProvider.notifier).set(error.toString());
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        startupTiming.finish('home first frame with startup error');
+      });
     }
   }
 
-  Future<void> _synchronizeProfile() async {
+  Future<void> _completeStartup({required bool hasCachedProfile}) async {
     try {
-      await _profileSync.synchronize();
-      ref.read(serverProfileSyncErrorProvider.notifier).set(null);
+      var coreReady = false;
+      if (hasCachedProfile) {
+        try {
+          await globalState.ensureCoreReady();
+          coreReady = true;
+          startupTiming.mark('core ready from cache');
+        } catch (error) {
+          commonPrint.log(error.toString(), logLevel: LogLevel.warning);
+          startupTiming.mark('core preparation from cache failed');
+        }
+      }
+      startupTiming.mark('profile synchronization requested');
+      final synchronizationResult = await _synchronizeProfile(apply: false);
+      startupTiming.mark('profile synchronization completed');
+      final hasSubscription =
+          synchronizationResult?.hasSubscription ?? hasCachedProfile;
+      if (hasSubscription) {
+        if (!coreReady || synchronizationResult?.changed == true) {
+          try {
+            await _profileSync.applyCurrentProfile();
+            startupTiming.mark('synchronized profile ready');
+          } catch (error) {
+            commonPrint.log(error.toString(), logLevel: LogLevel.warning);
+            startupTiming.mark('synchronized profile preparation failed');
+          }
+        }
+        _requestInitialVpnPermissionAfterFrame();
+      }
+      startupTiming.finish(
+        synchronizationResult != null
+            ? 'background startup complete'
+            : 'background startup failed',
+      );
     } catch (error) {
       commonPrint.log(error.toString(), logLevel: LogLevel.warning);
       ref.read(serverProfileSyncErrorProvider.notifier).set(error.toString());
+      startupTiming.finish('background startup failed');
+    }
+  }
+
+  Future<ServerProfileSyncResult?> _synchronizeProfile({
+    required bool apply,
+  }) async {
+    try {
+      final result = await _profileSync.synchronize(apply: apply);
+      ref.read(serverProfileSyncErrorProvider.notifier).set(null);
+      return result;
+    } catch (error) {
+      commonPrint.log(error.toString(), logLevel: LogLevel.warning);
+      ref.read(serverProfileSyncErrorProvider.notifier).set(error.toString());
+      return null;
     }
   }
 
@@ -255,13 +323,15 @@ class _SplashView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: const Color(0xFFF4F6FF),
+      color: MediaQuery.platformBrightnessOf(context) == Brightness.dark
+          ? const Color(0xFF101828)
+          : const Color(0xFFF6F8FC),
       child: SafeArea(
         child: Center(
           child: Image.asset(
-            'assets/images/start.png',
-            width: double.infinity,
-            height: double.infinity,
+            'assets/images/splash.png',
+            width: 288,
+            height: 288,
             fit: BoxFit.contain,
           ),
         ),

@@ -1,5 +1,58 @@
 # Architecture
 
+## 客户端目录导航
+
+以下路径均相对客户端仓库根目录。
+
+| 路径 | 职责与阅读入口 |
+| --- | --- |
+| `lib/main.dart`、`lib/application.dart`、`lib/state.dart` | 平台初始化、应用装配、登录门控与全局状态 |
+| `lib/auth/` | 认证页面、AuthController、安全会话存储、HTTP Gateway 和认证 API |
+| `lib/starcore/` | 套餐模型与 API、服务器 Profile 同步；远程业务模块，不是本地 Go Core |
+| `lib/pages/`、`lib/views/`、`lib/widgets/` | 页面容器、业务视图、共享组件；套餐页面入口为 `lib/views/shop/shop.dart` |
+| `lib/providers/`、`lib/providers/actions/` | 应用状态与业务动作；`action.dart` 是拆分 action 的公共入口 |
+| `lib/manager/` | 平台与应用生命周期协调 |
+| `lib/models/`、`lib/database/` | 配置模型、Profile 等本地数据与 Drift 持久化 |
+| `lib/common/`、`lib/enum/` | 公共能力、偏好设置与枚举；`common/request.dart` 与业务 Gateway 职责不同 |
+| `lib/core/`、`core/` | Dart Core 接口及 Go 包装层；`core/Clash.Meta/` 是代理内核子模块 |
+| `lib/plugins/`、`plugins/` | Dart 平台桥接与随仓库维护的本地插件，详见下文 Local Plugins |
+| `android/`、`windows/`、`macos/`、`linux/`、`services/helper/` | 原生宿主、Android 服务与 Windows 特权 Helper |
+| `arb/`、`lib/l10n/`、`assets/` | 本地化源文件、生成本地化输出和运行时资源 |
+| `setup.dart`、`Makefile`、`plugins/setup/` | 发布打包和原生产物构建入口 |
+| `test/`、`tool/` | 根包测试与仓库工具；插件测试另有所属包 |
+
+## 认证与服务器配置调用链
+
+源码入口：`lib/main.dart`、`lib/application.dart`、`lib/auth/auth_controller.dart`、
+`lib/auth/providers.dart`、`lib/starcore/server_profile_sync.dart`。
+
+1. `main()` 初始化 Flutter、桌面 Rust bridge、系统与全局 Provider 容器，再挂载 `Application`。
+2. `Application` 首帧后调用 `AuthController.initialize()` 恢复安全存储的会话；未认证时显示登录页。
+3. 登录成功或会话恢复后，`_prepareAndAttach()` 合并重复装配请求。应用先检查本地 Profile 缓存并完成不含 Core 的基础装配，
+   随即关闭启动页；远程权益同步与 Core 准备在后台继续，首页通过权益和 Core 状态展示准备过程。
+4. 有有效缓存时后台先通过 `ensureCoreReady()` 恢复 Core，再校验远程配置；没有缓存时先调用 `synchronize()`，
+   配置可靠落盘后立即展示有效权益页面，再在后台启动 Core。无有效套餐或首次同步失败时不启动 Core；同步失败写入
+   `serverProfileSyncErrorProvider`，已有界面提供重试入口。
+5. 同步器显式确保 Access Token 有效，再通过 `StarcoreApi.getLinks()` 获取权益状态；有有效套餐时下载并 base64 解码配置，
+   在配置可靠落盘后将权益状态切换为有效，Core 准备与配置应用不阻塞页面展示。无有效套餐时先切换权益状态，
+   再停止代理、清理服务器 Profile 和同步元数据，并由首页展示购买与刷新入口。
+   缓存有效性检查包括用户 UID、单个 Profile、文件存在性与 SHA256；上次运行崩溃时 `prepare()` 跳过缓存。
+6. 内容相同则更新时间并选择缓存；内容变化则保存配置，`replaceAll([savedProfile])` 收敛为单个服务器 Profile，
+   清理被替换的旧 Profile 文件。相同用户保留所选代理组等覆盖设置，切换用户时重置相关设置。
+7. `apply` 为真且应用已初始化时，已连接 Core 通过 `SetupAction.applyProfile(force: true, silence: true)` 应用配置；
+   首次由无套餐状态恢复时通过 `GlobalState.ensureCoreReady()` 进入既有 Core 启动和状态初始化链路。
+
+同步器通过 `_activeTask` 合并并发同步，通过 generation 与 UID 检查识别过期请求；这些检查不是覆盖全部异步写入的事务保证。
+`synchronizeIfStale()` 在缓存超过 20 分钟、用户变化、缺少元数据或上次失败时重新同步。
+应用恢复入口见 `lib/manager/app_manager.dart`；网络恢复由 `Application` 调用 3 秒延迟同步；
+手动刷新入口见 `lib/views/proxies/home_selector.dart` 与仪表盘。
+
+退出登录先清除安全会话和 Gateway Token，再通知 UI；`Application` 使配置同步失效，并在已装配时请求停止运行。
+这不是清空全部本地 Profile 的流程。认证协议、刷新责任与接口适配限制见 [backend-contract.md](backend-contract.md)。
+
+启动阶段通过 `common/startup_timing.dart` 输出 `startup` 时间线，记录 Flutter binding、平台信息、迁移、数据库、
+本地化、认证恢复、缓存检查、首页首帧、Core 准备和后台同步耗时。首页可见不再依赖远程请求或 Core 完成。
+
 ## Core Integration
 
 The Go proxy core in `core/` operates in two modes.

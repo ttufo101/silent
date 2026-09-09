@@ -75,13 +75,17 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m26(value) => "${value}mbits/s";
 
-  static String m27(count) => "${count}天";
+  static String m27(value) => "${value}M";
 
-  static String m28(value) => "${value}G";
+  static String m28(count) => "${count}天";
 
-  static String m29(label) => "${label}必须为URL";
+  static String m29(count) => "${count}台";
 
-  static String m30(count) => "${count} 年前";
+  static String m30(value) => "${value}G";
+
+  static String m31(label) => "${label}必须为URL";
+
+  static String m32(count) => "${count} 年前";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -485,7 +489,34 @@ class MessageLookup extends MessageLookupByLibrary {
     "palette": MessageLookupByLibrary.simpleMessage("调色板"),
     "password": MessageLookupByLibrary.simpleMessage("密码"),
     "paste": MessageLookupByLibrary.simpleMessage("粘贴"),
+    "personalAllOrders": MessageLookupByLibrary.simpleMessage("全部"),
+    "personalAppVersion": MessageLookupByLibrary.simpleMessage("应用版本"),
     "personalCenter": MessageLookupByLibrary.simpleMessage("个人中心"),
+    "personalChangePassword": MessageLookupByLibrary.simpleMessage("修改密码"),
+    "personalChangePasswordFailed": MessageLookupByLibrary.simpleMessage(
+      "密码修改失败，请检查当前密码后重试",
+    ),
+    "personalChangePasswordSuccess": MessageLookupByLibrary.simpleMessage(
+      "密码修改成功",
+    ),
+    "personalConfirmChange": MessageLookupByLibrary.simpleMessage("确认修改"),
+    "personalLoadFailed": MessageLookupByLibrary.simpleMessage("无法加载个人信息"),
+    "personalLogout": MessageLookupByLibrary.simpleMessage("退出登录"),
+    "personalLogoutDescription": MessageLookupByLibrary.simpleMessage(
+      "退出后将停止当前代理连接。",
+    ),
+    "personalNoActivePlan": MessageLookupByLibrary.simpleMessage("暂无有效套餐"),
+    "personalOldPassword": MessageLookupByLibrary.simpleMessage("当前密码"),
+    "personalOrders": MessageLookupByLibrary.simpleMessage("我的订单"),
+    "personalPasswordLength": MessageLookupByLibrary.simpleMessage(
+      "密码长度必须为 8 至 72 字节",
+    ),
+    "personalPendingPayment": MessageLookupByLibrary.simpleMessage("待支付"),
+    "personalPlan": MessageLookupByLibrary.simpleMessage("我的套餐"),
+    "personalRemainingDays": MessageLookupByLibrary.simpleMessage("剩余天数"),
+    "personalRemainingTraffic": MessageLookupByLibrary.simpleMessage("剩余流量"),
+    "personalUnlimitedDevices": MessageLookupByLibrary.simpleMessage("不限设备"),
+    "personalUnlimitedSpeed": MessageLookupByLibrary.simpleMessage("不限速"),
     "pingEstimate": MessageLookupByLibrary.simpleMessage("延迟根据你当前所在位置估算。"),
     "pleaseBindWebDAV": MessageLookupByLibrary.simpleMessage("请绑定WebDAV"),
     "pleaseEnterScriptName": MessageLookupByLibrary.simpleMessage("请输入脚本名称"),
@@ -681,20 +712,30 @@ class MessageLookup extends MessageLookupByLibrary {
     "serverProfileLoadFailed": MessageLookupByLibrary.simpleMessage("无法加载代理配置"),
     "serverProfileSyncFailed": MessageLookupByLibrary.simpleMessage("无法更新代理配置"),
     "settings": MessageLookupByLibrary.simpleMessage("设置"),
-    "shop": MessageLookupByLibrary.simpleMessage("商店"),
+    "shop": MessageLookupByLibrary.simpleMessage("套餐"),
+    "shopAll": MessageLookupByLibrary.simpleMessage("全部"),
     "shopBandwidth": MessageLookupByLibrary.simpleMessage("带宽"),
     "shopBandwidthMbps": m26,
-    "shopBuyNow": MessageLookupByLibrary.simpleMessage("立即购买"),
-    "shopDayCount": m27,
-    "shopDays": MessageLookupByLibrary.simpleMessage("天数"),
+    "shopBandwidthShort": m27,
+    "shopBuy": MessageLookupByLibrary.simpleMessage("购买"),
+    "shopDayCount": m28,
+    "shopDeviceCount": m29,
     "shopDevices": MessageLookupByLibrary.simpleMessage("设备数"),
+    "shopIntroDescription": MessageLookupByLibrary.simpleMessage(
+      "安全、稳定，畅享全球网络",
+    ),
+    "shopIntroTitle": MessageLookupByLibrary.simpleMessage("选择适合你的套餐"),
     "shopLoadFailed": MessageLookupByLibrary.simpleMessage("无法加载套餐"),
     "shopNoPlans": MessageLookupByLibrary.simpleMessage("暂无套餐"),
-    "shopPlanTitle": MessageLookupByLibrary.simpleMessage("Plan"),
-    "shopTime": MessageLookupByLibrary.simpleMessage("时间"),
-    "shopTraffic": MessageLookupByLibrary.simpleMessage("流量"),
-    "shopTrafficGigabytes": m28,
+    "shopPlanTitle": MessageLookupByLibrary.simpleMessage("套餐"),
+    "shopRecommended": MessageLookupByLibrary.simpleMessage("推荐"),
+    "shopTime": MessageLookupByLibrary.simpleMessage("按时间"),
+    "shopTraffic": MessageLookupByLibrary.simpleMessage("按流量"),
+    "shopTrafficGigabytes": m30,
+    "shopTrafficLabel": MessageLookupByLibrary.simpleMessage("流量"),
     "shopUnlimited": MessageLookupByLibrary.simpleMessage("不限量"),
+    "shopUnlimitedShort": MessageLookupByLibrary.simpleMessage("不限"),
+    "shopValidity": MessageLookupByLibrary.simpleMessage("有效期"),
     "show": MessageLookupByLibrary.simpleMessage("显示"),
     "shrink": MessageLookupByLibrary.simpleMessage("紧凑"),
     "silentLaunch": MessageLookupByLibrary.simpleMessage("静默启动"),
@@ -726,6 +767,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "subRuleEmpty": MessageLookupByLibrary.simpleMessage("子规则为空"),
     "subRuleNotEmpty": MessageLookupByLibrary.simpleMessage("子规则不能为空"),
     "submit": MessageLookupByLibrary.simpleMessage("提交"),
+    "subscriptionPurchasePlan": MessageLookupByLibrary.simpleMessage("购买套餐"),
+    "subscriptionRefresh": MessageLookupByLibrary.simpleMessage("已购买？点击刷新"),
+    "subscriptionUnavailableDescription": MessageLookupByLibrary.simpleMessage(
+      "购买套餐后即可使用加速服务",
+    ),
+    "subscriptionUnavailableTitle": MessageLookupByLibrary.simpleMessage(
+      "您当前没有有效的订阅套餐",
+    ),
     "suspended": MessageLookupByLibrary.simpleMessage("挂起中..."),
     "sync": MessageLookupByLibrary.simpleMessage("同步"),
     "system": MessageLookupByLibrary.simpleMessage("系统"),
@@ -767,7 +816,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "update": MessageLookupByLibrary.simpleMessage("更新"),
     "upload": MessageLookupByLibrary.simpleMessage("上传"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m29,
+    "urlTip": m31,
     "useHosts": MessageLookupByLibrary.simpleMessage("使用Hosts"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage("使用系统Hosts"),
     "userAgent": MessageLookupByLibrary.simpleMessage("用户代理"),
@@ -783,7 +832,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnTip": MessageLookupByLibrary.simpleMessage("重启VPN后改变生效"),
     "webDAVConfiguration": MessageLookupByLibrary.simpleMessage("WebDAV配置"),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("白名单模式"),
-    "yearsAgo": m30,
+    "yearsAgo": m32,
     "zh_CN": MessageLookupByLibrary.simpleMessage("中文简体"),
   };
 }

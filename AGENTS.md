@@ -15,12 +15,17 @@ Read these only when the task touches their area:
 
 - [.agents/architecture.md](.agents/architecture.md): core integration, providers, database, managers, build system, and
   local plugins.
+- [.agents/backend-contract.md](.agents/backend-contract.md): Starland protocol repository, HTTP Gateway contract,
+  implemented business APIs, authentication, and unresolved wire-format differences.
 - [.agents/agent-config.md](.agents/agent-config.md): how to choose between `AGENTS.md`, `.agents`, skills, Codex config,
   command rules, and hooks.
 - [.agents/skills.md](.agents/skills.md): index of repo-scoped skills in `.agents/skills/`.
 
 ## Highest Priority Rules
 
+- Remote Starland business requests use HTTP JSON through `lib/auth/data/gateway_client.dart`; the Gateway converts
+  requests to backend protobuf. Read `.agents/backend-contract.md` before changing this boundary. Keep it separate from
+  the local proxy Core protocol and Windows Helper HTTP API.
 - When the user explicitly requests a scoped, low-risk change, inspect the relevant context and implement it directly.
   Do not require brainstorming, design documents, implementation plans, multiple-option proposals, or repeated confirmation.
   Ask only when material ambiguity, destructive impact, additional authority, or scope expansion could change the result.

@@ -3,6 +3,7 @@ part of '../action.dart';
 @Riverpod(keepAlive: true)
 class CoreAction extends _$CoreAction {
   int _requestedRestartRevision = 0;
+  Future<void>? _startOperation;
   Future<void>? _restartOperation;
 
   @override
@@ -20,15 +21,34 @@ class CoreAction extends _$CoreAction {
     }
   }
 
-  Future<void> startCore() async {
+  @protected
+  Future<CoreLifecycleResult> startLifecycle() {
+    return coreController.start();
+  }
+
+  Future<void> startCore() {
+    final activeOperation = _startOperation;
+    if (activeOperation != null) {
+      return activeOperation;
+    }
+
+    final operation = _runStartCore();
+    _startOperation = operation;
+    return operation;
+  }
+
+  Future<void> _runStartCore() async {
     ref.read(coreStatusProvider.notifier).value = CoreStatus.connecting;
     try {
-      await coreController.start();
-      ref.read(coreStatusProvider.notifier).value = CoreStatus.connected;
+      await startLifecycle();
       await initCore();
+      ref.read(coreStatusProvider.notifier).value = CoreStatus.connected;
     } catch (error) {
       ref.read(coreStatusProvider.notifier).value = CoreStatus.disconnected;
       globalState.showNotifier(error.toString());
+      rethrow;
+    } finally {
+      _startOperation = null;
     }
   }
 
@@ -53,8 +73,8 @@ class CoreAction extends _$CoreAction {
     try {
       ref.read(coreStatusProvider.notifier).value = CoreStatus.connecting;
       await restartLifecycle();
-      ref.read(coreStatusProvider.notifier).value = CoreStatus.connected;
       await initCore();
+      ref.read(coreStatusProvider.notifier).value = CoreStatus.connected;
 
       var appliedRevision = 0;
       while (appliedRevision < _requestedRestartRevision) {

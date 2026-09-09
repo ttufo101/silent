@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -42,10 +43,21 @@ class GatewayClient {
     required String module,
     required String method,
     required Map<String, dynamic> params,
+    Duration? requestTimeout,
   }) async {
+    final cancelToken = CancelToken();
+    Timer? timeoutTimer;
+    var requestTimedOut = false;
+    if (requestTimeout != null) {
+      timeoutTimer = Timer(requestTimeout, () {
+        requestTimedOut = true;
+        cancelToken.cancel();
+      });
+    }
     try {
       final response = await _dio.post<Map<String, dynamic>>(
         _path,
+        cancelToken: cancelToken,
         data: {
           'com': {...await _getCommonFields(), 'jwt_token': accessToken ?? ''},
           'req': {'module': module, 'method': method, 'params': params},
@@ -71,9 +83,14 @@ class GatewayClient {
     } on GatewayException {
       rethrow;
     } on DioException catch (error) {
+      if (requestTimedOut) {
+        throw const GatewayException('Request timed out');
+      }
       throw GatewayException(_networkMessage(error));
     } on FormatException {
       throw const GatewayException('Invalid gateway response data');
+    } finally {
+      timeoutTimer?.cancel();
     }
   }
 

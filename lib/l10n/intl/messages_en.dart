@@ -82,13 +82,17 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m26(value) => "${value}mbits/s";
 
-  static String m27(count) => "${count} days";
+  static String m27(value) => "${value}M";
 
-  static String m28(value) => "${value}G";
+  static String m28(count) => "${count} days";
 
-  static String m29(label) => "${label} must be a url";
+  static String m29(count) => "${count}";
 
-  static String m30(count) =>
+  static String m30(value) => "${value}G";
+
+  static String m31(label) => "${label} must be a url";
+
+  static String m32(count) =>
       "${Intl.plural(count, one: '1 year ago', other: '${count} years ago')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -699,7 +703,54 @@ class MessageLookup extends MessageLookupByLibrary {
     "palette": MessageLookupByLibrary.simpleMessage("Palette"),
     "password": MessageLookupByLibrary.simpleMessage("Password"),
     "paste": MessageLookupByLibrary.simpleMessage("Paste"),
+    "personalAllOrders": MessageLookupByLibrary.simpleMessage("All"),
+    "personalAppVersion": MessageLookupByLibrary.simpleMessage("App version"),
     "personalCenter": MessageLookupByLibrary.simpleMessage("Profile"),
+    "personalChangePassword": MessageLookupByLibrary.simpleMessage(
+      "Change password",
+    ),
+    "personalChangePasswordFailed": MessageLookupByLibrary.simpleMessage(
+      "Unable to change password. Check your current password and try again.",
+    ),
+    "personalChangePasswordSuccess": MessageLookupByLibrary.simpleMessage(
+      "Password changed",
+    ),
+    "personalConfirmChange": MessageLookupByLibrary.simpleMessage(
+      "Confirm change",
+    ),
+    "personalLoadFailed": MessageLookupByLibrary.simpleMessage(
+      "Unable to load profile",
+    ),
+    "personalLogout": MessageLookupByLibrary.simpleMessage("Log out"),
+    "personalLogoutDescription": MessageLookupByLibrary.simpleMessage(
+      "Logging out will stop the current proxy connection.",
+    ),
+    "personalNoActivePlan": MessageLookupByLibrary.simpleMessage(
+      "No active plan",
+    ),
+    "personalOldPassword": MessageLookupByLibrary.simpleMessage(
+      "Current password",
+    ),
+    "personalOrders": MessageLookupByLibrary.simpleMessage("My orders"),
+    "personalPasswordLength": MessageLookupByLibrary.simpleMessage(
+      "Password must be between 8 and 72 bytes",
+    ),
+    "personalPendingPayment": MessageLookupByLibrary.simpleMessage(
+      "Pending payment",
+    ),
+    "personalPlan": MessageLookupByLibrary.simpleMessage("My plan"),
+    "personalRemainingDays": MessageLookupByLibrary.simpleMessage(
+      "Days remaining",
+    ),
+    "personalRemainingTraffic": MessageLookupByLibrary.simpleMessage(
+      "Traffic remaining",
+    ),
+    "personalUnlimitedDevices": MessageLookupByLibrary.simpleMessage(
+      "Unlimited devices",
+    ),
+    "personalUnlimitedSpeed": MessageLookupByLibrary.simpleMessage(
+      "Unlimited speed",
+    ),
     "pingEstimate": MessageLookupByLibrary.simpleMessage(
       "Pings are estimated based on your current location.",
     ),
@@ -983,22 +1034,34 @@ class MessageLookup extends MessageLookupByLibrary {
       "Unable to update proxy configuration",
     ),
     "settings": MessageLookupByLibrary.simpleMessage("Settings"),
-    "shop": MessageLookupByLibrary.simpleMessage("Shop"),
+    "shop": MessageLookupByLibrary.simpleMessage("Plans"),
+    "shopAll": MessageLookupByLibrary.simpleMessage("All"),
     "shopBandwidth": MessageLookupByLibrary.simpleMessage("Bandwidth"),
     "shopBandwidthMbps": m26,
-    "shopBuyNow": MessageLookupByLibrary.simpleMessage("Buy now"),
-    "shopDayCount": m27,
-    "shopDays": MessageLookupByLibrary.simpleMessage("Days"),
+    "shopBandwidthShort": m27,
+    "shopBuy": MessageLookupByLibrary.simpleMessage("Buy"),
+    "shopDayCount": m28,
+    "shopDeviceCount": m29,
     "shopDevices": MessageLookupByLibrary.simpleMessage("Devices"),
+    "shopIntroDescription": MessageLookupByLibrary.simpleMessage(
+      "Secure, stable access worldwide",
+    ),
+    "shopIntroTitle": MessageLookupByLibrary.simpleMessage(
+      "Choose a plan that fits you",
+    ),
     "shopLoadFailed": MessageLookupByLibrary.simpleMessage(
       "Unable to load plans",
     ),
     "shopNoPlans": MessageLookupByLibrary.simpleMessage("No plans available"),
-    "shopPlanTitle": MessageLookupByLibrary.simpleMessage("Plan"),
-    "shopTime": MessageLookupByLibrary.simpleMessage("Time"),
-    "shopTraffic": MessageLookupByLibrary.simpleMessage("Traffic"),
-    "shopTrafficGigabytes": m28,
+    "shopPlanTitle": MessageLookupByLibrary.simpleMessage("Plans"),
+    "shopRecommended": MessageLookupByLibrary.simpleMessage("Recommended"),
+    "shopTime": MessageLookupByLibrary.simpleMessage("By time"),
+    "shopTraffic": MessageLookupByLibrary.simpleMessage("By traffic"),
+    "shopTrafficGigabytes": m30,
+    "shopTrafficLabel": MessageLookupByLibrary.simpleMessage("Traffic"),
     "shopUnlimited": MessageLookupByLibrary.simpleMessage("Unlimited"),
+    "shopUnlimitedShort": MessageLookupByLibrary.simpleMessage("∞"),
+    "shopValidity": MessageLookupByLibrary.simpleMessage("Validity"),
     "show": MessageLookupByLibrary.simpleMessage("Show"),
     "shrink": MessageLookupByLibrary.simpleMessage("Shrink"),
     "silentLaunch": MessageLookupByLibrary.simpleMessage("SilentLaunch"),
@@ -1038,6 +1101,18 @@ class MessageLookup extends MessageLookupByLibrary {
       "Sub rule cannot be empty",
     ),
     "submit": MessageLookupByLibrary.simpleMessage("Submit"),
+    "subscriptionPurchasePlan": MessageLookupByLibrary.simpleMessage(
+      "Purchase a plan",
+    ),
+    "subscriptionRefresh": MessageLookupByLibrary.simpleMessage(
+      "Already purchased? Tap to refresh",
+    ),
+    "subscriptionUnavailableDescription": MessageLookupByLibrary.simpleMessage(
+      "Purchase a plan to use the acceleration service",
+    ),
+    "subscriptionUnavailableTitle": MessageLookupByLibrary.simpleMessage(
+      "You don\'t have an active subscription plan",
+    ),
     "suspended": MessageLookupByLibrary.simpleMessage("Suspended..."),
     "sync": MessageLookupByLibrary.simpleMessage("Sync"),
     "system": MessageLookupByLibrary.simpleMessage("System"),
@@ -1093,7 +1168,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "update": MessageLookupByLibrary.simpleMessage("Update"),
     "upload": MessageLookupByLibrary.simpleMessage("Upload"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m29,
+    "urlTip": m31,
     "useHosts": MessageLookupByLibrary.simpleMessage("Use hosts"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage("Use system hosts"),
     "userAgent": MessageLookupByLibrary.simpleMessage("User-Agent"),
@@ -1113,7 +1188,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "WebDAV configuration",
     ),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("Whitelist mode"),
-    "yearsAgo": m30,
+    "yearsAgo": m32,
     "zh_CN": MessageLookupByLibrary.simpleMessage("Simplified Chinese"),
   };
 }

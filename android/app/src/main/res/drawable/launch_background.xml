@@ -1,13 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="rectangle">
-            <solid android:color="#F4F6FF" />
-        </shape>
-    </item>
-    <item>
-        <bitmap
-            android:gravity="center"
-            android:src="@drawable/start_screen" />
-    </item>
+    <item android:drawable="@color/splash_background" />
+    <item android:width="288dp" android:height="288dp" android:gravity="center" android:drawable="@drawable/splash_icon" />
 </layer-list>

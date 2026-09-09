@@ -67,7 +67,9 @@ class GlobalState {
 
   Future<ProviderContainer> _initData(int version) async {
     packageInfo = await PackageInfo.fromPlatform();
+    startupTiming.mark('package info ready');
     var config = await migration.run();
+    startupTiming.mark('preferences and migration ready');
     final platformBrightness =
         WidgetsBinding.instance.platformDispatcher.platformBrightness;
     if (config.appSettingProps.themeMode == ThemeMode.system) {
@@ -81,6 +83,7 @@ class GlobalState {
       await preferences.saveConfig(config);
     }
     _didCrashOnPreviousExecution = await system.didCrashOnPreviousExecution();
+    startupTiming.mark('crash state ready');
     if (_didCrashOnPreviousExecution) {
       config = config.copyWith(currentProfileId: null);
       await preferences.saveConfig(config);
@@ -101,15 +104,18 @@ class GlobalState {
       overrides: [...appStateOverrides, ...configOverrides],
     );
     final profiles = await database.profilesDao.query().get();
+    startupTiming.mark('database profiles ready');
     container.read(profilesProvider.notifier).setAndReorder(profiles);
     await AppLocalizations.load(
       utils.getLocaleForString(config.appSettingProps.locale) ??
           WidgetsBinding.instance.platformDispatcher.locale,
     );
+    startupTiming.mark('localizations ready');
     await window?.init(version, config.windowProps);
     if (system.isAndroid) {
       await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     }
+    startupTiming.mark('platform shell ready');
     return container;
   }
 
@@ -290,15 +296,15 @@ class GlobalState {
     launchUrl(Uri.parse(url));
   }
 
-  Future<void> attach() async {
+  Future<void> attach({bool startCore = true}) async {
     if (isAttach == true) {
       return;
     }
-    await _initApp();
+    await _initApp(startCore: startCore);
     isAttach = true;
   }
 
-  Future<void> _initApp() async {
+  Future<void> _initApp({required bool startCore}) async {
     FlutterError.onError = (details) {
       Future.microtask(() {
         commonPrint.log(
@@ -317,12 +323,20 @@ class GlobalState {
     }
     await _handleFailedPreference();
     await _showCrashRecoveryTip();
-    await container.read(coreActionProvider.notifier).startCore();
-    if (!_didCrashOnPreviousExecution) {
-      await container.read(setupActionProvider.notifier).initStatus();
+    if (startCore) {
+      await ensureCoreReady();
     }
     container.read(initProvider.notifier).value = true;
     permissions.check();
+  }
+
+  Future<void> ensureCoreReady() async {
+    if (container.read(coreStatusProvider) == CoreStatus.connected) return;
+    await container.read(coreActionProvider.notifier).startCore();
+    if (container.read(coreStatusProvider) == CoreStatus.connected &&
+        !_didCrashOnPreviousExecution) {
+      await container.read(setupActionProvider.notifier).initStatus();
+    }
   }
 
   Future<void> _showCrashRecoveryTip() async {

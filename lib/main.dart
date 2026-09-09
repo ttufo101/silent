@@ -11,13 +11,18 @@ import 'application.dart';
 import 'common/common.dart';
 
 Future<void> main() async {
+  startupTiming.start();
   WidgetsFlutterBinding.ensureInitialized();
+  startupTiming.mark('flutter binding ready');
   try {
     if (system.isDesktop) {
       await RustLib.init();
+      startupTiming.mark('desktop rust ready');
     }
     final version = await system.init();
+    startupTiming.mark('system ready');
     final container = await globalState.init(version);
+    startupTiming.mark('global state ready');
     HttpOverrides.global = FlClashHttpOverrides();
     runApp(
       UncontrolledProviderScope(
@@ -25,7 +30,9 @@ Future<void> main() async {
         child: const Application(),
       ),
     );
+    startupTiming.mark('runApp called');
   } catch (e, s) {
+    startupTiming.finish('startup failed');
     runApp(
       MaterialApp(
         home: InitErrorScreen(error: e, stack: s),

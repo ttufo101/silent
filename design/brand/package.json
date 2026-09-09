@@ -1,0 +1,10 @@
+{
+  "name": "silent-brand-assets",
+  "private": true,
+  "scripts": {
+    "generate": "node ../../tool/generate_brand.cjs"
+  },
+  "dependencies": {
+    "sharp": "0.35.4"
+  }
+}

@@ -32,14 +32,14 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Plan'), findsOneWidget);
+    expect(find.text('Plans'), findsOneWidget);
     expect(find.text('Yearly'), findsOneWidget);
-    expect(find.text(r'$20.0'), findsOneWidget);
+    expect(find.text(r'$20.0'), findsNWidgets(2));
     expect(find.text('365 days'), findsOneWidget);
-    expect(find.text('Buy now'), findsOneWidget);
+    expect(find.text('Buy'), findsNWidgets(2));
     expect(
       find.ancestor(
-        of: find.text('Buy now'),
+        of: find.text('Buy').first,
         matching: find.byWidgetPredicate(
           (widget) =>
               widget is ButtonStyleButton ||
@@ -50,7 +50,7 @@ void main() {
       findsNothing,
     );
 
-    await tester.tap(find.text('Traffic').first);
+    await tester.tap(find.text('By traffic'));
     await tester.pumpAndSettle();
 
     expect(find.text('Yearly'), findsNothing);
@@ -74,6 +74,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    await tester.tap(find.text('By time'));
+    await tester.pumpAndSettle();
+
     expect(find.text('No plans available'), findsOneWidget);
   });
 
@@ -94,10 +97,49 @@ void main() {
     expect(find.text('Unable to load plans'), findsOneWidget);
     expect(find.widgetWithText(OutlinedButton, 'Retry'), findsOneWidget);
   });
+
+  for (final locale in const [
+    Locale('zh', 'CN'),
+    Locale('en'),
+    Locale('ja'),
+    Locale('ru'),
+  ]) {
+    testWidgets(
+      'keeps the plan card overflow-free for ${locale.toLanguageTag()}',
+      (tester) async {
+        await _setSurface(tester, size: const Size(320, 640));
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              plansProvider.overrideWith(
+                (ref) async => [
+                  _plan(
+                    id: 'long',
+                    name: 'International premium unlimited connection package',
+                    type: PlanType.time,
+                    durationDays: 365,
+                    trafficBytes: 1500 * 1024 * 1024 * 1024,
+                  ),
+                ],
+              ),
+            ],
+            child: _TestApp(locale: locale, textScaleFactor: 1.6),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byType(PlanCard), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 }
 
-Future<void> _setSurface(WidgetTester tester) async {
-  tester.view.physicalSize = const Size(375, 812);
+Future<void> _setSurface(
+  WidgetTester tester, {
+  Size size = const Size(375, 812),
+}) async {
+  tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
@@ -125,12 +167,16 @@ Plan _plan({
 }
 
 class _TestApp extends StatelessWidget {
-  const _TestApp();
+  final Locale? locale;
+  final double textScaleFactor;
+
+  const _TestApp({this.locale, this.textScaleFactor = 1});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: TDesignThemeData.build(brightness: Brightness.light),
+      locale: locale,
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -138,6 +184,14 @@ class _TestApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
       ],
       supportedLocales: AppLocalizations.delegate.supportedLocales,
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: TextScaler.linear(textScaleFactor)),
+          child: child!,
+        );
+      },
       home: const ShopView(),
     );
   }

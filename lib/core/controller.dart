@@ -59,8 +59,16 @@ class CoreController {
           continue;
         }
         final data = await rootBundle.load('assets/data/$geoFileName');
-        final List<int> bytes = data.buffer.asUint8List();
-        await geoFile.writeAsBytes(bytes, flush: true);
+        final bytes = data.buffer.asUint8List(
+          data.offsetInBytes,
+          data.lengthInBytes,
+        );
+        final temporaryFile = File('${geoFile.path}.tmp');
+        if (await temporaryFile.exists()) {
+          await temporaryFile.delete();
+        }
+        await temporaryFile.writeAsBytes(bytes);
+        await temporaryFile.rename(geoFile.path);
       }
     } catch (e) {
       commonPrint.log(

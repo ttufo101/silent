@@ -75,13 +75,17 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m26(value) => "${value}Mbit/s";
 
-  static String m27(count) => "${count}日";
+  static String m27(value) => "${value}M";
 
-  static String m28(value) => "${value}G";
+  static String m28(count) => "${count}日";
 
-  static String m29(label) => "${label}はURLである必要があります";
+  static String m29(count) => "${count}台";
 
-  static String m30(count) => "${count}年前";
+  static String m30(value) => "${value}G";
+
+  static String m31(label) => "${label}はURLである必要があります";
+
+  static String m32(count) => "${count}年前";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -553,7 +557,38 @@ class MessageLookup extends MessageLookupByLibrary {
     "palette": MessageLookupByLibrary.simpleMessage("パレット"),
     "password": MessageLookupByLibrary.simpleMessage("パスワード"),
     "paste": MessageLookupByLibrary.simpleMessage("貼り付け"),
+    "personalAllOrders": MessageLookupByLibrary.simpleMessage("すべて"),
+    "personalAppVersion": MessageLookupByLibrary.simpleMessage("アプリのバージョン"),
     "personalCenter": MessageLookupByLibrary.simpleMessage("プロフィール"),
+    "personalChangePassword": MessageLookupByLibrary.simpleMessage("パスワードを変更"),
+    "personalChangePasswordFailed": MessageLookupByLibrary.simpleMessage(
+      "パスワードを変更できません。現在のパスワードを確認して再試行してください。",
+    ),
+    "personalChangePasswordSuccess": MessageLookupByLibrary.simpleMessage(
+      "パスワードを変更しました",
+    ),
+    "personalConfirmChange": MessageLookupByLibrary.simpleMessage("変更を確定"),
+    "personalLoadFailed": MessageLookupByLibrary.simpleMessage(
+      "プロフィールを読み込めません",
+    ),
+    "personalLogout": MessageLookupByLibrary.simpleMessage("ログアウト"),
+    "personalLogoutDescription": MessageLookupByLibrary.simpleMessage(
+      "ログアウトすると現在のプロキシ接続が停止します。",
+    ),
+    "personalNoActivePlan": MessageLookupByLibrary.simpleMessage(
+      "有効なプランはありません",
+    ),
+    "personalOldPassword": MessageLookupByLibrary.simpleMessage("現在のパスワード"),
+    "personalOrders": MessageLookupByLibrary.simpleMessage("注文"),
+    "personalPasswordLength": MessageLookupByLibrary.simpleMessage(
+      "パスワードは8～72バイトで入力してください",
+    ),
+    "personalPendingPayment": MessageLookupByLibrary.simpleMessage("支払い待ち"),
+    "personalPlan": MessageLookupByLibrary.simpleMessage("マイプラン"),
+    "personalRemainingDays": MessageLookupByLibrary.simpleMessage("残り日数"),
+    "personalRemainingTraffic": MessageLookupByLibrary.simpleMessage("残り通信量"),
+    "personalUnlimitedDevices": MessageLookupByLibrary.simpleMessage("端末数無制限"),
+    "personalUnlimitedSpeed": MessageLookupByLibrary.simpleMessage("速度無制限"),
     "pingEstimate": MessageLookupByLibrary.simpleMessage("Ping は現在地に基づく推定値です。"),
     "pleaseBindWebDAV": MessageLookupByLibrary.simpleMessage(
       "WebDAVをバインドしてください",
@@ -797,20 +832,30 @@ class MessageLookup extends MessageLookupByLibrary {
       "プロキシ設定を更新できません",
     ),
     "settings": MessageLookupByLibrary.simpleMessage("設定"),
-    "shop": MessageLookupByLibrary.simpleMessage("ショップ"),
+    "shop": MessageLookupByLibrary.simpleMessage("プラン"),
+    "shopAll": MessageLookupByLibrary.simpleMessage("すべて"),
     "shopBandwidth": MessageLookupByLibrary.simpleMessage("帯域幅"),
     "shopBandwidthMbps": m26,
-    "shopBuyNow": MessageLookupByLibrary.simpleMessage("今すぐ購入"),
-    "shopDayCount": m27,
-    "shopDays": MessageLookupByLibrary.simpleMessage("日数"),
+    "shopBandwidthShort": m27,
+    "shopBuy": MessageLookupByLibrary.simpleMessage("購入"),
+    "shopDayCount": m28,
+    "shopDeviceCount": m29,
     "shopDevices": MessageLookupByLibrary.simpleMessage("端末数"),
+    "shopIntroDescription": MessageLookupByLibrary.simpleMessage(
+      "安全で安定したグローバル接続",
+    ),
+    "shopIntroTitle": MessageLookupByLibrary.simpleMessage("あなたに合ったプランを選択"),
     "shopLoadFailed": MessageLookupByLibrary.simpleMessage("プランを読み込めません"),
     "shopNoPlans": MessageLookupByLibrary.simpleMessage("利用可能なプランはありません"),
-    "shopPlanTitle": MessageLookupByLibrary.simpleMessage("Plan"),
-    "shopTime": MessageLookupByLibrary.simpleMessage("期間"),
-    "shopTraffic": MessageLookupByLibrary.simpleMessage("通信量"),
-    "shopTrafficGigabytes": m28,
+    "shopPlanTitle": MessageLookupByLibrary.simpleMessage("プラン"),
+    "shopRecommended": MessageLookupByLibrary.simpleMessage("おすすめ"),
+    "shopTime": MessageLookupByLibrary.simpleMessage("期間別"),
+    "shopTraffic": MessageLookupByLibrary.simpleMessage("通信量別"),
+    "shopTrafficGigabytes": m30,
+    "shopTrafficLabel": MessageLookupByLibrary.simpleMessage("通信量"),
     "shopUnlimited": MessageLookupByLibrary.simpleMessage("無制限"),
+    "shopUnlimitedShort": MessageLookupByLibrary.simpleMessage("無制限"),
+    "shopValidity": MessageLookupByLibrary.simpleMessage("有効期間"),
     "show": MessageLookupByLibrary.simpleMessage("表示"),
     "shrink": MessageLookupByLibrary.simpleMessage("縮小"),
     "silentLaunch": MessageLookupByLibrary.simpleMessage("バックグラウンド起動"),
@@ -844,6 +889,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "subRuleEmpty": MessageLookupByLibrary.simpleMessage("サブルールが空です"),
     "subRuleNotEmpty": MessageLookupByLibrary.simpleMessage("サブルールは空にできません"),
     "submit": MessageLookupByLibrary.simpleMessage("送信"),
+    "subscriptionPurchasePlan": MessageLookupByLibrary.simpleMessage("プランを購入"),
+    "subscriptionRefresh": MessageLookupByLibrary.simpleMessage(
+      "購入済みですか？タップして更新",
+    ),
+    "subscriptionUnavailableDescription": MessageLookupByLibrary.simpleMessage(
+      "プランを購入すると高速化サービスを利用できます",
+    ),
+    "subscriptionUnavailableTitle": MessageLookupByLibrary.simpleMessage(
+      "現在有効なプランがありません",
+    ),
     "suspended": MessageLookupByLibrary.simpleMessage("一時停止中..."),
     "sync": MessageLookupByLibrary.simpleMessage("同期"),
     "system": MessageLookupByLibrary.simpleMessage("システム"),
@@ -889,7 +944,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "update": MessageLookupByLibrary.simpleMessage("更新"),
     "upload": MessageLookupByLibrary.simpleMessage("アップロード"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m29,
+    "urlTip": m31,
     "useHosts": MessageLookupByLibrary.simpleMessage("ホストを使用"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage("システムホストを使用"),
     "userAgent": MessageLookupByLibrary.simpleMessage("ユーザーエージェント"),
@@ -905,7 +960,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnTip": MessageLookupByLibrary.simpleMessage("変更はVPN再起動後に有効"),
     "webDAVConfiguration": MessageLookupByLibrary.simpleMessage("WebDAV設定"),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("ホワイトリストモード"),
-    "yearsAgo": m30,
+    "yearsAgo": m32,
     "zh_CN": MessageLookupByLibrary.simpleMessage("簡体字中国語"),
   };
 }

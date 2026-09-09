@@ -37,6 +37,10 @@ class _CoreContainerState extends ConsumerState<CoreManager>
     ref.listenManual(currentProfileIdProvider, (prev, next) {
       if (prev != next) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted ||
+              ref.read(coreStatusProvider) != CoreStatus.connected) {
+            return;
+          }
           ref.read(setupActionProvider.notifier).fullSetup();
         });
       }
