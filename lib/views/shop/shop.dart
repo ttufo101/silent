@@ -34,38 +34,52 @@ class _ShopViewState extends ConsumerState<ShopView> {
   @override
   Widget build(BuildContext context) {
     final plans = ref.watch(plansProvider);
+    final isMobile = ref.watch(isMobileViewProvider);
     return Scaffold(
-      backgroundColor: Theme.of(context).brightness == Brightness.light
+      backgroundColor:
+          isMobile && Theme.of(context).brightness == Brightness.light
           ? const Color(0xFFEEEEEE)
           : context.tDesign.pageBackground,
       appBar: AppBar(
-        toolbarHeight: 48,
+        toolbarHeight: isMobile ? 48 : 56,
         centerTitle: true,
         leadingWidth: 48,
-        leading: IconButton(
-          onPressed: _goBack,
-          icon: SvgPicture.asset(
-            'assets/images/shop/chevron_left.svg',
-            width: 24,
-            height: 24,
-            colorFilter: ColorFilter.mode(
-              context.colorScheme.onSurface,
-              BlendMode.srcIn,
-            ),
-          ),
-        ),
+        automaticallyImplyLeading: false,
+        leading: isMobile
+            ? IconButton(
+                onPressed: _goBack,
+                icon: SvgPicture.asset(
+                  'assets/images/shop/chevron_left.svg',
+                  width: 24,
+                  height: 24,
+                  colorFilter: ColorFilter.mode(
+                    context.colorScheme.onSurface,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              )
+            : null,
         title: Text(context.appLocalizations.shopPlanTitle),
       ),
       body: Column(
         children: [
-          _PlanFilterTabs(
-            selectedFilter: _selectedFilter,
-            onSelected: _selectFilter,
+          Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: isMobile ? double.infinity : 760,
+              ),
+              child: _PlanFilterTabs(
+                selectedFilter: _selectedFilter,
+                onSelected: _selectFilter,
+              ),
+            ),
           ),
           Expanded(
             child: plans.when(
-              data: (value) =>
-                  _PlanList(plans: _filterPlans(value, _selectedFilter)),
+              data: (value) => _PlanList(
+                plans: _filterPlans(value, _selectedFilter),
+                desktop: !isMobile,
+              ),
               error: (_, _) =>
                   _PlanLoadError(onRetry: () => ref.invalidate(plansProvider)),
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -163,13 +177,42 @@ class _PlanFilterTabs extends StatelessWidget {
 
 class _PlanList extends StatelessWidget {
   final List<Plan> plans;
+  final bool desktop;
 
-  const _PlanList({required this.plans});
+  const _PlanList({required this.plans, required this.desktop});
 
   @override
   Widget build(BuildContext context) {
     if (plans.isEmpty) {
       return Center(child: Text(context.appLocalizations.shopNoPlans));
+    }
+    if (desktop) {
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final contentWidth = math.min(constraints.maxWidth - 48, 1152.0);
+          final columns = contentWidth >= 1050 ? 3 : 2;
+          final itemWidth = (contentWidth - (columns - 1) * 20) / columns;
+          return SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+            child: Center(
+              child: SizedBox(
+                width: contentWidth,
+                child: Wrap(
+                  spacing: 20,
+                  runSpacing: 20,
+                  children: [
+                    for (final plan in plans)
+                      SizedBox(
+                        width: itemWidth,
+                        child: PlanCard(plan: plan),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      );
     }
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 32),

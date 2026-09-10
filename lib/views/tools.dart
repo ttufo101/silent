@@ -66,6 +66,15 @@ class _ToolViewState extends ConsumerState<ToolsView> {
     );
   }
 
+  _SettingsSection _getAdvancedFeaturesList(
+    List<NavigationItem> navigationItems,
+  ) {
+    return _SettingsSection(
+      title: context.appLocalizations.advancedFeatures,
+      items: navigationItems.map(_buildNavigationMenuItem).toList(),
+    );
+  }
+
   _SettingsSection _getSystemList() {
     return _SettingsSection(
       title: context.appLocalizations.system,
@@ -101,23 +110,37 @@ class _ToolViewState extends ConsumerState<ToolsView> {
     final navigationItems = ref.watch(
       moreToolsSelectorStateProvider.select((state) => state.navigationItems),
     );
+    final isMobile = ref.watch(isMobileViewProvider);
     final sections = [
       _getAppearanceList(),
-      _getProxyAndNetworkList(navigationItems),
+      _getProxyAndNetworkList(isMobile ? navigationItems : const []),
+      if (!isMobile && navigationItems.isNotEmpty)
+        _getAdvancedFeaturesList(navigationItems),
       _getSystemList(),
       _getOtherList(enableDeveloperMode),
     ];
+    final list = ListView.separated(
+      key: toolsStoreKey,
+      itemCount: sections.length,
+      itemBuilder: (_, index) => sections[index],
+      separatorBuilder: (_, _) => const _SettingsSectionDivider(),
+      padding: isMobile
+          ? const EdgeInsets.only(bottom: 20)
+          : const EdgeInsets.fromLTRB(32, 16, 32, 40),
+    );
     return CommonScaffold(
       title: widget.settingsRoot
           ? context.appLocalizations.settings
           : context.appLocalizations.tools,
-      body: ListView.separated(
-        key: toolsStoreKey,
-        itemCount: sections.length,
-        itemBuilder: (_, index) => sections[index],
-        separatorBuilder: (_, _) => const _SettingsSectionDivider(),
-        padding: const EdgeInsets.only(bottom: 20),
-      ),
+      body: isMobile
+          ? list
+          : Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1000),
+                child: list,
+              ),
+            ),
     );
   }
 }
@@ -135,6 +158,7 @@ class _SettingsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final desktop = MediaQuery.sizeOf(context).width > 600;
     return Column(
       children: [
         ListHeader(
@@ -145,6 +169,8 @@ class _SettingsSection extends StatelessWidget {
         ),
         Material(
           color: context.tDesign.container,
+          borderRadius: desktop ? BorderRadius.circular(9) : null,
+          clipBehavior: desktop ? Clip.antiAlias : Clip.none,
           child: Column(
             children: items
                 .separated(

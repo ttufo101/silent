@@ -1,5 +1,6 @@
 import 'package:fl_clash/auth/providers.dart';
 import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/providers/app.dart';
 import 'package:fl_clash/starcore/models/user_info.dart';
 import 'package:fl_clash/starcore/providers.dart';
 import 'package:fl_clash/state.dart';
@@ -59,11 +60,13 @@ class _PersonalCenterViewState extends ConsumerState<PersonalCenterView> {
     final uid = session?.uid ?? '';
     final userInfo = ref.watch(userInfoProvider(uid));
     final loadedUserInfo = userInfo.asData?.value;
+    final isMobile = ref.watch(isMobileViewProvider);
     final email = loadedUserInfo?.username.isNotEmpty == true
         ? loadedUserInfo!.username
         : session?.email ?? '';
     return Scaffold(
-      backgroundColor: Theme.of(context).brightness == Brightness.light
+      backgroundColor:
+          isMobile && Theme.of(context).brightness == Brightness.light
           ? const Color(0xFFEEEEEE)
           : context.tDesign.pageBackground,
       body: SafeArea(
@@ -71,7 +74,9 @@ class _PersonalCenterViewState extends ConsumerState<PersonalCenterView> {
           onRefresh: () => _refresh(uid),
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.only(top: 7, bottom: 24),
+            padding: isMobile
+                ? const EdgeInsets.only(top: 7, bottom: 24)
+                : const EdgeInsets.symmetric(vertical: 32),
             children: [
               _ProfileWidth(child: _AccountHeader(email: email)),
               const SizedBox(height: 12),
@@ -118,9 +123,10 @@ class _ProfileWidth extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final desktop = MediaQuery.sizeOf(context).width > 600;
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 480),
+        constraints: BoxConstraints(maxWidth: desktop ? 1040 : 480),
         child: SizedBox(width: double.infinity, child: child),
       ),
     );
@@ -306,6 +312,24 @@ class _FeatureGrid extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final scale = MediaQuery.textScalerOf(context).scale(14) / 14;
+        final fourColumns = constraints.maxWidth >= 720 * scale;
+        if (fourColumns) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (var index = 0; index < features.length; index++) ...[
+                if (index > 0) const SizedBox(width: 20),
+                Expanded(
+                  child: _ProfileFeature(
+                    asset: features[index].$1,
+                    label: features[index].$2,
+                    value: features[index].$3,
+                  ),
+                ),
+              ],
+            ],
+          );
+        }
         final twoColumns = constraints.maxWidth >= 300 * scale;
         if (!twoColumns) {
           return Column(

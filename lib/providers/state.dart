@@ -67,6 +67,23 @@ NavigationItemsState currentNavigationItemsState(Ref ref) {
     true => NavigationItemMode.mobile,
     false => NavigationItemMode.desktop,
   };
+  if (navigationItemMode == NavigationItemMode.desktop) {
+    const labels = [
+      PageLabel.dashboard,
+      PageLabel.shop,
+      PageLabel.personalCenter,
+      PageLabel.settings,
+    ];
+    final itemsByLabel = {
+      for (final item in navigationItemsState.value) item.label: item,
+    };
+    return NavigationItemsState(
+      value: labels
+          .map((label) => itemsByLabel[label])
+          .whereType<NavigationItem>()
+          .toList(growable: false),
+    );
+  }
   return NavigationItemsState(
     value: navigationItemsState.value
         .where((element) => element.modes.contains(navigationItemMode))
@@ -220,6 +237,23 @@ PackageListSelectorState packageListSelectorState(Ref ref) {
 @riverpod
 MoreToolsSelectorState moreToolsSelectorState(Ref ref) {
   final viewMode = ref.watch(viewModeProvider);
+  if (viewMode != ViewMode.mobile) {
+    const labels = [
+      PageLabel.proxies,
+      PageLabel.connections,
+      PageLabel.requests,
+      PageLabel.resources,
+      PageLabel.logs,
+    ];
+    final items = ref.watch(navigationItemsStateProvider).value;
+    final itemsByLabel = {for (final item in items) item.label: item};
+    return MoreToolsSelectorState(
+      navigationItems: labels
+          .map((label) => itemsByLabel[label])
+          .whereType<NavigationItem>()
+          .toList(growable: false),
+    );
+  }
   final navigationItems = ref
       .watch(
         navigationItemsStateProvider.select((state) {

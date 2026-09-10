@@ -23,7 +23,15 @@ if not exist "%BUILD_TOOL_TEMP_DIR%" (
 )
 cd /D "%BUILD_TOOL_TEMP_DIR%"
 
-SET DART=%FLUTTER_ROOT%\bin\cache\dart-sdk\bin\dart
+if defined FLUTTER_ROOT (
+    SET DART=%FLUTTER_ROOT%\bin\cache\dart-sdk\bin\dart
+) else (
+    for %%I in (dart.bat) do SET DART=%%~$PATH:I
+)
+if not defined DART (
+    echo Error: Could not find Dart SDK
+    exit /b 1
+)
 
 set BUILD_TOOL_PKG_DIR_POSIX=%BUILD_TOOL_PKG_DIR:\=/%
 

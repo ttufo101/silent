@@ -7,7 +7,6 @@ import 'package:fl_clash/views/proxies/common.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class HomeProxySelectorView extends ConsumerStatefulWidget {
   final String groupName;
@@ -175,8 +174,8 @@ class _RecommendedProxy extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayName = _ProxyDisplayName.parse(proxy.name);
-    final countryCode = _resolveCountryCode(proxy, proxiesByName);
+    final displayName = ProxyDisplayName.parse(proxy.name);
+    final countryCode = resolveProxyCountryCode(proxy, proxiesByName);
     return Material(
       color: context.tDesign.container,
       shape: RoundedRectangleBorder(
@@ -202,7 +201,7 @@ class _RecommendedProxy extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
-                _ProxyFlag(
+                ProxyFlag(
                   countryCode: countryCode,
                   size: 40,
                   fallbackIcon: Icons.bolt,
@@ -258,8 +257,8 @@ class _ProxyRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayName = _ProxyDisplayName.parse(proxy.name);
-    final countryCode = _resolveCountryCode(proxy, proxiesByName);
+    final displayName = ProxyDisplayName.parse(proxy.name);
+    final countryCode = resolveProxyCountryCode(proxy, proxiesByName);
     return InkWell(
       onTap: () {
         changeProxySelection(
@@ -277,7 +276,7 @@ class _ProxyRow extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              _ProxyFlag(countryCode: countryCode, size: 32),
+              ProxyFlag(countryCode: countryCode, size: 32),
               const SizedBox(width: 16),
               Expanded(
                 child: EmojiText(
@@ -343,92 +342,6 @@ class _DelayStatus extends StatelessWidget {
           ),
           Icon(Icons.signal_cellular_alt, size: 16, color: _color(context)),
         ],
-      ),
-    );
-  }
-}
-
-class _ProxyDisplayName {
-  final String name;
-  final String? countryCode;
-
-  const _ProxyDisplayName({required this.name, this.countryCode});
-
-  factory _ProxyDisplayName.parse(String value) {
-    if (value.length >= 4 &&
-        value[2] == ':' &&
-        _isAsciiLetter(value.codeUnitAt(0)) &&
-        _isAsciiLetter(value.codeUnitAt(1))) {
-      final name = value.substring(3).trimLeft();
-      return _ProxyDisplayName(
-        name: name.isEmpty ? value : name,
-        countryCode: value.substring(0, 2).toLowerCase(),
-      );
-    }
-    return _ProxyDisplayName(name: value);
-  }
-
-  static bool _isAsciiLetter(int codeUnit) {
-    return (codeUnit >= 65 && codeUnit <= 90) ||
-        (codeUnit >= 97 && codeUnit <= 122);
-  }
-}
-
-String? _resolveCountryCode(Proxy proxy, Map<String, Proxy> proxiesByName) {
-  Proxy? current = proxy;
-  final visited = <String>{};
-  while (current != null && visited.add(current.name)) {
-    final directCode = _ProxyDisplayName.parse(current.name).countryCode;
-    if (directCode != null) return directCode;
-    final selectedName = current.now;
-    if (selectedName == null || selectedName.isEmpty) return null;
-    final selectedCode = _ProxyDisplayName.parse(selectedName).countryCode;
-    if (selectedCode != null) return selectedCode;
-    current = proxiesByName[selectedName];
-  }
-  return null;
-}
-
-class _ProxyFlag extends StatelessWidget {
-  const _ProxyFlag({
-    required this.countryCode,
-    required this.size,
-    this.fallbackIcon = Icons.public,
-    this.emphasized = false,
-  });
-
-  static const _assets = {
-    'sg': 'assets/flags/sg.svg',
-    'us': 'assets/flags/us.svg',
-  };
-
-  final String? countryCode;
-  final double size;
-  final IconData fallbackIcon;
-  final bool emphasized;
-
-  @override
-  Widget build(BuildContext context) {
-    final asset = _assets[countryCode];
-    if (asset != null) {
-      return SvgPicture.asset(
-        asset,
-        width: size,
-        height: size,
-        excludeFromSemantics: true,
-      );
-    }
-    return CircleAvatar(
-      radius: size / 2,
-      backgroundColor: emphasized
-          ? context.colorScheme.primary
-          : context.colorScheme.primaryContainer,
-      child: Icon(
-        fallbackIcon,
-        size: size * 0.56,
-        color: emphasized
-            ? context.colorScheme.onPrimary
-            : context.colorScheme.primary,
       ),
     );
   }

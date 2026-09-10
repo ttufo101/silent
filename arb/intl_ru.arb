@@ -619,5 +619,6 @@
   "personalConfirmChange": "Подтвердить изменение",
   "personalPasswordLength": "Пароль должен содержать от 8 до 72 байт",
   "personalChangePasswordSuccess": "Пароль изменён",
-  "personalChangePasswordFailed": "Не удалось изменить пароль. Проверьте текущий пароль и повторите попытку."
+  "personalChangePasswordFailed": "Не удалось изменить пароль. Проверьте текущий пароль и повторите попытку.",
+  "advancedFeatures": "Расширенные функции"
 }

@@ -619,5 +619,6 @@
   "personalConfirmChange": "Confirm change",
   "personalPasswordLength": "Password must be between 8 and 72 bytes",
   "personalChangePasswordSuccess": "Password changed",
-  "personalChangePasswordFailed": "Unable to change password. Check your current password and try again."
+  "personalChangePasswordFailed": "Unable to change password. Check your current password and try again.",
+  "advancedFeatures": "Advanced features"
 }

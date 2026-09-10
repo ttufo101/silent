@@ -22,7 +22,6 @@ class Navigation {
         icon: const Icon(Icons.shopping_bag_outlined),
         label: PageLabel.shop,
         builder: (_) => const ShopView(key: GlobalObjectKey(PageLabel.shop)),
-        modes: const [NavigationItemMode.mobile],
       ),
       NavigationItem(
         icon: const Icon(Icons.settings_outlined),
@@ -31,7 +30,6 @@ class Navigation {
           key: GlobalObjectKey(PageLabel.settings),
           settingsRoot: true,
         ),
-        modes: const [NavigationItemMode.mobile],
       ),
       NavigationItem(
         icon: const Icon(Icons.person_outline),
@@ -39,7 +37,6 @@ class Navigation {
         builder: (_) => const PersonalCenterView(
           key: GlobalObjectKey(PageLabel.personalCenter),
         ),
-        modes: const [NavigationItemMode.mobile],
       ),
       NavigationItem(
         icon: const Icon(Icons.article),

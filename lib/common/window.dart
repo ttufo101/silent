@@ -27,9 +27,15 @@ class Window {
       protocol.register('flclash');
     }
     await windowManager.ensureInitialized();
+    final initialSize =
+        system.isWindows && props.width <= 0 && props.height <= 0
+        ? const Size(1440, 1024)
+        : props.size;
     final WindowOptions windowOptions = WindowOptions(
-      size: props.size,
-      minimumSize: const Size(380, 400),
+      size: initialSize,
+      minimumSize: system.isWindows
+          ? const Size(1100, 720)
+          : const Size(380, 400),
     );
     if (!system.isMacOS || version > 10) {
       await windowManager.setTitleBarStyle(TitleBarStyle.hidden);

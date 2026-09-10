@@ -4,7 +4,9 @@ import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 List<Group> getCurrentGroups() {
   return globalState.container.read(currentGroupsStateProvider).value;
@@ -82,6 +84,93 @@ Future<void> delayTest(List<Proxy> proxies, [String? testUrl]) async {
       batch.map((proxy) async {
         await proxyDelayTest(proxy, testUrl);
       }),
+    );
+  }
+}
+
+class ProxyDisplayName {
+  final String name;
+  final String? countryCode;
+
+  const ProxyDisplayName({required this.name, this.countryCode});
+
+  factory ProxyDisplayName.parse(String value) {
+    if (value.length >= 4 &&
+        value[2] == ':' &&
+        _isAsciiLetter(value.codeUnitAt(0)) &&
+        _isAsciiLetter(value.codeUnitAt(1))) {
+      final name = value.substring(3).trimLeft();
+      return ProxyDisplayName(
+        name: name.isEmpty ? value : name,
+        countryCode: value.substring(0, 2).toLowerCase(),
+      );
+    }
+    return ProxyDisplayName(name: value);
+  }
+
+  static bool _isAsciiLetter(int codeUnit) {
+    return (codeUnit >= 65 && codeUnit <= 90) ||
+        (codeUnit >= 97 && codeUnit <= 122);
+  }
+}
+
+String? resolveProxyCountryCode(Proxy proxy, Map<String, Proxy> proxiesByName) {
+  Proxy? current = proxy;
+  final visited = <String>{};
+  while (current != null && visited.add(current.name)) {
+    final directCode = ProxyDisplayName.parse(current.name).countryCode;
+    if (directCode != null) return directCode;
+    final selectedName = current.now;
+    if (selectedName == null || selectedName.isEmpty) return null;
+    final selectedCode = ProxyDisplayName.parse(selectedName).countryCode;
+    if (selectedCode != null) return selectedCode;
+    current = proxiesByName[selectedName];
+  }
+  return null;
+}
+
+class ProxyFlag extends StatelessWidget {
+  const ProxyFlag({
+    required this.countryCode,
+    required this.size,
+    this.fallbackIcon = Icons.public,
+    this.emphasized = false,
+    super.key,
+  });
+
+  static const _assets = {
+    'sg': 'assets/flags/sg.svg',
+    'us': 'assets/flags/us.svg',
+  };
+
+  final String? countryCode;
+  final double size;
+  final IconData fallbackIcon;
+  final bool emphasized;
+
+  @override
+  Widget build(BuildContext context) {
+    final asset = _assets[countryCode];
+    if (asset != null) {
+      return SvgPicture.asset(
+        asset,
+        width: size,
+        height: size,
+        excludeFromSemantics: true,
+      );
+    }
+    return CircleAvatar(
+      radius: size / 2,
+      backgroundColor: emphasized
+          ? context.colorScheme.primary
+          : context.colorScheme.primaryContainer,
+      child: Icon(
+        fallbackIcon,
+        size: size * 0.56,
+        color: emphasized
+            ? context.colorScheme.onPrimary
+            : context.colorScheme.primary,
+      ),
     );
   }
 }

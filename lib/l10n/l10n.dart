@@ -5073,6 +5073,16 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Advanced features`
+  String get advancedFeatures {
+    return Intl.message(
+      'Advanced features',
+      name: 'advancedFeatures',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -5,6 +5,7 @@ import 'package:fl_clash/models/common.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/widgets/widgets.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -179,7 +180,13 @@ class _HomePageViewState extends ConsumerState<_HomePageView> {
   @override
   void didUpdateWidget(covariant _HomePageView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.navigationItems.length != widget.navigationItems.length) {
+    final previousLabels = oldWidget.navigationItems
+        .map((item) => item.label)
+        .toList(growable: false);
+    final nextLabels = widget.navigationItems
+        .map((item) => item.label)
+        .toList(growable: false);
+    if (!listEquals(previousLabels, nextLabels)) {
       _updatePageController();
     }
   }

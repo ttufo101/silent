@@ -619,5 +619,6 @@
   "personalConfirmChange": "确认修改",
   "personalPasswordLength": "密码长度必须为 8 至 72 字节",
   "personalChangePasswordSuccess": "密码修改成功",
-  "personalChangePasswordFailed": "密码修改失败，请检查当前密码后重试"
+  "personalChangePasswordFailed": "密码修改失败，请检查当前密码后重试",
+  "advancedFeatures": "高级功能"
 }

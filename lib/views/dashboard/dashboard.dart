@@ -8,6 +8,7 @@ import 'package:fl_clash/views/dashboard/no_subscription_view.dart';
 import 'package:fl_clash/views/dashboard/widgets/announcement_bar.dart';
 import 'package:fl_clash/views/dashboard/widgets/connected_location_card.dart';
 import 'package:fl_clash/views/proxies/home_selector.dart';
+import 'package:fl_clash/views/proxies/common.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -129,6 +130,11 @@ class _DashboardViewState extends ConsumerState<DashboardView>
     final connected = ref.watch(isStartProvider) && !ref.watch(suspendProvider);
     final exitIdentity = _exitIdentity(currentGroup);
     final announcement = ref.watch(dashboardAnnouncementProvider);
+    final isMobile = ref.watch(isMobileViewProvider);
+    final desktopHeroHeight = (MediaQuery.sizeOf(context).height * 0.36).clamp(
+      340.0,
+      380.0,
+    );
     _syncExitCheck(connected: connected, exitIdentity: exitIdentity);
 
     return Scaffold(
@@ -136,31 +142,56 @@ class _DashboardViewState extends ConsumerState<DashboardView>
         child: Align(
           alignment: Alignment.topCenter,
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
+            padding: isMobile
+                ? const EdgeInsets.fromLTRB(16, 24, 16, 24)
+                : const EdgeInsets.fromLTRB(24, 24, 24, 40),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 720),
+              constraints: BoxConstraints(maxWidth: isMobile ? 720 : 1152),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  if (!isMobile && announcement != null) ...[
+                    DashboardAnnouncementBar(announcement: announcement),
+                    const SizedBox(height: 12),
+                  ],
                   _FullBleed(
-                    height: 232,
+                    height: isMobile ? 232 : desktopHeroHeight,
                     child: _DashboardHero(
                       connected: connected,
-                      announcement: announcement,
+                      announcement: isMobile ? announcement : null,
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const _SpeedPanel(),
-                  const SizedBox(height: 24),
-                  const _ModePanel(),
-                  const SizedBox(height: 24),
-                  Text(
-                    context.appLocalizations.currentNode,
-                    style: context.textTheme.bodyLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  _CurrentNodeSection(group: currentGroup),
-                  const SizedBox(height: 36),
+                  if (isMobile) ...[
+                    const _SpeedPanel(),
+                    const SizedBox(height: 24),
+                    const _ModePanel(),
+                    const SizedBox(height: 24),
+                    Text(
+                      context.appLocalizations.currentNode,
+                      style: context.textTheme.bodyLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    _CurrentNodeSection(group: currentGroup),
+                    const SizedBox(height: 36),
+                  ] else ...[
+                    Text(
+                      context.appLocalizations.currentNode,
+                      style: context.textTheme.bodyLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    _CurrentNodeSection(group: currentGroup),
+                    const SizedBox(height: 24),
+                    const Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: _ModePanel()),
+                        SizedBox(width: 20),
+                        Expanded(child: _SpeedPanel()),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                  ],
                   const _HomeConnectButton(),
                 ],
               ),
@@ -504,6 +535,7 @@ class _CurrentProxyCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final group = this.group;
+    final isMobile = ref.watch(isMobileViewProvider);
     final selectedProxyName = group == null
         ? ''
         : ref.watch(selectedProxyNameProvider(group.name)) ?? '';
@@ -513,8 +545,12 @@ class _CurrentProxyCard extends ConsumerWidget {
         : '';
     final proxyDescription =
         realProxyName.isNotEmpty && realProxyName != selectedProxyName
-        ? realProxyName
+        ? ProxyDisplayName.parse(realProxyName).name
         : context.appLocalizations.selectProxy;
+    final selectedDisplayName = ProxyDisplayName.parse(selectedProxyName);
+    final countryCode = ProxyDisplayName.parse(
+      realProxyName.isNotEmpty ? realProxyName : selectedProxyName,
+    ).countryCode;
     return Material(
       color: context.tDesign.container,
       shape: RoundedRectangleBorder(
@@ -537,11 +573,17 @@ class _CurrentProxyCard extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 20,
-                  backgroundColor: context.colorScheme.primaryContainer,
-                  child: Icon(Icons.public, color: context.colorScheme.primary),
-                ),
+                if (isMobile)
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor: context.colorScheme.primaryContainer,
+                    child: Icon(
+                      Icons.public,
+                      color: context.colorScheme.primary,
+                    ),
+                  )
+                else
+                  ProxyFlag(countryCode: countryCode, size: 40),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
@@ -550,7 +592,7 @@ class _CurrentProxyCard extends ConsumerWidget {
                     children: [
                       EmojiText(
                         hasProxy
-                            ? selectedProxyName
+                            ? selectedDisplayName.name
                             : context.appLocalizations.proxiesEmpty,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

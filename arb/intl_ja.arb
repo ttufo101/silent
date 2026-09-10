@@ -619,5 +619,6 @@
   "personalConfirmChange": "変更を確定",
   "personalPasswordLength": "パスワードは8～72バイトで入力してください",
   "personalChangePasswordSuccess": "パスワードを変更しました",
-  "personalChangePasswordFailed": "パスワードを変更できません。現在のパスワードを確認して再試行してください。"
+  "personalChangePasswordFailed": "パスワードを変更できません。現在のパスワードを確認して再試行してください。",
+  "advancedFeatures": "高度な機能"
 }

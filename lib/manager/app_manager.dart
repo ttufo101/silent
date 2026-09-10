@@ -5,8 +5,10 @@ import 'package:fl_clash/auth/providers.dart';
 import 'package:fl_clash/core/controller.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/manager/window_manager.dart';
+import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
+import 'package:fl_clash/starcore/providers.dart';
 import 'package:fl_clash/widgets/animated_visibility.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -104,13 +106,6 @@ class AppSidebarContainer extends ConsumerWidget {
 
   const AppSidebarContainer({super.key, required this.child});
 
-  Widget _buildBackground({
-    required BuildContext context,
-    required Widget child,
-  }) {
-    return Material(color: context.colorScheme.surfaceContainer, child: child);
-  }
-
   void _updateSideBarWidth(WidgetRef ref, double contentWidth) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(sideWidthProvider.notifier).value =
@@ -127,9 +122,7 @@ class AppSidebarContainer extends ConsumerWidget {
     globalState.container
         .read(currentPageLabelProvider.notifier)
         .toPage(pageLabel);
-    if (!preserveNavigationFocus || focusNode == null) {
-      return;
-    }
+    if (!preserveNavigationFocus || focusNode == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (focusNode.context != null && focusNode.canRequestFocus) {
         focusNode.requestFocus();
@@ -143,104 +136,217 @@ class AppSidebarContainer extends ConsumerWidget {
     final navigationItems = navigationState.navigationItems;
     final isMobileView = navigationState.viewMode == ViewMode.mobile;
     final currentIndex = navigationState.currentIndex;
-    final showLabel = ref.watch(appSettingProvider).showLabel;
-    return Container(
+    return ColoredBox(
       color: context.colorScheme.surfaceContainer,
       child: Row(
         children: [
           AnimatedVisibility.sidebar(
             visible: !isMobileView,
-            child: _buildBackground(
-              context: context,
-              child: SafeArea(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    if (system.isMacOS) const SizedBox(height: 22),
-                    const SizedBox(height: 10),
-                    if (!system.isMacOS) ...[
-                      const ClipRect(child: AppIcon()),
-                      const SizedBox(height: 12),
-                    ],
-                    Expanded(
-                      child: ScrollConfiguration(
-                        behavior: HiddenBarScrollBehavior(),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: NavigationRail(
-                                scrollable: true,
-                                minExtendedWidth: 200,
-                                backgroundColor: Colors.transparent,
-                                selectedLabelTextStyle: context
-                                    .textTheme
-                                    .labelLarge!
-                                    .copyWith(
-                                      color: context.colorScheme.onSurface,
-                                    ),
-                                unselectedLabelTextStyle: context
-                                    .textTheme
-                                    .labelLarge!
-                                    .copyWith(
-                                      color: context.colorScheme.onSurface,
-                                    ),
-                                destinations: navigationItems
-                                    .map(
-                                      (e) => NavigationRailDestination(
-                                        icon: e.icon,
-                                        label: Text(Intl.message(e.label.name)),
-                                      ),
-                                    )
-                                    .toList(),
-                                onDestinationSelected: (index) {
-                                  _handleToPage(navigationItems[index].label);
-                                },
-                                extended: false,
-                                selectedIndex: currentIndex,
-                                labelType: showLabel
-                                    ? NavigationRailLabelType.all
-                                    : NavigationRailLabelType.none,
+            child: Material(
+              color: context.colorScheme.surfaceContainer,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  border: Border(
+                    right: BorderSide(color: context.tDesign.componentStroke),
+                  ),
+                ),
+                child: SafeArea(
+                  child: Column(
+                    children: [
+                      if (system.isMacOS) const SizedBox(height: 22),
+                      const SizedBox(height: 16),
+                      const _DesktopAccountSummary(),
+                      const SizedBox(height: 20),
+                      Expanded(
+                        child: NavigationRail(
+                          scrollable: true,
+                          extended: true,
+                          minWidth: 76,
+                          minExtendedWidth: 240,
+                          groupAlignment: -1,
+                          backgroundColor: Colors.transparent,
+                          useIndicator: true,
+                          indicatorColor: context.colorScheme.primaryContainer,
+                          indicatorShape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(9),
+                          ),
+                          selectedLabelTextStyle: context.textTheme.titleSmall
+                              ?.copyWith(
+                                color: context.colorScheme.primary,
+                                fontWeight: FontWeight.w600,
                               ),
-                            ),
-                          ],
+                          unselectedLabelTextStyle: context.textTheme.titleSmall
+                              ?.copyWith(color: context.colorScheme.onSurface),
+                          destinations: navigationItems
+                              .map(
+                                (item) => NavigationRailDestination(
+                                  icon: item.icon,
+                                  label: Text(
+                                    Intl.message(item.label.name),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              )
+                              .toList(growable: false),
+                          onDestinationSelected: (index) {
+                            _handleToPage(navigationItems[index].label);
+                          },
+                          selectedIndex: currentIndex,
+                          labelType: NavigationRailLabelType.none,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    IconButton(
-                      onPressed: () {
-                        ref
-                            .read(appSettingProvider.notifier)
-                            .update(
-                              (state) =>
-                                  state.copyWith(showLabel: !state.showLabel),
-                            );
-                      },
-                      icon: Icon(
-                        Icons.menu,
-                        color: context.colorScheme.onSurfaceVariant,
+                      Text(
+                        appName,
+                        style: context.textTheme.labelLarge?.copyWith(
+                          color: context.colorScheme.onSurfaceVariant,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
+                      const SizedBox(height: 2),
+                      Text(
+                        'v${globalState.packageInfo.version}',
+                        style: context.textTheme.labelSmall?.copyWith(
+                          color: context.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
           Expanded(
-            flex: 1,
-            child: ClipRect(
-              child: LayoutBuilder(
-                builder: (_, constraints) {
-                  _updateSideBarWidth(ref, constraints.maxWidth);
-                  return child;
-                },
+            child: Padding(
+              padding: isMobileView
+                  ? EdgeInsets.zero
+                  : const EdgeInsets.fromLTRB(0, 16, 16, 16),
+              child: ClipRRect(
+                borderRadius: isMobileView
+                    ? BorderRadius.zero
+                    : BorderRadius.circular(12),
+                child: LayoutBuilder(
+                  builder: (_, constraints) {
+                    _updateSideBarWidth(ref, constraints.maxWidth);
+                    return child;
+                  },
+                ),
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _DesktopAccountSummary extends ConsumerWidget {
+  const _DesktopAccountSummary();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final session = ref.watch(authControllerProvider).session;
+    final info = ref.watch(userInfoProvider(session?.uid ?? '')).asData?.value;
+    final email = info?.username.isNotEmpty == true
+        ? info!.username
+        : session?.email ?? '';
+    final planName = info?.currentPlan?.name;
+    return SizedBox(
+      width: 216,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Align(alignment: Alignment.centerLeft, child: AppIcon()),
+          const SizedBox(height: 14),
+          Text(
+            email,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.textTheme.bodyMedium,
+          ),
+          if (planName != null) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: context.colorScheme.primaryContainer,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                planName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.textTheme.labelLarge?.copyWith(
+                  color: context.colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+          if (info != null) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: context.colorScheme.surface,
+                borderRadius: BorderRadius.circular(9),
+                border: Border.all(color: context.tDesign.componentStroke),
+              ),
+              child: Column(
+                children: [
+                  _AccountMetric(
+                    label: context.appLocalizations.personalRemainingDays,
+                    value: context.appLocalizations.shopDayCount(
+                      '${info.remainingDays}',
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  _AccountMetric(
+                    label: context.appLocalizations.personalRemainingTraffic,
+                    value: info.unlimited
+                        ? context.appLocalizations.shopUnlimited
+                        : info.remainingTrafficBytes.traffic.show,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _AccountMetric extends StatelessWidget {
+  const _AccountMetric({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.textTheme.bodySmall?.copyWith(
+              color: context.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          value,
+          maxLines: 1,
+          style: context.textTheme.bodySmall?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 }
