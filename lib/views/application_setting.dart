@@ -192,29 +192,6 @@ class OpenLogsItem extends ConsumerWidget {
   }
 }
 
-class CrashlyticsItem extends ConsumerWidget {
-  const CrashlyticsItem({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final appLocalizations = context.appLocalizations;
-    final crashlytics = ref.watch(
-      appSettingProvider.select((state) => state.crashlytics),
-    );
-    return ListItem.toggle(
-      leading: const Icon(Icons.bug_report_outlined),
-      title: Text(appLocalizations.crashlytics),
-      subtitle: Text(appLocalizations.crashlyticsTip),
-      value: crashlytics,
-      onChanged: (bool value) {
-        ref
-            .read(appSettingProvider.notifier)
-            .update((state) => state.copyWith(crashlytics: value));
-      },
-    );
-  }
-}
-
 class AutoCheckUpdateItem extends ConsumerWidget {
   const AutoCheckUpdateItem({super.key});
 

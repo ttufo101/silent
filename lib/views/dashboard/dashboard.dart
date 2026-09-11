@@ -25,6 +25,7 @@ class _DashboardViewState extends ConsumerState<DashboardView>
     with WidgetsBindingObserver {
   bool? _lastConnected;
   String? _lastExitIdentity;
+  bool _reportedResolvedFrame = false;
 
   @override
   void initState() {
@@ -101,26 +102,13 @@ class _DashboardViewState extends ConsumerState<DashboardView>
           ),
         );
       }
-      return Scaffold(
-        backgroundColor: context.tDesign.pageBackground,
-        body: SafeArea(
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const CircularProgressIndicator(),
-                const SizedBox(height: 16),
-                Text(
-                  context.appLocalizations.loading,
-                  style: context.textTheme.bodyMedium?.copyWith(
-                    color: context.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
+      return const _DashboardPreparingView();
+    }
+    if (!_reportedResolvedFrame) {
+      _reportedResolvedFrame = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        startupTiming.mark('subscription view first frame');
+      });
     }
     if (subscriptionAccess == SubscriptionAccessStatus.inactive) {
       return const NoSubscriptionView();
@@ -132,8 +120,8 @@ class _DashboardViewState extends ConsumerState<DashboardView>
     final announcement = ref.watch(dashboardAnnouncementProvider);
     final isMobile = ref.watch(isMobileViewProvider);
     final desktopHeroHeight = (MediaQuery.sizeOf(context).height * 0.36).clamp(
-      340.0,
-      380.0,
+      260.0,
+      280.0,
     );
     _syncExitCheck(connected: connected, exitIdentity: exitIdentity);
 
@@ -144,15 +132,15 @@ class _DashboardViewState extends ConsumerState<DashboardView>
           child: SingleChildScrollView(
             padding: isMobile
                 ? const EdgeInsets.fromLTRB(16, 24, 16, 24)
-                : const EdgeInsets.fromLTRB(24, 24, 24, 40),
+                : const EdgeInsets.fromLTRB(24, 20, 24, 32),
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: isMobile ? 720 : 1152),
+              constraints: BoxConstraints(maxWidth: isMobile ? 720 : 1080),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   if (!isMobile && announcement != null) ...[
                     DashboardAnnouncementBar(announcement: announcement),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 10),
                   ],
                   _FullBleed(
                     height: isMobile ? 232 : desktopHeroHeight,
@@ -161,7 +149,7 @@ class _DashboardViewState extends ConsumerState<DashboardView>
                       announcement: isMobile ? announcement : null,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: isMobile ? 24 : 16),
                   if (isMobile) ...[
                     const _SpeedPanel(),
                     const SizedBox(height: 24),
@@ -179,18 +167,18 @@ class _DashboardViewState extends ConsumerState<DashboardView>
                       context.appLocalizations.currentNode,
                       style: context.textTheme.bodyLarge,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     _CurrentNodeSection(group: currentGroup),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
                     const Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(child: _ModePanel()),
-                        SizedBox(width: 20),
+                        SizedBox(width: 16),
                         Expanded(child: _SpeedPanel()),
                       ],
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
                   ],
                   const _HomeConnectButton(),
                 ],
@@ -198,6 +186,89 @@ class _DashboardViewState extends ConsumerState<DashboardView>
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _DashboardPreparingView extends ConsumerWidget {
+  const _DashboardPreparingView();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isMobile = ref.watch(isMobileViewProvider);
+    final desktopHeroHeight = (MediaQuery.sizeOf(context).height * 0.36).clamp(
+      260.0,
+      280.0,
+    );
+    return Scaffold(
+      backgroundColor: context.tDesign.pageBackground,
+      body: SafeArea(
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: SingleChildScrollView(
+            padding: isMobile
+                ? const EdgeInsets.fromLTRB(16, 24, 16, 24)
+                : const EdgeInsets.fromLTRB(24, 20, 24, 32),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: isMobile ? 720 : 1080),
+              child: TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: 1),
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOutCubic,
+                builder: (context, opacity, child) {
+                  return Opacity(opacity: opacity, child: child);
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _DashboardPlaceholder(
+                      height: isMobile ? 232 : desktopHeroHeight,
+                    ),
+                    SizedBox(height: isMobile ? 24 : 16),
+                    if (isMobile) ...[
+                      const _DashboardPlaceholder(height: 88),
+                      const SizedBox(height: 24),
+                      const _DashboardPlaceholder(height: 88),
+                      const SizedBox(height: 24),
+                      const _DashboardPlaceholder(height: 72),
+                      const SizedBox(height: 36),
+                    ] else ...[
+                      const _DashboardPlaceholder(height: 60),
+                      const SizedBox(height: 16),
+                      const Row(
+                        children: [
+                          Expanded(child: _DashboardPlaceholder(height: 82)),
+                          SizedBox(width: 16),
+                          Expanded(child: _DashboardPlaceholder(height: 82)),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                    const _DashboardPlaceholder(height: 56),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DashboardPlaceholder extends StatelessWidget {
+  const _DashboardPlaceholder({required this.height});
+
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      decoration: BoxDecoration(
+        color: context.tDesign.container,
+        borderRadius: BorderRadius.circular(9),
       ),
     );
   }
@@ -266,18 +337,20 @@ class _SpeedPanel extends ConsumerWidget {
   Widget _item(
     BuildContext context, {
     required IconData icon,
+    required bool compact,
     required Color color,
     required String label,
     required num value,
   }) {
     return _DashboardSegment(
+      compact: compact,
       leading: Container(
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: context.tDesign.secondaryContainer,
           borderRadius: BorderRadius.circular(6),
         ),
-        child: Icon(icon, size: 28, color: color),
+        child: Icon(icon, size: compact ? 22 : 28, color: color),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -304,6 +377,7 @@ class _SpeedPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isMobile = ref.watch(isMobileViewProvider);
     final traffic = ref.watch(
       trafficsProvider.select((state) => state.list.safeLast(const Traffic())),
     );
@@ -314,7 +388,7 @@ class _SpeedPanel extends ConsumerWidget {
           context.appLocalizations.networkSpeed,
           style: context.textTheme.bodyLarge,
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: isMobile ? 8 : 6),
         Container(
           decoration: BoxDecoration(
             color: context.tDesign.container,
@@ -326,13 +400,14 @@ class _SpeedPanel extends ConsumerWidget {
                 child: _item(
                   context,
                   icon: Icons.arrow_upward,
+                  compact: !isMobile,
                   color: context.tDesign.warning,
                   label: context.appLocalizations.upload,
                   value: traffic.up,
                 ),
               ),
               SizedBox(
-                height: 40,
+                height: isMobile ? 40 : 32,
                 child: VerticalDivider(
                   width: 1,
                   color: context.tDesign.componentStroke,
@@ -342,6 +417,7 @@ class _SpeedPanel extends ConsumerWidget {
                 child: _item(
                   context,
                   icon: Icons.arrow_downward,
+                  compact: !isMobile,
                   color: context.tDesign.success,
                   label: context.appLocalizations.download,
                   value: traffic.down,
@@ -362,10 +438,16 @@ class _ModePanel extends ConsumerWidget {
     ref.read(setupActionProvider.notifier).changeMode(mode);
   }
 
-  Widget _item(BuildContext context, WidgetRef ref, Mode mode) {
+  Widget _item(
+    BuildContext context,
+    WidgetRef ref,
+    Mode mode, {
+    required bool compact,
+  }) {
     return InkWell(
       onTap: () => _changeMode(ref, mode),
       child: _DashboardSegment(
+        compact: compact,
         leading: Center(
           child: Radio<Mode>(
             value: mode,
@@ -374,7 +456,9 @@ class _ModePanel extends ConsumerWidget {
         ),
         child: Text(
           Intl.message(mode.name),
-          style: context.textTheme.bodyLarge,
+          style: compact
+              ? context.textTheme.bodyMedium
+              : context.textTheme.bodyLarge,
         ),
       ),
     );
@@ -382,6 +466,7 @@ class _ModePanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isMobile = ref.watch(isMobileViewProvider);
     final mode = ref.watch(
       patchClashConfigProvider.select((state) => state.mode),
     );
@@ -392,7 +477,7 @@ class _ModePanel extends ConsumerWidget {
           context.appLocalizations.outboundMode,
           style: context.textTheme.bodyLarge,
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: isMobile ? 8 : 6),
         Material(
           color: context.tDesign.container,
           borderRadius: BorderRadius.circular(9),
@@ -404,7 +489,9 @@ class _ModePanel extends ConsumerWidget {
             },
             child: Row(
               children: [
-                Expanded(child: _item(context, ref, Mode.rule)),
+                Expanded(
+                  child: _item(context, ref, Mode.rule, compact: !isMobile),
+                ),
                 SizedBox(
                   height: 32,
                   child: VerticalDivider(
@@ -412,7 +499,9 @@ class _ModePanel extends ConsumerWidget {
                     color: context.tDesign.componentStroke,
                   ),
                 ),
-                Expanded(child: _item(context, ref, Mode.global)),
+                Expanded(
+                  child: _item(context, ref, Mode.global, compact: !isMobile),
+                ),
               ],
             ),
           ),
@@ -423,22 +512,27 @@ class _ModePanel extends ConsumerWidget {
 }
 
 class _DashboardSegment extends StatelessWidget {
-  const _DashboardSegment({required this.leading, required this.child});
+  const _DashboardSegment({
+    required this.leading,
+    required this.child,
+    this.compact = false,
+  });
 
   final Widget leading;
   final Widget child;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 64,
+      height: compact ? 56 : 64,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: EdgeInsets.symmetric(horizontal: compact ? 10 : 12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(width: 44, height: 44, child: leading),
-            const SizedBox(width: 10),
+            SizedBox.square(dimension: compact ? 36 : 44, child: leading),
+            SizedBox(width: compact ? 8 : 10),
             Expanded(child: child),
           ],
         ),
@@ -492,9 +586,10 @@ class _ProfileSyncFailureCardState
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = ref.watch(isMobileViewProvider);
     return Container(
-      height: 88,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      height: isMobile ? 88 : 72,
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 12),
       decoration: BoxDecoration(
         color: context.tDesign.container,
         borderRadius: BorderRadius.circular(9),
@@ -503,7 +598,7 @@ class _ProfileSyncFailureCardState
       child: Row(
         children: [
           Icon(Icons.cloud_off_outlined, color: context.colorScheme.error),
-          const SizedBox(width: 16),
+          SizedBox(width: isMobile ? 16 : 12),
           Expanded(
             child: Text(
               context.appLocalizations.serverProfileLoadFailed,
@@ -548,9 +643,15 @@ class _CurrentProxyCard extends ConsumerWidget {
         ? ProxyDisplayName.parse(realProxyName).name
         : context.appLocalizations.selectProxy;
     final selectedDisplayName = ProxyDisplayName.parse(selectedProxyName);
-    final countryCode = ProxyDisplayName.parse(
-      realProxyName.isNotEmpty ? realProxyName : selectedProxyName,
-    ).countryCode;
+    final proxiesByName = {
+      for (final proxy in group?.all ?? const <Proxy>[]) proxy.name: proxy,
+    };
+    final selectedProxy = proxiesByName[selectedProxyName];
+    final countryCode = selectedProxy == null
+        ? ProxyDisplayName.parse(
+            realProxyName.isNotEmpty ? realProxyName : selectedProxyName,
+          ).countryCode
+        : resolveProxyCountryCode(selectedProxy, proxiesByName);
     return Material(
       color: context.tDesign.container,
       shape: RoundedRectangleBorder(
@@ -568,23 +669,13 @@ class _CurrentProxyCard extends ConsumerWidget {
                 );
               },
         child: SizedBox(
-          height: 72,
+          height: isMobile ? 72 : 60,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 12),
             child: Row(
               children: [
-                if (isMobile)
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: context.colorScheme.primaryContainer,
-                    child: Icon(
-                      Icons.public,
-                      color: context.colorScheme.primary,
-                    ),
-                  )
-                else
-                  ProxyFlag(countryCode: countryCode, size: 40),
-                const SizedBox(width: 16),
+                ProxyFlag(countryCode: countryCode, size: isMobile ? 40 : 32),
+                SizedBox(width: isMobile ? 16 : 12),
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -596,7 +687,9 @@ class _CurrentProxyCard extends ConsumerWidget {
                             : context.appLocalizations.proxiesEmpty,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: context.textTheme.titleMedium,
+                        style: isMobile
+                            ? context.textTheme.titleMedium
+                            : context.textTheme.titleSmall,
                       ),
                       Text(
                         proxyDescription,
@@ -611,7 +704,7 @@ class _CurrentProxyCard extends ConsumerWidget {
                 ),
                 Icon(
                   Icons.chevron_right,
-                  size: 32,
+                  size: isMobile ? 32 : 24,
                   color: context.colorScheme.primary,
                 ),
               ],
@@ -656,6 +749,7 @@ class _HomeConnectButtonState extends ConsumerState<_HomeConnectButton> {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = ref.watch(isMobileViewProvider);
     final hasProfile = ref.watch(
       profilesProvider.select((state) => state.isNotEmpty),
     );
@@ -677,6 +771,7 @@ class _HomeConnectButtonState extends ConsumerState<_HomeConnectButton> {
     return FilledButton(
       onPressed: !hasProfile || _switching || preparing ? null : _toggle,
       style: FilledButton.styleFrom(
+        minimumSize: isMobile ? null : const Size.fromHeight(48),
         backgroundColor: showDisconnectStyle ? context.colorScheme.error : null,
         foregroundColor: showDisconnectStyle
             ? context.colorScheme.onError

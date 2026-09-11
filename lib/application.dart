@@ -58,11 +58,15 @@ class ApplicationState extends ConsumerState<Application> {
       ..addListener(_handleAuthChanged);
     _profileSync = ref.read(serverProfileSyncProvider);
     SystemNavigator.setFrameworkHandlesBack(true);
+    unawaited(_initializeAuth());
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!ref.read(appSettingProvider).silentLaunch) {
         window?.show();
       }
-      _initializeAuth();
+      if (mounted && _showSplash) {
+        setState(() => _showSplash = false);
+        startupTiming.mark('interactive shell requested');
+      }
     });
   }
 
@@ -81,7 +85,9 @@ class ApplicationState extends ConsumerState<Application> {
     if (_authController.status == AuthStatus.authenticated) {
       if (!_authenticatedStartupStarted) {
         _authenticatedStartupStarted = true;
-        startupTiming.start();
+        if (!startupTiming.isActive) {
+          startupTiming.start();
+        }
         startupTiming.mark('authenticated session ready');
       }
       ref.read(serverProfileSyncErrorProvider.notifier).set(null);
@@ -119,22 +125,24 @@ class ApplicationState extends ConsumerState<Application> {
   }
 
   Future<void> _runPrepareAndAttach() async {
-    if (mounted) {
-      setState(() {
-        _showSplash = true;
-      });
-    }
     try {
       final hasCachedProfile = await _profileSync.prepare();
       startupTiming.mark(
         hasCachedProfile ? 'profile cache ready' : 'profile cache missing',
       );
+      Future<ServerProfileSyncResult?>? synchronizationTask;
+      if (!hasCachedProfile) {
+        startupTiming.mark('profile synchronization requested');
+        synchronizationTask = _synchronizeProfile(apply: false);
+      }
       if (!_appAttached) {
         if (globalState.navigatorKey.currentContext == null) {
           exit(0);
         }
+        startupTiming.mark('application attach requested');
         await globalState.attach(startCore: false);
         _appAttached = true;
+        startupTiming.mark('application attach completed');
       }
       app?.initShortcuts();
       if (!mounted) return;
@@ -143,7 +151,12 @@ class ApplicationState extends ConsumerState<Application> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         startupTiming.mark('home first frame');
       });
-      unawaited(_completeStartup(hasCachedProfile: hasCachedProfile));
+      unawaited(
+        _completeStartup(
+          hasCachedProfile: hasCachedProfile,
+          synchronizationTask: synchronizationTask,
+        ),
+      );
     } catch (error) {
       if (!mounted) return;
       setState(() {
@@ -156,7 +169,10 @@ class ApplicationState extends ConsumerState<Application> {
     }
   }
 
-  Future<void> _completeStartup({required bool hasCachedProfile}) async {
+  Future<void> _completeStartup({
+    required bool hasCachedProfile,
+    required Future<ServerProfileSyncResult?>? synchronizationTask,
+  }) async {
     try {
       var coreReady = false;
       if (hasCachedProfile) {
@@ -169,8 +185,11 @@ class ApplicationState extends ConsumerState<Application> {
           startupTiming.mark('core preparation from cache failed');
         }
       }
-      startupTiming.mark('profile synchronization requested');
-      final synchronizationResult = await _synchronizeProfile(apply: false);
+      if (synchronizationTask == null) {
+        startupTiming.mark('profile synchronization requested');
+      }
+      final synchronizationResult =
+          await (synchronizationTask ?? _synchronizeProfile(apply: false));
       startupTiming.mark('profile synchronization completed');
       final hasSubscription =
           synchronizationResult?.hasSubscription ?? hasCachedProfile;
@@ -299,11 +318,21 @@ class ApplicationState extends ConsumerState<Application> {
           themeMode: themeMode,
           theme: _getAppTheme(brightness: Brightness.light),
           darkTheme: _getAppTheme(brightness: Brightness.dark),
-          home: _showSplash
-              ? const _SplashView()
-              : _authController.status == AuthStatus.authenticated
-              ? child!
-              : LoginView(controller: _authController),
+          home: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 180),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            child: _showSplash
+                ? const _SplashView(key: ValueKey('splash'))
+                : _authController.status == AuthStatus.authenticated ||
+                      (_authController.status == AuthStatus.initializing &&
+                          ref.read(profilesProvider).isNotEmpty)
+                ? KeyedSubtree(key: const ValueKey('home'), child: child!)
+                : LoginView(
+                    key: const ValueKey('login'),
+                    controller: _authController,
+                  ),
+          ),
         );
       },
       child: const HomePage(),
@@ -318,7 +347,7 @@ class ApplicationState extends ConsumerState<Application> {
 }
 
 class _SplashView extends StatelessWidget {
-  const _SplashView();
+  const _SplashView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -329,9 +358,9 @@ class _SplashView extends StatelessWidget {
       child: SafeArea(
         child: Center(
           child: Image.asset(
-            'assets/images/splash.png',
-            width: 288,
-            height: 288,
+            'assets/images/icon.png',
+            width: 96,
+            height: 96,
             fit: BoxFit.contain,
           ),
         ),

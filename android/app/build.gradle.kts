@@ -1,4 +1,3 @@
-import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.tasks.InputDirectory
@@ -26,8 +25,6 @@ abstract class SyncFlutterJniLibs : DefaultTask() {
 plugins {
     id("com.android.application")
     id("dev.flutter.flutter-gradle-plugin")
-    id("com.google.gms.google-services")
-    id("com.google.firebase.crashlytics")
 }
 
 val localProperties = Properties().apply {
@@ -95,9 +92,6 @@ android {
             } else {
                 signingConfig = signingConfigs.getByName("debug")
                 applicationIdSuffix = ".dev"
-                configure<CrashlyticsExtension> {
-                    mappingFileUploadEnabled = false
-                }
             }
 
             setProguardFiles(
@@ -145,7 +139,4 @@ dependencies {
     implementation(libs.smali.dexlib2) {
         exclude(group = "com.google.guava", module = "guava")
     }
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.crashlytics.ndk)
-    implementation(libs.firebase.analytics)
 }

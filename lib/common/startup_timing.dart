@@ -1,9 +1,13 @@
 import 'dart:developer' as developer;
 
+import 'package:flutter/foundation.dart';
+
 class StartupTiming {
   final Stopwatch _total = Stopwatch();
   Duration _last = Duration.zero;
   bool _active = false;
+
+  bool get isActive => _active;
 
   void start() {
     _total
@@ -19,10 +23,13 @@ class StartupTiming {
     final elapsed = _total.elapsed;
     final delta = elapsed - _last;
     _last = elapsed;
-    developer.log(
-      '$stage total=${elapsed.inMilliseconds}ms delta=${delta.inMilliseconds}ms',
-      name: 'startup',
-    );
+    final message =
+        '$stage total=${elapsed.inMilliseconds}ms '
+        'delta=${delta.inMilliseconds}ms';
+    developer.log(message, name: 'startup');
+    if (kDebugMode) {
+      debugPrint('[startup] $message');
+    }
   }
 
   void finish(String stage) {

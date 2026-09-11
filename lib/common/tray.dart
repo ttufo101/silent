@@ -83,12 +83,11 @@ class Tray {
       },
     );
     menuItems.add(showMenuItem);
-    final startMenuItem = MenuItem.checkbox(
+    final startMenuItem = MenuItem(
       label: trayState.isStart ? appLocalizations.stop : appLocalizations.start,
       onClick: (_) async {
         commonAction.toggleRunning();
       },
-      checked: false,
     );
     menuItems.add(startMenuItem);
     if (system.isMacOS) {

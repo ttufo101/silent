@@ -196,20 +196,6 @@ class AppSidebarContainer extends ConsumerWidget {
                           labelType: NavigationRailLabelType.none,
                         ),
                       ),
-                      Text(
-                        appName,
-                        style: context.textTheme.labelLarge?.copyWith(
-                          color: context.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'v${globalState.packageInfo.version}',
-                        style: context.textTheme.labelSmall?.copyWith(
-                          color: context.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
                       const SizedBox(height: 16),
                     ],
                   ),
@@ -255,15 +241,19 @@ class _DesktopAccountSummary extends ConsumerWidget {
     return SizedBox(
       width: 216,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Align(alignment: Alignment.centerLeft, child: AppIcon()),
-          const SizedBox(height: 14),
-          Text(
-            email,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: context.textTheme.bodyMedium,
+          const AppIcon(),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: Text(
+              email,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: context.textTheme.bodyMedium,
+            ),
           ),
           if (planName != null) ...[
             const SizedBox(height: 8),
@@ -285,9 +275,10 @@ class _DesktopAccountSummary extends ConsumerWidget {
             ),
           ],
           if (info != null) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Container(
-              padding: const EdgeInsets.all(10),
+              width: double.infinity,
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: context.colorScheme.surface,
                 borderRadius: BorderRadius.circular(9),

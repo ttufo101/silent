@@ -110,10 +110,6 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
                 result.success(openAppSettings())
             }
 
-            "didCrashOnPreviousExecution" -> {
-                result.success(GlobalState.didCrashOnPreviousExecution())
-            }
-
             "requestVpnPermission" -> {
                 prepareVpn(true) { granted -> result.success(granted) }
             }

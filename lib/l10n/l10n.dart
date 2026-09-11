@@ -2394,26 +2394,6 @@ class AppLocalizations {
     return Intl.message('Crash test', name: 'crashTest', desc: '', args: []);
   }
 
-  /// `Crash detected`
-  String get crashDetected {
-    return Intl.message(
-      'Crash detected',
-      name: 'crashDetected',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `The app crashed during the previous run. To prevent repeated crashes, the current profile has been cleared and automatic configuration setup was skipped.`
-  String get crashDetectedTip {
-    return Intl.message(
-      'The app crashed during the previous run. To prevent repeated crashes, the current profile has been cleared and automatic configuration setup was skipped.',
-      name: 'crashDetectedTip',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Clear Data`
   String get clearData {
     return Intl.message('Clear Data', name: 'clearData', desc: '', args: []);
@@ -2837,26 +2817,6 @@ class AppLocalizations {
   /// `Core status`
   String get coreStatus {
     return Intl.message('Core status', name: 'coreStatus', desc: '', args: []);
-  }
-
-  /// `Crash Analysis`
-  String get crashlytics {
-    return Intl.message(
-      'Crash Analysis',
-      name: 'crashlytics',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `When enabled, automatically uploads crash logs without sensitive information when the app crashes`
-  String get crashlyticsTip {
-    return Intl.message(
-      'When enabled, automatically uploads crash logs without sensitive information when the app crashes',
-      name: 'crashlyticsTip',
-      desc: '',
-      args: [],
-    );
   }
 
   /// `Append System DNS`
@@ -3409,10 +3369,10 @@ class AppLocalizations {
     );
   }
 
-  /// `Helper service unavailable; TUN mode cannot be enabled. Reinstall FlClash to restore it.`
+  /// `Helper service unavailable; TUN mode cannot be enabled. Reinstall silent to restore it.`
   String get helperCorruptTip {
     return Intl.message(
-      'Helper service unavailable; TUN mode cannot be enabled. Reinstall FlClash to restore it.',
+      'Helper service unavailable; TUN mode cannot be enabled. Reinstall silent to restore it.',
       name: 'helperCorruptTip',
       desc: '',
       args: [],
@@ -4964,29 +4924,14 @@ class AppLocalizations {
     );
   }
 
-  /// `My orders`
+  /// `Order list`
   String get personalOrders {
     return Intl.message(
-      'My orders',
+      'Order list',
       name: 'personalOrders',
       desc: '',
       args: [],
     );
-  }
-
-  /// `Pending payment`
-  String get personalPendingPayment {
-    return Intl.message(
-      'Pending payment',
-      name: 'personalPendingPayment',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `All`
-  String get personalAllOrders {
-    return Intl.message('All', name: 'personalAllOrders', desc: '', args: []);
   }
 
   /// `Change password`

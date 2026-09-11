@@ -4,6 +4,7 @@ import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
+import 'package:fl_clash/state.dart';
 import 'package:fl_clash/views/about.dart';
 import 'package:fl_clash/views/access.dart';
 import 'package:fl_clash/views/application_setting.dart';
@@ -28,6 +29,8 @@ class ToolsView extends ConsumerStatefulWidget {
 }
 
 class _ToolViewState extends ConsumerState<ToolsView> {
+  var _selectedDesktopSection = 0;
+
   Widget _buildNavigationMenuItem(NavigationItem navigationItem) {
     return ListItem.open(
       leading: navigationItem.icon,
@@ -94,7 +97,6 @@ class _ToolViewState extends ConsumerState<ToolsView> {
       title: context.appLocalizations.other,
       items: [
         const OpenLogsItem(),
-        if (system.isAndroid) const CrashlyticsItem(),
         const AutoCheckUpdateItem(),
         if (enableDeveloperMode) const _DeveloperItem(),
         const _InfoItem(),
@@ -119,28 +121,112 @@ class _ToolViewState extends ConsumerState<ToolsView> {
       _getSystemList(),
       _getOtherList(enableDeveloperMode),
     ];
-    final list = ListView.separated(
-      key: toolsStoreKey,
-      itemCount: sections.length,
-      itemBuilder: (_, index) => sections[index],
-      separatorBuilder: (_, _) => const _SettingsSectionDivider(),
-      padding: isMobile
-          ? const EdgeInsets.only(bottom: 20)
-          : const EdgeInsets.fromLTRB(32, 16, 32, 40),
-    );
-    return CommonScaffold(
-      title: widget.settingsRoot
-          ? context.appLocalizations.settings
-          : context.appLocalizations.tools,
-      body: isMobile
-          ? list
-          : Align(
-              alignment: Alignment.topCenter,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1000),
-                child: list,
+    if (isMobile) {
+      final list = ListView.separated(
+        key: toolsStoreKey,
+        itemCount: sections.length,
+        itemBuilder: (_, index) => sections[index],
+        separatorBuilder: (_, _) => const _SettingsSectionDivider(),
+        padding: const EdgeInsets.only(bottom: 20),
+      );
+      return CommonScaffold(
+        title: widget.settingsRoot
+            ? context.appLocalizations.settings
+            : context.appLocalizations.tools,
+        body: list,
+      );
+    }
+    final selectedIndex = _selectedDesktopSection.clamp(0, sections.length - 1);
+    return Scaffold(
+      backgroundColor: context.tDesign.pageBackground,
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1080),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    width: 216,
+                    child: Material(
+                      color: context.tDesign.container,
+                      borderRadius: BorderRadius.circular(9),
+                      clipBehavior: Clip.antiAlias,
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: sections.length,
+                        itemBuilder: (context, index) {
+                          return _DesktopSettingsCategory(
+                            label: sections[index].title,
+                            selected: index == selectedIndex,
+                            onTap: () {
+                              setState(() => _selectedDesktopSection = index);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ListTileTheme(
+                      data: const ListTileThemeData(
+                        dense: true,
+                        minVerticalPadding: 8,
+                      ),
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 160),
+                        child: ListView(
+                          key: ValueKey(sections[selectedIndex].title),
+                          children: [sections[selectedIndex]],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DesktopSettingsCategory extends StatelessWidget {
+  const _DesktopSettingsCategory({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        height: 44,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        alignment: AlignmentDirectional.centerStart,
+        color: selected ? context.colorScheme.primaryContainer : null,
+        child: Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: context.textTheme.bodyMedium?.copyWith(
+            color: selected
+                ? context.colorScheme.primary
+                : context.colorScheme.onSurface,
+            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+          ),
+        ),
+      ),
     );
   }
 }
@@ -311,6 +397,7 @@ class _InfoItem extends StatelessWidget {
     return ListItem.open(
       leading: const Icon(Icons.info),
       title: Text(context.appLocalizations.about),
+      subtitle: Text('$appName · v${globalState.packageInfo.version}'),
       widget: const AboutView(),
     );
   }

@@ -69,6 +69,7 @@ class _HomeProxySelectorViewState extends ConsumerState<HomeProxySelectorView> {
     final selectedProxyName = ref.watch(
       selectedProxyNameProvider(widget.groupName),
     );
+    final isMobile = ref.watch(isMobileViewProvider);
     final proxies = group?.all ?? const <Proxy>[];
     final delays = <String, int?>{
       for (final proxy in proxies)
@@ -92,9 +93,11 @@ class _HomeProxySelectorViewState extends ConsumerState<HomeProxySelectorView> {
       body: Align(
         alignment: Alignment.topCenter,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 56, 16, 24),
+          padding: isMobile
+              ? const EdgeInsets.fromLTRB(16, 56, 16, 24)
+              : const EdgeInsets.fromLTRB(24, 24, 24, 32),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 640),
+            constraints: BoxConstraints(maxWidth: isMobile ? 640 : 920),
             child: group == null || proxies.isEmpty
                 ? NullStatus(label: context.appLocalizations.proxyGroupEmpty)
                 : Column(
@@ -111,8 +114,10 @@ class _HomeProxySelectorViewState extends ConsumerState<HomeProxySelectorView> {
                           proxy: recommended,
                           delay: delays[recommended.name],
                           proxiesByName: proxiesByName,
+                          isSelected: recommended.name == selectedProxyName,
+                          compact: !isMobile,
                         ),
-                      const SizedBox(height: 40),
+                      SizedBox(height: isMobile ? 40 : 24),
                       Text(
                         context.appLocalizations.allNodes,
                         style: context.textTheme.bodyLarge,
@@ -131,6 +136,10 @@ class _HomeProxySelectorViewState extends ConsumerState<HomeProxySelectorView> {
                                         proxiesByName: proxiesByName,
                                         isSelected:
                                             proxy.name == selectedProxyName,
+                                        showSelected:
+                                            proxy.name == selectedProxyName &&
+                                            recommended?.name != proxy.name,
+                                        compact: !isMobile,
                                       ),
                                   ]
                                   .separated(
@@ -164,12 +173,16 @@ class _RecommendedProxy extends StatelessWidget {
   final Proxy proxy;
   final int? delay;
   final Map<String, Proxy> proxiesByName;
+  final bool isSelected;
+  final bool compact;
 
   const _RecommendedProxy({
     required this.group,
     required this.proxy,
     required this.delay,
     required this.proxiesByName,
+    required this.isSelected,
+    required this.compact,
   });
 
   @override
@@ -185,25 +198,27 @@ class _RecommendedProxy extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
-          changeProxySelection(
-            groupName: group.name,
-            groupType: group.type,
-            proxy: proxy,
-          );
+          if (!isSelected) {
+            changeProxySelection(
+              groupName: group.name,
+              groupType: group.type,
+              proxy: proxy,
+            );
+          }
           if (group.type.isComputedSelected ||
               group.type == GroupType.Selector) {
             Navigator.of(context).pop();
           }
         },
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 72),
+          constraints: BoxConstraints(minHeight: compact ? 64 : 72),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
                 ProxyFlag(
                   countryCode: countryCode,
-                  size: 40,
+                  size: compact ? 36 : 40,
                   fallbackIcon: Icons.bolt,
                   emphasized: true,
                 ),
@@ -231,6 +246,15 @@ class _RecommendedProxy extends StatelessWidget {
                   ),
                 ),
                 _DelayStatus(delay: delay, highlighted: true),
+                const SizedBox(width: 8),
+                Icon(
+                  isSelected
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_unchecked,
+                  color: isSelected
+                      ? context.colorScheme.primary
+                      : context.colorScheme.onSurfaceVariant,
+                ),
               ],
             ),
           ),
@@ -246,6 +270,8 @@ class _ProxyRow extends StatelessWidget {
   final int? delay;
   final Map<String, Proxy> proxiesByName;
   final bool isSelected;
+  final bool showSelected;
+  final bool compact;
 
   const _ProxyRow({
     required this.group,
@@ -253,6 +279,8 @@ class _ProxyRow extends StatelessWidget {
     required this.delay,
     required this.proxiesByName,
     required this.isSelected,
+    required this.showSelected,
+    required this.compact,
   });
 
   @override
@@ -261,22 +289,24 @@ class _ProxyRow extends StatelessWidget {
     final countryCode = resolveProxyCountryCode(proxy, proxiesByName);
     return InkWell(
       onTap: () {
-        changeProxySelection(
-          groupName: group.name,
-          groupType: group.type,
-          proxy: proxy,
-        );
+        if (!isSelected) {
+          changeProxySelection(
+            groupName: group.name,
+            groupType: group.type,
+            proxy: proxy,
+          );
+        }
         if (group.type.isComputedSelected || group.type == GroupType.Selector) {
           Navigator.of(context).pop();
         }
       },
       child: SizedBox(
-        height: 56,
+        height: compact ? 48 : 56,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              ProxyFlag(countryCode: countryCode, size: 32),
+              ProxyFlag(countryCode: countryCode, size: compact ? 28 : 32),
               const SizedBox(width: 16),
               Expanded(
                 child: EmojiText(
@@ -288,10 +318,10 @@ class _ProxyRow extends StatelessWidget {
               ),
               _DelayStatus(delay: delay),
               Icon(
-                isSelected
+                showSelected
                     ? Icons.radio_button_checked
                     : Icons.radio_button_unchecked,
-                color: isSelected
+                color: showSelected
                     ? context.colorScheme.primary
                     : context.colorScheme.onSurfaceVariant,
               ),

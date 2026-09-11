@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:fl_clash/auth/data/gateway_client.dart';
+import 'package:fl_clash/common/startup_timing.dart';
 import 'package:fl_clash/starcore/models/plan.dart';
 import 'package:fl_clash/starcore/models/user_info.dart';
 
@@ -74,6 +75,7 @@ class StarcoreApi {
       params: const {},
       requestTimeout: const Duration(seconds: 10),
     );
+    startupTiming.mark('subscription response received');
     final subscriptionValue = data.containsKey('has_subscription')
         ? data['has_subscription']
         : data['hasSubscription'];
@@ -96,6 +98,7 @@ class StarcoreApi {
       if (bytes.isEmpty) {
         throw const GatewayException('Empty proxy configuration');
       }
+      startupTiming.mark('profile content decoded');
       return ServerLinks(hasSubscription: true, content: bytes);
     } on FormatException {
       throw const GatewayException('Invalid proxy configuration encoding');

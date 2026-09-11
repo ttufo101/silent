@@ -31,10 +31,6 @@ class GlobalState {
   late CommonTheme theme;
   late ProviderContainer container;
   bool needInitStatus = true;
-  bool _didCrashOnPreviousExecution = false;
-
-  bool get didCrashOnPreviousExecution => _didCrashOnPreviousExecution;
-
   bool get isPre => appEnv != 'stable';
 
   bool get canCrashCore => canCrashCoreFor(isDebug: kDebugMode, appEnv: appEnv);
@@ -82,12 +78,6 @@ class GlobalState {
       );
       await preferences.saveConfig(config);
     }
-    _didCrashOnPreviousExecution = await system.didCrashOnPreviousExecution();
-    startupTiming.mark('crash state ready');
-    if (_didCrashOnPreviousExecution) {
-      config = config.copyWith(currentProfileId: null);
-      await preferences.saveConfig(config);
-    }
     final appState = AppState(
       brightness: platformBrightness,
       version: version,
@@ -103,13 +93,15 @@ class GlobalState {
     container = ProviderContainer(
       overrides: [...appStateOverrides, ...configOverrides],
     );
-    final profiles = await database.profilesDao.query().get();
-    startupTiming.mark('database profiles ready');
-    container.read(profilesProvider.notifier).setAndReorder(profiles);
-    await AppLocalizations.load(
+    final profilesTask = database.profilesDao.query().get();
+    final localizationsTask = AppLocalizations.load(
       utils.getLocaleForString(config.appSettingProps.locale) ??
           WidgetsBinding.instance.platformDispatcher.locale,
     );
+    final profiles = await profilesTask;
+    startupTiming.mark('database profiles ready');
+    container.read(profilesProvider.notifier).setAndReorder(profiles);
+    await localizationsTask;
     startupTiming.mark('localizations ready');
     await window?.init(version, config.windowProps);
     if (system.isAndroid) {
@@ -322,7 +314,6 @@ class GlobalState {
       window?.hide();
     }
     await _handleFailedPreference();
-    await _showCrashRecoveryTip();
     if (startCore) {
       await ensureCoreReady();
     }
@@ -333,20 +324,9 @@ class GlobalState {
   Future<void> ensureCoreReady() async {
     if (container.read(coreStatusProvider) == CoreStatus.connected) return;
     await container.read(coreActionProvider.notifier).startCore();
-    if (container.read(coreStatusProvider) == CoreStatus.connected &&
-        !_didCrashOnPreviousExecution) {
+    if (container.read(coreStatusProvider) == CoreStatus.connected) {
       await container.read(setupActionProvider.notifier).initStatus();
     }
-  }
-
-  Future<void> _showCrashRecoveryTip() async {
-    if (!_didCrashOnPreviousExecution) return;
-    await showMessage(
-      title: currentAppLocalizations.crashDetected,
-      cancelable: false,
-      dismissible: false,
-      message: TextSpan(text: currentAppLocalizations.crashDetectedTip),
-    );
   }
 
   Future<void> _handleFailedPreference() async {

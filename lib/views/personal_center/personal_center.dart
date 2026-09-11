@@ -76,10 +76,10 @@ class _PersonalCenterViewState extends ConsumerState<PersonalCenterView> {
             physics: const AlwaysScrollableScrollPhysics(),
             padding: isMobile
                 ? const EdgeInsets.only(top: 7, bottom: 24)
-                : const EdgeInsets.symmetric(vertical: 32),
+                : const EdgeInsets.fromLTRB(24, 20, 24, 32),
             children: [
               _ProfileWidth(child: _AccountHeader(email: email)),
-              const SizedBox(height: 12),
+              SizedBox(height: isMobile ? 17 : 16),
               _ProfileWidth(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -89,19 +89,13 @@ class _PersonalCenterViewState extends ConsumerState<PersonalCenterView> {
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
-              const _ProfileWidth(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: _OrdersSection(),
-                ),
-              ),
-              const SizedBox(height: 8),
+              SizedBox(height: isMobile ? 32 : 16),
               _ProfileWidth(
                 child: _SectionLabel(label: context.appLocalizations.more),
               ),
               _ProfileWidth(
                 child: _MenuGroup(
+                  isMobile: isMobile,
                   loggingOut: _loggingOut,
                   onChangePassword: _openChangePassword,
                   onOpenAbout: _openAbout,
@@ -126,7 +120,7 @@ class _ProfileWidth extends StatelessWidget {
     final desktop = MediaQuery.sizeOf(context).width > 600;
     return Center(
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: desktop ? 1040 : 480),
+        constraints: BoxConstraints(maxWidth: desktop ? 1080 : 480),
         child: SizedBox(width: double.infinity, child: child),
       ),
     );
@@ -140,11 +134,12 @@ class _AccountHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final desktop = MediaQuery.sizeOf(context).width > 600;
     return Column(
       children: [
         Container(
-          width: 64,
-          height: 64,
+          width: desktop ? 56 : 64,
+          height: desktop ? 56 : 64,
           alignment: Alignment.center,
           decoration: const BoxDecoration(
             color: Color(0xFFD9E1FF),
@@ -152,19 +147,24 @@ class _AccountHeader extends StatelessWidget {
           ),
           child: SvgPicture.asset(
             'assets/images/personal/user.svg',
-            width: 24,
-            height: 27,
+            width: desktop ? 22 : 24,
+            height: desktop ? 24 : 27,
           ),
         ),
-        const SizedBox(height: 5),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Text(
-            email,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: context.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
+        SizedBox(
+          height: 32,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Center(
+              child: Text(
+                email,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: context.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ),
         ),
@@ -183,9 +183,10 @@ class _PlanSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final info = value.asData?.value;
     final plan = info?.currentPlan;
+    final desktop = MediaQuery.sizeOf(context).width > 600;
     return Container(
-      constraints: const BoxConstraints(minHeight: 184),
-      padding: const EdgeInsets.fromLTRB(12, 11, 12, 12),
+      constraints: BoxConstraints(minHeight: desktop ? 128 : 184),
+      padding: const EdgeInsets.fromLTRB(9, 11, 7, 13),
       decoration: _profileCardDecoration(context),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,25 +194,35 @@ class _PlanSection extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                context.appLocalizations.personalPlan,
-                style: _sectionTitleStyle(context),
-              ),
-              if (plan != null) ...[
-                const SizedBox(width: 16),
+              if (desktop)
+                Text(
+                  context.appLocalizations.personalPlan,
+                  style: _sectionTitleStyle(context),
+                )
+              else
                 Expanded(
                   child: Text(
-                    plan.name,
-                    maxLines: 2,
+                    context.appLocalizations.personalPlan,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.end,
                     style: _sectionTitleStyle(context),
                   ),
                 ),
-              ],
+              if (plan != null) ...[
+                SizedBox(width: desktop ? 16 : 20),
+                Expanded(
+                  child: Text(
+                    plan.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: _sectionTitleStyle(context),
+                  ),
+                ),
+              ] else if (!desktop)
+                const Spacer(),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: desktop ? 22 : 26),
           if (value.isLoading && info == null)
             const _PlanStatus(child: CircularProgressIndicator())
           else if (value.hasError && info == null)
@@ -239,7 +250,10 @@ class _PlanSection extends StatelessWidget {
               ),
             )
           else
-            _PlanDetails(info: info),
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: 3),
+              child: _PlanDetails(info: info),
+            ),
         ],
       ),
     );
@@ -348,7 +362,7 @@ class _FeatureGrid extends StatelessWidget {
         return Column(
           children: [
             _FeatureRow(features: features.take(2).toList(growable: false)),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             _FeatureRow(features: features.skip(2).toList(growable: false)),
           ],
         );
@@ -427,88 +441,6 @@ class _ProfileFeature extends StatelessWidget {
   }
 }
 
-class _OrdersSection extends StatelessWidget {
-  const _OrdersSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      constraints: const BoxConstraints(minHeight: 128),
-      padding: const EdgeInsets.fromLTRB(12, 11, 12, 12),
-      decoration: _profileCardDecoration(context),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            context.appLocalizations.personalOrders,
-            style: _sectionTitleStyle(context),
-          ),
-          const SizedBox(height: 22),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final scale = MediaQuery.textScalerOf(context).scale(14) / 14;
-              final twoColumns = constraints.maxWidth >= 300 * scale;
-              final items = [
-                _OrderItem(
-                  asset: 'assets/images/personal/cart.svg',
-                  label: context.appLocalizations.personalPendingPayment,
-                ),
-                _OrderItem(
-                  asset: 'assets/images/personal/order_list.svg',
-                  label: context.appLocalizations.personalAllOrders,
-                ),
-              ];
-              if (!twoColumns) {
-                return Column(
-                  children: [
-                    items.first,
-                    const SizedBox(height: 12),
-                    items.last,
-                  ],
-                );
-              }
-              return Row(
-                children: [
-                  Expanded(child: items.first),
-                  const SizedBox(width: 20),
-                  Expanded(child: items.last),
-                ],
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _OrderItem extends StatelessWidget {
-  const _OrderItem({required this.asset, required this.label});
-
-  final String asset;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(4),
-      child: Row(
-        children: [
-          SvgPicture.asset(asset, width: 28, height: 28),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              label,
-              softWrap: true,
-              style: context.textTheme.bodyMedium,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _SectionLabel extends StatelessWidget {
   const _SectionLabel({required this.label});
 
@@ -519,7 +451,7 @@ class _SectionLabel extends StatelessWidget {
     return SizedBox(
       height: 40,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Align(
           alignment: AlignmentDirectional.centerStart,
           child: Text(
@@ -536,12 +468,14 @@ class _SectionLabel extends StatelessWidget {
 
 class _MenuGroup extends StatelessWidget {
   const _MenuGroup({
+    required this.isMobile,
     required this.loggingOut,
     required this.onChangePassword,
     required this.onOpenAbout,
     required this.onLogout,
   });
 
+  final bool isMobile;
   final bool loggingOut;
   final VoidCallback onChangePassword;
   final VoidCallback onOpenAbout;
@@ -549,24 +483,37 @@ class _MenuGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(9),
-      child: Material(
-        color: context.tDesign.container,
-        child: Column(
-          children: [
-            _MenuRow(
-              label: context.appLocalizations.personalChangePassword,
-              onTap: onChangePassword,
+    final borderRadius = BorderRadius.circular(isMobile ? 0 : 9);
+    return Column(
+      children: [
+        ClipRRect(
+          borderRadius: borderRadius,
+          child: Material(
+            color: context.tDesign.container,
+            child: Column(
+              children: [
+                _MenuRow(label: context.appLocalizations.personalOrders),
+                const Divider(height: 0.5, indent: 16),
+                _MenuRow(
+                  label: context.appLocalizations.personalChangePassword,
+                  onTap: onChangePassword,
+                ),
+                const Divider(height: 0.5, indent: 16),
+                _MenuRow(
+                  label: context.appLocalizations.personalAppVersion,
+                  value: globalState.packageInfo.version,
+                  onTap: onOpenAbout,
+                ),
+              ],
             ),
-            const Divider(height: 0.5, indent: 16),
-            _MenuRow(
-              label: context.appLocalizations.personalAppVersion,
-              value: globalState.packageInfo.version,
-              onTap: onOpenAbout,
-            ),
-            const Divider(height: 0.5, indent: 16),
-            _MenuRow(
+          ),
+        ),
+        const SizedBox(height: 8),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(9),
+          child: Material(
+            color: context.tDesign.container,
+            child: _MenuRow(
               iconAsset: 'assets/images/personal/logout.svg',
               label: context.appLocalizations.personalLogout,
               destructive: true,
@@ -574,9 +521,9 @@ class _MenuGroup extends StatelessWidget {
               onTap: onLogout,
               showChevron: false,
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }
@@ -608,7 +555,9 @@ class _MenuRow extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 56),
+        constraints: BoxConstraints(
+          minHeight: MediaQuery.sizeOf(context).width > 600 ? 48 : 56,
+        ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
@@ -644,14 +593,14 @@ class _MenuRow extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.end,
-                    style: context.textTheme.bodyMedium?.copyWith(
+                    style: context.textTheme.bodyLarge?.copyWith(
                       color: context.colorScheme.onSurface.withValues(
                         alpha: 0.4,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 4),
               ],
               if (showChevron)
                 SizedBox.square(
@@ -677,27 +626,31 @@ class _MenuRow extends StatelessWidget {
 }
 
 BoxDecoration _profileCardDecoration(BuildContext context) {
+  final desktop = MediaQuery.sizeOf(context).width > 600;
   return BoxDecoration(
     color: context.tDesign.container,
     borderRadius: BorderRadius.circular(9),
-    boxShadow: [
-      BoxShadow(
-        color: Colors.black.withValues(alpha: 0.05),
-        blurRadius: 10,
-        offset: const Offset(0, 1),
-      ),
-      BoxShadow(
-        color: Colors.black.withValues(alpha: 0.08),
-        blurRadius: 5,
-        offset: const Offset(0, 4),
-      ),
-      BoxShadow(
-        color: Colors.black.withValues(alpha: 0.12),
-        blurRadius: 4,
-        spreadRadius: -1,
-        offset: const Offset(0, 2),
-      ),
-    ],
+    border: desktop ? Border.all(color: context.tDesign.componentStroke) : null,
+    boxShadow: desktop
+        ? const []
+        : [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 1),
+            ),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 5,
+              offset: const Offset(0, 4),
+            ),
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.12),
+              blurRadius: 4,
+              spreadRadius: -1,
+              offset: const Offset(0, 2),
+            ),
+          ],
   );
 }
 

@@ -342,15 +342,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "core": MessageLookupByLibrary.simpleMessage("Core"),
     "coreStatus": MessageLookupByLibrary.simpleMessage("Core status"),
     "country": MessageLookupByLibrary.simpleMessage("Country"),
-    "crashDetected": MessageLookupByLibrary.simpleMessage("Crash detected"),
-    "crashDetectedTip": MessageLookupByLibrary.simpleMessage(
-      "The app crashed during the previous run. To prevent repeated crashes, the current profile has been cleared and automatic configuration setup was skipped.",
-    ),
     "crashTest": MessageLookupByLibrary.simpleMessage("Crash test"),
-    "crashlytics": MessageLookupByLibrary.simpleMessage("Crash Analysis"),
-    "crashlyticsTip": MessageLookupByLibrary.simpleMessage(
-      "When enabled, automatically uploads crash logs without sensitive information when the app crashes",
-    ),
     "create": MessageLookupByLibrary.simpleMessage("Create"),
     "creationTime": MessageLookupByLibrary.simpleMessage("Creation time"),
     "currentNode": MessageLookupByLibrary.simpleMessage("Current node"),
@@ -499,7 +491,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Do you want to cache the changes?",
     ),
     "helperCorruptTip": MessageLookupByLibrary.simpleMessage(
-      "Helper service unavailable; TUN mode cannot be enabled. Reinstall FlClash to restore it.",
+      "Helper service unavailable; TUN mode cannot be enabled. Reinstall silent to restore it.",
     ),
     "hideFromList": MessageLookupByLibrary.simpleMessage("Hide from list"),
     "host": MessageLookupByLibrary.simpleMessage("Host"),
@@ -706,7 +698,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "palette": MessageLookupByLibrary.simpleMessage("Palette"),
     "password": MessageLookupByLibrary.simpleMessage("Password"),
     "paste": MessageLookupByLibrary.simpleMessage("Paste"),
-    "personalAllOrders": MessageLookupByLibrary.simpleMessage("All"),
     "personalAppVersion": MessageLookupByLibrary.simpleMessage("App version"),
     "personalCenter": MessageLookupByLibrary.simpleMessage("Profile"),
     "personalChangePassword": MessageLookupByLibrary.simpleMessage(
@@ -734,12 +725,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "personalOldPassword": MessageLookupByLibrary.simpleMessage(
       "Current password",
     ),
-    "personalOrders": MessageLookupByLibrary.simpleMessage("My orders"),
+    "personalOrders": MessageLookupByLibrary.simpleMessage("Order list"),
     "personalPasswordLength": MessageLookupByLibrary.simpleMessage(
       "Password must be between 8 and 72 bytes",
-    ),
-    "personalPendingPayment": MessageLookupByLibrary.simpleMessage(
-      "Pending payment",
     ),
     "personalPlan": MessageLookupByLibrary.simpleMessage("My plan"),
     "personalRemainingDays": MessageLookupByLibrary.simpleMessage(

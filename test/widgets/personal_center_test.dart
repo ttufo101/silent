@@ -24,7 +24,7 @@ void main() {
     );
   });
 
-  testWidgets('shows account, current plan, orders and account actions', (
+  testWidgets('shows account, current plan and account actions', (
     tester,
   ) async {
     await _setSurface(tester);
@@ -42,9 +42,7 @@ void main() {
     expect(find.text('1500G'), findsOneWidget);
     expect(find.text('1/3'), findsOneWidget);
     expect(find.text('50mbits/s'), findsOneWidget);
-    expect(find.text('My orders'), findsOneWidget);
-    expect(find.text('Pending payment'), findsOneWidget);
-    expect(find.text('All'), findsOneWidget);
+    expect(find.text('Order list'), findsOneWidget);
     expect(find.text('Change password'), findsOneWidget);
     expect(find.text('App version'), findsOneWidget);
     expect(find.text('1.2.1'), findsOneWidget);

@@ -40,13 +40,13 @@ class _ShopViewState extends ConsumerState<ShopView> {
           isMobile && Theme.of(context).brightness == Brightness.light
           ? const Color(0xFFEEEEEE)
           : context.tDesign.pageBackground,
-      appBar: AppBar(
-        toolbarHeight: isMobile ? 48 : 56,
-        centerTitle: true,
-        leadingWidth: 48,
-        automaticallyImplyLeading: false,
-        leading: isMobile
-            ? IconButton(
+      appBar: isMobile
+          ? AppBar(
+              toolbarHeight: 48,
+              centerTitle: true,
+              leadingWidth: 48,
+              automaticallyImplyLeading: false,
+              leading: IconButton(
                 onPressed: _goBack,
                 icon: SvgPicture.asset(
                   'assets/images/shop/chevron_left.svg',
@@ -57,18 +57,19 @@ class _ShopViewState extends ConsumerState<ShopView> {
                     BlendMode.srcIn,
                   ),
                 ),
-              )
-            : null,
-        title: Text(context.appLocalizations.shopPlanTitle),
-      ),
+              ),
+              title: Text(context.appLocalizations.shopPlanTitle),
+            )
+          : null,
       body: Column(
         children: [
           Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                maxWidth: isMobile ? double.infinity : 760,
+                maxWidth: isMobile ? double.infinity : 1080,
               ),
               child: _PlanFilterTabs(
+                desktop: !isMobile,
                 selectedFilter: _selectedFilter,
                 onSelected: _selectFilter,
               ),
@@ -92,10 +93,12 @@ class _ShopViewState extends ConsumerState<ShopView> {
 }
 
 class _PlanFilterTabs extends StatelessWidget {
+  final bool desktop;
   final _PlanFilter selectedFilter;
   final ValueChanged<_PlanFilter> onSelected;
 
   const _PlanFilterTabs({
+    required this.desktop,
     required this.selectedFilter,
     required this.onSelected,
   });
@@ -121,7 +124,7 @@ class _PlanFilterTabs extends StatelessWidget {
                     final selected = selectedFilter == tab.$1;
                     return SizedBox(
                       width: width,
-                      height: 48,
+                      height: desktop ? 40 : 48,
                       child: Semantics(
                         button: true,
                         selected: selected,
@@ -139,12 +142,15 @@ class _PlanFilterTabs extends StatelessWidget {
                                   maxLines: 1,
                                   textAlign: TextAlign.center,
                                   overflow: TextOverflow.ellipsis,
-                                  style: context.textTheme.titleMedium
-                                      ?.copyWith(
-                                        color: selected
-                                            ? context.colorScheme.primary
-                                            : context.colorScheme.onSurface,
-                                      ),
+                                  style:
+                                      (desktop
+                                              ? context.textTheme.bodyLarge
+                                              : context.textTheme.titleMedium)
+                                          ?.copyWith(
+                                            color: selected
+                                                ? context.colorScheme.primary
+                                                : context.colorScheme.onSurface,
+                                          ),
                                 ),
                               ),
                               Positioned(
@@ -189,22 +195,22 @@ class _PlanList extends StatelessWidget {
     if (desktop) {
       return LayoutBuilder(
         builder: (context, constraints) {
-          final contentWidth = math.min(constraints.maxWidth - 48, 1152.0);
-          final columns = contentWidth >= 1050 ? 3 : 2;
-          final itemWidth = (contentWidth - (columns - 1) * 20) / columns;
+          final contentWidth = math.min(constraints.maxWidth - 48, 1080.0);
+          final columns = contentWidth >= 1000 ? 3 : 2;
+          final itemWidth = (contentWidth - (columns - 1) * 16) / columns;
           return SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
             child: Center(
               child: SizedBox(
                 width: contentWidth,
                 child: Wrap(
-                  spacing: 20,
-                  runSpacing: 20,
+                  spacing: 16,
+                  runSpacing: 16,
                   children: [
                     for (final plan in plans)
                       SizedBox(
                         width: itemWidth,
-                        child: PlanCard(plan: plan),
+                        child: PlanCard(plan: plan, desktop: true),
                       ),
                   ],
                 ),
@@ -253,35 +259,46 @@ class _PlanLoadError extends StatelessWidget {
 
 class PlanCard extends StatelessWidget {
   final Plan plan;
+  final bool desktop;
 
-  const PlanCard({super.key, required this.plan});
+  const PlanCard({super.key, required this.plan, this.desktop = false});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(minHeight: 197),
-      padding: const EdgeInsets.fromLTRB(18, 12, 12, 14),
+      constraints: BoxConstraints(minHeight: desktop ? 180 : 197),
+      padding: EdgeInsets.fromLTRB(
+        desktop ? 16 : 18,
+        12,
+        12,
+        desktop ? 12 : 14,
+      ),
       decoration: BoxDecoration(
         color: context.tDesign.container,
         borderRadius: BorderRadius.circular(9),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 1),
-          ),
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 5,
-            offset: const Offset(0, 4),
-          ),
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.12),
-            blurRadius: 4,
-            spreadRadius: -1,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: desktop
+            ? Border.all(color: context.tDesign.componentStroke)
+            : null,
+        boxShadow: desktop
+            ? const []
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 1),
+                ),
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 5,
+                  offset: const Offset(0, 4),
+                ),
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.12),
+                  blurRadius: 4,
+                  spreadRadius: -1,
+                  offset: const Offset(0, 2),
+                ),
+              ],
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -339,7 +356,7 @@ class PlanCard extends StatelessWidget {
                   children: [
                     Expanded(child: _PlanBenefits(plan: plan)),
                     const SizedBox(width: 12),
-                    const _PurchaseDisplay(),
+                    _PurchaseDisplay(desktop: desktop),
                   ],
                 )
               else ...[
@@ -471,13 +488,15 @@ class _PlanBenefit extends StatelessWidget {
 }
 
 class _PurchaseDisplay extends StatelessWidget {
-  const _PurchaseDisplay();
+  final bool desktop;
+
+  const _PurchaseDisplay({this.desktop = false});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(minWidth: 72, minHeight: 44),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      constraints: BoxConstraints(minWidth: 72, minHeight: desktop ? 40 : 44),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: desktop ? 8 : 10),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: context.colorScheme.primary,

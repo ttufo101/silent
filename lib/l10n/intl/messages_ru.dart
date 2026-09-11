@@ -347,15 +347,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "core": MessageLookupByLibrary.simpleMessage("Ядро"),
     "coreStatus": MessageLookupByLibrary.simpleMessage("Основной статус"),
     "country": MessageLookupByLibrary.simpleMessage("Страна"),
-    "crashDetected": MessageLookupByLibrary.simpleMessage("Обнаружен сбой"),
-    "crashDetectedTip": MessageLookupByLibrary.simpleMessage(
-      "Во время предыдущего запуска произошёл сбой приложения. Чтобы предотвратить повторный сбой, текущий профиль был сброшен, а автоматическая настройка конфигурации пропущена.",
-    ),
     "crashTest": MessageLookupByLibrary.simpleMessage("Тест на сбои"),
-    "crashlytics": MessageLookupByLibrary.simpleMessage("Анализ сбоев"),
-    "crashlyticsTip": MessageLookupByLibrary.simpleMessage(
-      "При включении автоматически загружает журналы сбоев без конфиденциальной информации, когда приложение выходит из строя",
-    ),
     "create": MessageLookupByLibrary.simpleMessage("Создать"),
     "creationTime": MessageLookupByLibrary.simpleMessage("Время создания"),
     "currentNode": MessageLookupByLibrary.simpleMessage("Текущий узел"),
@@ -512,7 +504,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Хотите сохранить изменения в кэше?",
     ),
     "helperCorruptTip": MessageLookupByLibrary.simpleMessage(
-      "Служба Helper недоступна, поэтому TUN-режим включить нельзя. Переустановите FlClash.",
+      "Служба Helper недоступна, поэтому TUN-режим включить нельзя. Переустановите silent.",
     ),
     "hideFromList": MessageLookupByLibrary.simpleMessage("Скрыть из списка"),
     "host": MessageLookupByLibrary.simpleMessage("Хост"),
@@ -739,7 +731,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "palette": MessageLookupByLibrary.simpleMessage("Палитра"),
     "password": MessageLookupByLibrary.simpleMessage("Пароль"),
     "paste": MessageLookupByLibrary.simpleMessage("Вставить"),
-    "personalAllOrders": MessageLookupByLibrary.simpleMessage("Все"),
     "personalAppVersion": MessageLookupByLibrary.simpleMessage(
       "Версия приложения",
     ),
@@ -769,12 +760,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "personalOldPassword": MessageLookupByLibrary.simpleMessage(
       "Текущий пароль",
     ),
-    "personalOrders": MessageLookupByLibrary.simpleMessage("Мои заказы"),
+    "personalOrders": MessageLookupByLibrary.simpleMessage("Список заказов"),
     "personalPasswordLength": MessageLookupByLibrary.simpleMessage(
       "Пароль должен содержать от 8 до 72 байт",
-    ),
-    "personalPendingPayment": MessageLookupByLibrary.simpleMessage(
-      "Ожидают оплаты",
     ),
     "personalPlan": MessageLookupByLibrary.simpleMessage("Мой тариф"),
     "personalRemainingDays": MessageLookupByLibrary.simpleMessage(

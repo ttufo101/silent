@@ -7,6 +7,7 @@ import 'package:fl_clash/state.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -29,119 +30,135 @@ class HomePage extends ConsumerWidget {
     if (!hasViewSize) {
       return const SizedBox.shrink();
     }
-    return HomeBackScopeContainer(
-      child: AppSidebarContainer(
-        child: Material(
-          color: context.colorScheme.surface,
-          child: Consumer(
-            builder: (context, ref, child) {
-              final state = ref.watch(navigationStateProvider);
-              final isMobile = state.viewMode == ViewMode.mobile;
-              final navigationItems = state.navigationItems;
-              final currentIndex = state.currentIndex;
-              final bottomNavigationBar = NavigationBarTheme(
-                data: _NavigationBarDefaultsM3(context),
-                child: NavigationBar(
-                  destinations: navigationItems
-                      .map(
-                        (e) => NavigationDestination(
-                          icon: e.icon,
-                          label: Intl.message(e.label.name),
-                        ),
-                      )
-                      .toList(),
-                  onDestinationSelected: (index) {
-                    _handleToPage(navigationItems[index].label);
-                  },
-                  selectedIndex: currentIndex,
-                ),
-              );
-              return Column(
-                children: [
-                  Flexible(
-                    flex: 1,
-                    child: FocusTraversalGroup(
-                      policy: PageTraversalPolicy(),
-                      child: MediaQuery.removePadding(
-                        removeTop: false,
-                        removeBottom: isMobile,
-                        removeLeft: isMobile,
-                        removeRight: isMobile,
-                        context: context,
-                        child: child!,
-                      ),
-                    ),
-                  ),
-                  AnimatedVisibility.bottomNavigation(
-                    visible: isMobile,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border(
-                          top: BorderSide(
-                            color: context.tDesign.componentStroke,
-                            width: 0.5,
-                          ),
-                        ),
-                      ),
-                      child: MediaQuery.removePadding(
-                        removeTop: true,
-                        removeBottom: false,
-                        removeLeft: true,
-                        removeRight: true,
-                        context: context,
-                        child: bottomNavigationBar,
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            },
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.digit1, control: true): () {
+          _handleToPage(PageLabel.dashboard);
+        },
+        const SingleActivator(LogicalKeyboardKey.digit2, control: true): () {
+          _handleToPage(PageLabel.shop);
+        },
+        const SingleActivator(LogicalKeyboardKey.digit3, control: true): () {
+          _handleToPage(PageLabel.personalCenter);
+        },
+        const SingleActivator(LogicalKeyboardKey.digit4, control: true): () {
+          _handleToPage(PageLabel.settings);
+        },
+      },
+      child: HomeBackScopeContainer(
+        child: AppSidebarContainer(
+          child: Material(
+            color: context.colorScheme.surface,
             child: Consumer(
-              builder: (_, ref, _) {
-                final navigationItems = ref
-                    .watch(currentNavigationItemsStateProvider)
-                    .value;
-                final isMobile = ref.watch(isMobileViewProvider);
-                return _HomePageView(
-                  navigationItems: navigationItems,
-                  pageBuilder: (_, index) {
-                    final navigationItem = navigationItems[index];
-                    final navigationView = navigationItem.builder(context);
-                    final scopedView = PageFocusScope(child: navigationView);
-                    final view = KeepScope(
-                      key: ValueKey(navigationItem.label),
-                      keep: navigationItem.keep,
-                      child: isMobile
-                          ? scopedView
-                          : Navigator(
-                              key: ValueKey(
-                                '${navigationItem.label.name}_navigator',
-                              ),
-                              pages: [MaterialPage(child: scopedView)],
-                              onDidRemovePage: (_) {},
+              builder: (context, ref, child) {
+                final state = ref.watch(navigationStateProvider);
+                final isMobile = state.viewMode == ViewMode.mobile;
+                final navigationItems = state.navigationItems;
+                final currentIndex = state.currentIndex;
+                final bottomNavigationBar = NavigationBarTheme(
+                  data: _NavigationBarDefaultsM3(context),
+                  child: NavigationBar(
+                    destinations: navigationItems
+                        .map(
+                          (e) => NavigationDestination(
+                            icon: e.icon,
+                            label: Intl.message(e.label.name),
+                          ),
+                        )
+                        .toList(),
+                    onDestinationSelected: (index) {
+                      _handleToPage(navigationItems[index].label);
+                    },
+                    selectedIndex: currentIndex,
+                  ),
+                );
+                return Column(
+                  children: [
+                    Flexible(
+                      flex: 1,
+                      child: FocusTraversalGroup(
+                        policy: PageTraversalPolicy(),
+                        child: MediaQuery.removePadding(
+                          removeTop: false,
+                          removeBottom: isMobile,
+                          removeLeft: isMobile,
+                          removeRight: isMobile,
+                          context: context,
+                          child: child!,
+                        ),
+                      ),
+                    ),
+                    AnimatedVisibility.bottomNavigation(
+                      visible: isMobile,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            top: BorderSide(
+                              color: context.tDesign.componentStroke,
+                              width: 0.5,
                             ),
-                    );
-                    return Consumer(
-                      key: ValueKey(navigationItem.label),
-                      builder: (_, ref, child) {
-                        final isActive = ref.watch(
-                          currentPageLabelProvider.select(
-                            (label) => label == navigationItem.label,
                           ),
-                        );
-                        return PageActivityScope(
-                          isActive: isActive,
-                          child: ExcludeFocus(
-                            excluding: !isActive,
-                            child: child!,
-                          ),
-                        );
-                      },
-                      child: view,
-                    );
-                  },
+                        ),
+                        child: MediaQuery.removePadding(
+                          removeTop: true,
+                          removeBottom: false,
+                          removeLeft: true,
+                          removeRight: true,
+                          context: context,
+                          child: bottomNavigationBar,
+                        ),
+                      ),
+                    ),
+                  ],
                 );
               },
+              child: Consumer(
+                builder: (_, ref, _) {
+                  final navigationItems = ref
+                      .watch(currentNavigationItemsStateProvider)
+                      .value;
+                  final isMobile = ref.watch(isMobileViewProvider);
+                  return _HomePageView(
+                    navigationItems: navigationItems,
+                    pageBuilder: (_, index) {
+                      final navigationItem = navigationItems[index];
+                      final navigationView = navigationItem.builder(context);
+                      final scopedView = PageFocusScope(child: navigationView);
+                      final view = KeepScope(
+                        key: ValueKey(navigationItem.label),
+                        keep: navigationItem.keep,
+                        child: isMobile
+                            ? scopedView
+                            : Navigator(
+                                key: ValueKey(
+                                  '${navigationItem.label.name}_navigator',
+                                ),
+                                pages: [MaterialPage(child: scopedView)],
+                                onDidRemovePage: (_) {},
+                              ),
+                      );
+                      return Consumer(
+                        key: ValueKey(navigationItem.label),
+                        builder: (_, ref, child) {
+                          final isActive = ref.watch(
+                            currentPageLabelProvider.select(
+                              (label) => label == navigationItem.label,
+                            ),
+                          );
+                          return PageActivityScope(
+                            isActive: isActive,
+                            child: ExcludeFocus(
+                              excluding: !isActive,
+                              child: child!,
+                            ),
+                          );
+                        },
+                        child: view,
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ),
         ),

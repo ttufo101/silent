@@ -29,7 +29,7 @@ function vector(splash = false) {
   const x = 12;
   const y = 8;
   const geometry = `<group android:translateX="${x}" android:translateY="${y}" android:scaleX="${scale}" android:scaleY="${scale}"><path android:fillColor="#FFFFFF" android:fillType="evenOdd" android:pathData="${brand.shield}${brand.letter}"/></group>`;
-  const body = splash ? `<path android:fillColor="${brand.blue}" android:pathData="M96,144a48,48 0,1 0,96 0a48,48 0,1 0,-96 0"/><group android:translateX="96" android:translateY="96" android:scaleX=".96" android:scaleY=".96">${geometry}</group>` : `<group android:translateX="15" android:translateY="15" android:scaleX=".78" android:scaleY=".78">${geometry}</group>`;
+  const body = splash ? `<path android:fillColor="${brand.blue}" android:pathData="M116,96H172C183.05,96 192,104.95 192,116V172C192,183.05 183.05,192 172,192H116C104.95,192 96,183.05 96,172V116C96,104.95 104.95,96 116,96Z"/><group android:translateX="96" android:translateY="96" android:scaleX=".96" android:scaleY=".96">${geometry}</group>` : `<group android:translateX="15" android:translateY="15" android:scaleX=".78" android:scaleY=".78">${geometry}</group>`;
   const size = splash ? 288 : 108;
   return `<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="${size}dp" android:height="${size}dp" android:viewportWidth="${size}" android:viewportHeight="${size}">${body}</vector>\n`;
 }
@@ -80,7 +80,7 @@ async function main() {
   for (const folder of ['mipmap-anydpi-v33', 'mipmap-television-anydpi-v33']) {
     for (const name of folder.includes('television') ? ['ic_launcher'] : ['ic_launcher', 'ic_launcher_round']) write(`${res}/${folder}/${name}.xml`, '<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@color/ic_launcher_background"/><foreground android:drawable="@drawable/ic_launcher_foreground"/><monochrome android:drawable="@drawable/ic_launcher_monochrome"/></adaptive-icon>\n');
   }
-  const splash = svg(`<circle cx="144" cy="144" r="48" fill="${brand.blue}"/><g transform="translate(96 96) scale(.96)">${mark()}</g>`, 288);
+  const splash = svg(`<rect x="96" y="96" width="96" height="96" rx="20" fill="${brand.blue}"/><g transform="translate(96 96) scale(.96)">${mark()}</g>`, 288);
   await png('assets/images/splash.png', splash, 864);
   write('design/brand/splash.svg', splash);
   console.log('Brand assets generated.');

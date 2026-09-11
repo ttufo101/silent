@@ -79,29 +79,60 @@ class _LoginViewState extends State<LoginView> {
               onFieldSubmitted: (_) => _submit(),
               onChanged: (_) => setState(() {}),
             ),
-            Row(
-              children: [
-                Checkbox(
-                  value: _remember,
-                  onChanged: _loading
-                      ? null
-                      : (value) => setState(() => _remember = value ?? false),
-                ),
-                Text(context.appLocalizations.authRemember),
-                const Spacer(),
-                TextButton(
-                  onPressed: _loading
-                      ? null
-                      : () => Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) => ForgotPasswordEmailView(
-                              api: widget.controller.api,
+            SizedBox(
+              height: 48,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: _loading
+                          ? null
+                          : () => setState(() => _remember = !_remember),
+                      child: Row(
+                        children: [
+                          Checkbox(
+                            value: _remember,
+                            materialTapTargetSize:
+                                MaterialTapTargetSize.shrinkWrap,
+                            onChanged: _loading
+                                ? null
+                                : (value) => setState(
+                                    () => _remember = value ?? false,
+                                  ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              context.appLocalizations.authRemember,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                        ),
-                  child: Text(context.appLocalizations.authForgotPassword),
-                ),
-              ],
+                        ],
+                      ),
+                    ),
+                  ),
+                  Flexible(
+                    child: TextButton(
+                      onPressed: _loading
+                          ? null
+                          : () => Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) => ForgotPasswordEmailView(
+                                  api: widget.controller.api,
+                                ),
+                              ),
+                            ),
+                      child: Text(
+                        context.appLocalizations.authForgotPassword,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.end,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             if (_error != null) ...[
               Text(_error!, style: TextStyle(color: context.colorScheme.error)),

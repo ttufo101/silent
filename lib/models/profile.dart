@@ -132,12 +132,15 @@ extension ProfileExtension on Profile {
     final path = await appPath.tempFilePath;
     final tempFile = File(path);
     await tempFile.safeWriteAsBytes(bytes);
+    startupTiming.mark('profile temporary file written');
     final message = await coreController.validateConfig(path);
+    startupTiming.mark('profile configuration validated');
     if (message.isNotEmpty) {
       throw message;
     }
     final mFile = await file;
     await tempFile.copy(mFile.path);
+    startupTiming.mark('profile file copied');
     await tempFile.safeDelete();
     return this;
   }

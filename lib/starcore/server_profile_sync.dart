@@ -49,9 +49,7 @@ class ServerProfileSync {
     if (session == null) {
       throw const GatewayException('Authentication required');
     }
-    final cachedProfile = globalState.didCrashOnPreviousExecution
-        ? null
-        : await _getValidCachedProfile(session.uid);
+    final cachedProfile = await _getValidCachedProfile(session.uid);
     if (cachedProfile != null) {
       _ref.read(currentProfileIdProvider.notifier).value = cachedProfile.id;
       _setAccessStatus(SubscriptionAccessStatus.active);
@@ -132,8 +130,10 @@ class ServerProfileSync {
         _setAccessStatus(SubscriptionAccessStatus.inactive);
         return _removeSubscriptionAccess(owner, generation);
       }
+      _setAccessStatus(SubscriptionAccessStatus.active);
       final bytes = links.content!;
       final contentHash = sha256.convert(bytes).toString();
+      startupTiming.mark('profile hash ready');
       final cachedProfile = await _getValidCachedProfile(owner);
       if (cachedProfile != null) {
         final metadata = await preferences.getServerProfileMetadata();
@@ -169,8 +169,10 @@ class ServerProfileSync {
               scriptId: sameOwner ? profiles.first.scriptId : null,
             );
       final savedProfile = await profile.saveFile(bytes);
+      startupTiming.mark('profile file saved');
       _ensureCurrent(owner, generation);
       await _ref.read(profilesProvider.notifier).replaceAll([savedProfile]);
+      startupTiming.mark('profile database updated');
       for (final obsolete in profiles.where(
         (profile) => profile.id != savedProfile.id,
       )) {
@@ -185,9 +187,9 @@ class ServerProfileSync {
         contentHash: contentHash,
         syncedAt: DateTime.now(),
       );
+      startupTiming.mark('profile metadata saved');
       _lastSyncFailed = false;
       synchronizationCompleted = true;
-      _setAccessStatus(SubscriptionAccessStatus.active);
       startupTiming.mark('profile persisted');
       if (apply) {
         await applyCurrentProfile();

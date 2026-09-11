@@ -11,6 +11,7 @@ class CommonDialog extends ConsumerWidget {
   final EdgeInsets? padding;
   final bool overrideScroll;
   final Color? backgroundColor;
+  final double? maxWidth;
 
   const CommonDialog({
     super.key,
@@ -20,22 +21,29 @@ class CommonDialog extends ConsumerWidget {
     this.padding,
     this.overrideScroll = false,
     this.backgroundColor,
+    this.maxWidth,
   });
 
   @override
   Widget build(BuildContext context, ref) {
     final size = ref.watch(viewSizeProvider);
+    final isDesktop = size.width > 600;
+    final dialogMaxWidth = maxWidth ?? (isDesktop ? 560.0 : 300.0);
     return AlertDialog(
+      insetPadding: EdgeInsets.all(isDesktop ? 24 : 20),
       title: Text(title),
       actions: actions,
       contentPadding: padding,
       backgroundColor: backgroundColor,
       content: Container(
         constraints: BoxConstraints(
-          maxHeight: min(size.height - 40, 500),
-          maxWidth: 300,
+          maxHeight: min(
+            size.height - (isDesktop ? 80 : 40),
+            isDesktop ? 640 : 500,
+          ),
+          maxWidth: dialogMaxWidth,
         ),
-        width: size.width - 40,
+        width: min(size.width - (isDesktop ? 80 : 40), dialogMaxWidth),
         child: !overrideScroll ? SingleChildScrollView(child: child) : child,
       ),
     );
