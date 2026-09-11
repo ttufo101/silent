@@ -403,6 +403,16 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "dnsHijacking": MessageLookupByLibrary.simpleMessage("DNS-перехват"),
     "dnsMode": MessageLookupByLibrary.simpleMessage("Режим DNS"),
+    "dnsProtection": MessageLookupByLibrary.simpleMessage("Защита DNS"),
+    "dnsProtectionDesc": MessageLookupByLibrary.simpleMessage(
+      "Использует управляемый приложением шифрованный DNS в режиме TUN",
+    ),
+    "dnsProtectionRequiresTun": MessageLookupByLibrary.simpleMessage(
+      "Сначала включите сервисный режим TUN",
+    ),
+    "dnsProtectionUpdateFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось применить защиту DNS. Повторите попытку.",
+    ),
     "domain": MessageLookupByLibrary.simpleMessage("Домен"),
     "download": MessageLookupByLibrary.simpleMessage("Скачивание"),
     "edit": MessageLookupByLibrary.simpleMessage("Редактировать"),
@@ -1158,6 +1168,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "У вас нет активного тарифного плана",
     ),
     "suspended": MessageLookupByLibrary.simpleMessage("Приостановлено..."),
+    "switchToSystemProxyDescription": MessageLookupByLibrary.simpleMessage(
+      "Системный трафик обрабатывается через TUN. Отключить TUN и переключиться на системный прокси?",
+    ),
     "sync": MessageLookupByLibrary.simpleMessage("Синхронизация"),
     "system": MessageLookupByLibrary.simpleMessage("Система"),
     "systemApp": MessageLookupByLibrary.simpleMessage("Системное приложение"),
@@ -1198,12 +1211,25 @@ class MessageLookup extends MessageLookupByLibrary {
     "tonalSpotScheme": MessageLookupByLibrary.simpleMessage("Тональный акцент"),
     "tools": MessageLookupByLibrary.simpleMessage("Инструменты"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("Tproxy-порт"),
+    "trafficCapture": MessageLookupByLibrary.simpleMessage("Перехват трафика"),
     "trafficUsage": MessageLookupByLibrary.simpleMessage(
       "Использование трафика",
     ),
     "tun": MessageLookupByLibrary.simpleMessage("TUN"),
     "tunDesc": MessageLookupByLibrary.simpleMessage(
       "действительно только в режиме администратора",
+    ),
+    "tunOwnsSystemTraffic": MessageLookupByLibrary.simpleMessage(
+      "Системный трафик обрабатывается через TUN",
+    ),
+    "tunServiceEnableFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось применить сервисный режим TUN. Повторите попытку и подтвердите права администратора при первом включении.",
+    ),
+    "tunServiceMode": MessageLookupByLibrary.simpleMessage(
+      "Сервисный режим (TUN)",
+    ),
+    "tunServiceModeDesc": MessageLookupByLibrary.simpleMessage(
+      "Направляет системный трафик через виртуальный сетевой адаптер",
     ),
     "turnOff": MessageLookupByLibrary.simpleMessage("Выключить"),
     "turnOn": MessageLookupByLibrary.simpleMessage("Включить"),

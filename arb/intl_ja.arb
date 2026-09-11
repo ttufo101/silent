@@ -369,6 +369,13 @@
   "restartCoreTip": "コアを再起動してもよろしいですか？",
   "forceRestartCoreTip": "コアを強制再起動してもよろしいですか？",
   "dnsHijacking": "DNSハイジャッキング",
+  "tunServiceMode": "サービスモード（TUN）",
+  "tunServiceModeDesc": "仮想ネットワークアダプターでシステム通信を処理します",
+  "dnsProtection": "DNS 汚染防止",
+  "dnsProtectionDesc": "TUN モードでアプリ管理の暗号化 DNS を使用します",
+  "dnsProtectionRequiresTun": "先に TUN サービスモードを有効にしてください",
+  "tunServiceEnableFailed": "TUN サービスモードを設定できませんでした。再試行し、初回有効化時は管理者権限を許可してください。",
+  "dnsProtectionUpdateFailed": "DNS 汚染防止設定を適用できませんでした。もう一度お試しください。",
   "coreStatus": "コアステータス",
   "appendSystemDns": "システムDNSを追加",
   "appendSystemDnsTip": "設定にシステムDNSを強制的に追加します",
@@ -614,5 +621,8 @@
   "personalPasswordLength": "パスワードは8～72バイトで入力してください",
   "personalChangePasswordSuccess": "パスワードを変更しました",
   "personalChangePasswordFailed": "パスワードを変更できません。現在のパスワードを確認して再試行してください。",
-  "advancedFeatures": "高度な機能"
+  "advancedFeatures": "高度な機能",
+  "trafficCapture": "トラフィックの取り込み",
+  "tunOwnsSystemTraffic": "TUN がシステムトラフィックを処理しています",
+  "switchToSystemProxyDescription": "TUN がシステムトラフィックを処理しています。TUN を無効にしてシステムプロキシへ切り替えますか？"
 }

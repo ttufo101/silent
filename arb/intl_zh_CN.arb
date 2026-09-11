@@ -369,6 +369,13 @@
   "restartCoreTip": "您确定要重启核心吗？",
   "forceRestartCoreTip": "您确定要强制重启核心吗？",
   "dnsHijacking": "DNS劫持",
+  "tunServiceMode": "服务模式（TUN）",
+  "tunServiceModeDesc": "通过虚拟网卡接管系统网络流量",
+  "dnsProtection": "DNS 防污染",
+  "dnsProtectionDesc": "在 TUN 模式下使用应用管理的加密 DNS",
+  "dnsProtectionRequiresTun": "请先开启 TUN 服务模式",
+  "tunServiceEnableFailed": "TUN 服务模式设置失败，请重试；首次开启时请确认管理员授权。",
+  "dnsProtectionUpdateFailed": "DNS 防污染设置应用失败，请重试。",
   "coreStatus": "核心状态",
   "appendSystemDns": "追加系统DNS",
   "appendSystemDnsTip": "强制为配置附加系统DNS",
@@ -614,5 +621,8 @@
   "personalPasswordLength": "密码长度必须为 8 至 72 字节",
   "personalChangePasswordSuccess": "密码修改成功",
   "personalChangePasswordFailed": "密码修改失败，请检查当前密码后重试",
-  "advancedFeatures": "高级功能"
+  "advancedFeatures": "高级功能",
+  "trafficCapture": "流量接管",
+  "tunOwnsSystemTraffic": "虚拟网卡已接管系统流量",
+  "switchToSystemProxyDescription": "虚拟网卡正在接管系统流量。是否关闭虚拟网卡并切换到系统代理？"
 }

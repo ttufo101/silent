@@ -197,11 +197,11 @@ Future<VM2<String, String>> _makeRealProfileTask(
   final isEnableDns = rawConfig['dns']['enable'] == true;
   const systemDns = 'system://';
   if (overrideDns || !isEnableDns) {
-    final dns = switch (!isEnableDns) {
-      true => realPatchConfig.dns.copyWith(
+    final dns = switch (overrideDns) {
+      true => realPatchConfig.dns,
+      false => realPatchConfig.dns.copyWith(
         nameserver: [...realPatchConfig.dns.nameserver, systemDns],
       ),
-      false => realPatchConfig.dns,
     };
     rawConfig['dns'] = dns.toJson();
     rawConfig['dns']['nameserver-policy'] = {};

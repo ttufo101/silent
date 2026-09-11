@@ -178,6 +178,10 @@ class _DashboardViewState extends ConsumerState<DashboardView>
                         Expanded(child: _SpeedPanel()),
                       ],
                     ),
+                    if (system.isWindows) ...[
+                      const SizedBox(height: 16),
+                      const _WindowsNetworkControls(),
+                    ],
                     const SizedBox(height: 16),
                   ],
                   const _HomeConnectButton(),
@@ -535,6 +539,165 @@ class _DashboardSegment extends StatelessWidget {
             SizedBox(width: compact ? 8 : 10),
             Expanded(child: child),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _WindowsNetworkControls extends ConsumerStatefulWidget {
+  const _WindowsNetworkControls();
+
+  @override
+  ConsumerState<_WindowsNetworkControls> createState() =>
+      _WindowsNetworkControlsState();
+}
+
+class _WindowsNetworkControlsState
+    extends ConsumerState<_WindowsNetworkControls> {
+  bool _tunUpdating = false;
+  bool _dnsUpdating = false;
+
+  Future<void> _setTunEnabled(bool enabled) async {
+    if (_tunUpdating) return;
+    setState(() => _tunUpdating = true);
+    try {
+      final updated = await ref
+          .read(setupActionProvider.notifier)
+          .setTunEnabled(enabled);
+      if (!updated && mounted) {
+        context.showNotifier(context.appLocalizations.tunServiceEnableFailed);
+      }
+    } finally {
+      if (mounted) setState(() => _tunUpdating = false);
+    }
+  }
+
+  Future<void> _setDnsProtectionEnabled(bool enabled) async {
+    if (_dnsUpdating) return;
+    setState(() => _dnsUpdating = true);
+    try {
+      final updated = await ref
+          .read(setupActionProvider.notifier)
+          .setDnsProtectionEnabled(enabled);
+      if (!updated && mounted) {
+        context.showNotifier(
+          context.appLocalizations.dnsProtectionUpdateFailed,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _dnsUpdating = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tunEnabled = ref.watch(
+      patchClashConfigProvider.select((state) => state.tun.enable),
+    );
+    final authorizationState = ref.watch(authorizedTunEnableProvider);
+    final effectiveTunEnabled =
+        tunEnabled && authorizationState == TunAuthorizationState.authorized;
+    final dnsProtection = ref.watch(
+      networkSettingProvider.select((state) => state.dnsProtection),
+    );
+    return Column(
+      children: [
+        _DesktopToggleRow(
+          icon: Icons.shield_outlined,
+          title: context.appLocalizations.tunServiceMode,
+          description: context.appLocalizations.tunServiceModeDesc,
+          value: tunEnabled,
+          updating: _tunUpdating,
+          onChanged: _setTunEnabled,
+        ),
+        const SizedBox(height: 12),
+        Tooltip(
+          message: effectiveTunEnabled
+              ? context.appLocalizations.dnsProtectionDesc
+              : context.appLocalizations.dnsProtectionRequiresTun,
+          child: _DesktopToggleRow(
+            icon: Icons.health_and_safety_outlined,
+            title: context.appLocalizations.dnsProtection,
+            description: context.appLocalizations.dnsProtectionDesc,
+            value: effectiveTunEnabled && dnsProtection,
+            updating: _dnsUpdating,
+            onChanged: effectiveTunEnabled ? _setDnsProtectionEnabled : null,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DesktopToggleRow extends StatelessWidget {
+  const _DesktopToggleRow({
+    required this.icon,
+    required this.title,
+    required this.description,
+    required this.value,
+    required this.updating,
+    required this.onChanged,
+  });
+
+  final IconData icon;
+  final String title;
+  final String description;
+  final bool value;
+  final bool updating;
+  final ValueChanged<bool>? onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: context.tDesign.container,
+      borderRadius: BorderRadius.circular(9),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: updating || onChanged == null ? null : () => onChanged!(!value),
+        child: SizedBox(
+          height: 64,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Icon(icon, size: 20, color: context.colorScheme.primary),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        description,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.textTheme.bodySmall?.copyWith(
+                          color: context.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                if (updating)
+                  const SizedBox.square(
+                    dimension: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                else
+                  Switch(value: value, onChanged: onChanged),
+              ],
+            ),
+          ),
         ),
       ),
     );

@@ -41,9 +41,9 @@ class _HotKeyManagerState extends ConsumerState<HotKeyManager> {
       case HotAction.view:
         systemAction.updateVisible();
       case HotAction.proxy:
-        systemAction.updateSystemProxy();
+        await systemAction.updateSystemProxy();
       case HotAction.tun:
-        systemAction.updateTun();
+        await systemAction.updateTun();
     }
   }
 

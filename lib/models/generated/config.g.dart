@@ -153,6 +153,7 @@ Map<String, dynamic> _$VpnPropsToJson(_VpnProps instance) => <String, dynamic>{
 _NetworkProps _$NetworkPropsFromJson(Map<String, dynamic> json) =>
     _NetworkProps(
       systemProxy: json['systemProxy'] as bool? ?? true,
+      dnsProtection: json['dnsProtection'] as bool? ?? false,
       bypassDomain:
           (json['bypassDomain'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -168,6 +169,7 @@ _NetworkProps _$NetworkPropsFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$NetworkPropsToJson(_NetworkProps instance) =>
     <String, dynamic>{
       'systemProxy': instance.systemProxy,
+      'dnsProtection': instance.dnsProtection,
       'bypassDomain': instance.bypassDomain,
       'routeMode': _$RouteModeEnumMap[instance.routeMode]!,
       'autoSetSystemDns': instance.autoSetSystemDns,

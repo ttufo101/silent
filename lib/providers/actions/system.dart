@@ -77,16 +77,49 @@ class SystemAction extends _$SystemAction {
     }
   }
 
-  void updateTun() {
-    ref
-        .read(patchClashConfigProvider.notifier)
-        .update((state) => state.copyWith.tun(enable: !state.tun.enable));
+  Future<void> updateTun() async {
+    final enabled = ref.read(patchClashConfigProvider).tun.enable;
+    final updated = await ref
+        .read(setupActionProvider.notifier)
+        .setTunEnabled(!enabled);
+    if (!updated) {
+      globalState.showNotifier(currentAppLocalizations.tunServiceEnableFailed);
+    }
   }
 
-  void updateSystemProxy() {
+  Future<void> updateSystemProxy() async {
+    final systemProxy = ref.read(networkSettingProvider).systemProxy;
+    final tunEnabled = ref.read(patchClashConfigProvider).tun.enable;
+    await setSystemProxyEnabled(!(systemProxy && !tunEnabled));
+  }
+
+  Future<bool> setSystemProxyEnabled(bool enabled) async {
+    final tunEnabled = ref.read(patchClashConfigProvider).tun.enable;
+    if (enabled && tunEnabled) {
+      await window?.show();
+      final confirmed = await globalState.showMessage(
+        title: currentAppLocalizations.trafficCapture,
+        message: TextSpan(
+          text: currentAppLocalizations.switchToSystemProxyDescription,
+        ),
+      );
+      if (confirmed != true) {
+        return false;
+      }
+      final updated = await ref
+          .read(setupActionProvider.notifier)
+          .setTunEnabled(false);
+      if (!updated) {
+        globalState.showNotifier(
+          currentAppLocalizations.tunServiceEnableFailed,
+        );
+        return false;
+      }
+    }
     ref
         .read(networkSettingProvider.notifier)
-        .update((state) => state.copyWith(systemProxy: !state.systemProxy));
+        .update((state) => state.copyWith(systemProxy: enabled));
+    return true;
   }
 
   void updateAutoLaunch() {

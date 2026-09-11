@@ -369,6 +369,13 @@
   "restartCoreTip": "Вы уверены, что хотите перезапустить ядро?",
   "forceRestartCoreTip": "Вы уверены, что хотите принудительно перезапустить ядро?",
   "dnsHijacking": "DNS-перехват",
+  "tunServiceMode": "Сервисный режим (TUN)",
+  "tunServiceModeDesc": "Направляет системный трафик через виртуальный сетевой адаптер",
+  "dnsProtection": "Защита DNS",
+  "dnsProtectionDesc": "Использует управляемый приложением шифрованный DNS в режиме TUN",
+  "dnsProtectionRequiresTun": "Сначала включите сервисный режим TUN",
+  "tunServiceEnableFailed": "Не удалось применить сервисный режим TUN. Повторите попытку и подтвердите права администратора при первом включении.",
+  "dnsProtectionUpdateFailed": "Не удалось применить защиту DNS. Повторите попытку.",
   "coreStatus": "Основной статус",
   "appendSystemDns": "Добавить системный DNS",
   "appendSystemDnsTip": "Принудительно добавить системный DNS к конфигурации",
@@ -614,5 +621,8 @@
   "personalPasswordLength": "Пароль должен содержать от 8 до 72 байт",
   "personalChangePasswordSuccess": "Пароль изменён",
   "personalChangePasswordFailed": "Не удалось изменить пароль. Проверьте текущий пароль и повторите попытку.",
-  "advancedFeatures": "Расширенные функции"
+  "advancedFeatures": "Расширенные функции",
+  "trafficCapture": "Перехват трафика",
+  "tunOwnsSystemTraffic": "Системный трафик обрабатывается через TUN",
+  "switchToSystemProxyDescription": "Системный трафик обрабатывается через TUN. Отключить TUN и переключиться на системный прокси?"
 }

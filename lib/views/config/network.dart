@@ -1,5 +1,6 @@
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
+import 'package:fl_clash/providers/action.dart';
 import 'package:fl_clash/providers/config.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/material.dart';
@@ -43,9 +44,7 @@ class TUNItem extends ConsumerWidget {
       subtitle: Text(appLocalizations.tunDesc),
       value: enable,
       onChanged: (value) async {
-        ref
-            .read(patchClashConfigProvider.notifier)
-            .update((state) => state.copyWith.tun(enable: value));
+        await ref.read(setupActionProvider.notifier).setTunEnabled(value);
       },
     );
   }
@@ -104,15 +103,18 @@ class SystemProxyItem extends ConsumerWidget {
     final systemProxy = ref.watch(
       networkSettingProvider.select((state) => state.systemProxy),
     );
+    final tunEnabled = ref.watch(
+      patchClashConfigProvider.select((state) => state.tun.enable),
+    );
 
     return ListItem.toggle(
       title: Text(appLocalizations.systemProxy),
       subtitle: Text(appLocalizations.systemProxyDesc),
-      value: systemProxy,
+      value: systemProxy && !tunEnabled,
       onChanged: (bool value) async {
-        ref
-            .read(networkSettingProvider.notifier)
-            .update((state) => state.copyWith(systemProxy: value));
+        await ref
+            .read(systemActionProvider.notifier)
+            .setSystemProxyEnabled(value);
       },
     );
   }

@@ -274,6 +274,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "dnsDesc": MessageLookupByLibrary.simpleMessage("更新DNS相关设置"),
     "dnsHijacking": MessageLookupByLibrary.simpleMessage("DNS劫持"),
     "dnsMode": MessageLookupByLibrary.simpleMessage("DNS模式"),
+    "dnsProtection": MessageLookupByLibrary.simpleMessage("DNS 防污染"),
+    "dnsProtectionDesc": MessageLookupByLibrary.simpleMessage(
+      "在 TUN 模式下使用应用管理的加密 DNS",
+    ),
+    "dnsProtectionRequiresTun": MessageLookupByLibrary.simpleMessage(
+      "请先开启 TUN 服务模式",
+    ),
+    "dnsProtectionUpdateFailed": MessageLookupByLibrary.simpleMessage(
+      "DNS 防污染设置应用失败，请重试。",
+    ),
     "domain": MessageLookupByLibrary.simpleMessage("域名"),
     "download": MessageLookupByLibrary.simpleMessage("下载"),
     "edit": MessageLookupByLibrary.simpleMessage("编辑"),
@@ -767,6 +777,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "您当前没有有效的订阅套餐",
     ),
     "suspended": MessageLookupByLibrary.simpleMessage("挂起中..."),
+    "switchToSystemProxyDescription": MessageLookupByLibrary.simpleMessage(
+      "虚拟网卡正在接管系统流量。是否关闭虚拟网卡并切换到系统代理？",
+    ),
     "sync": MessageLookupByLibrary.simpleMessage("同步"),
     "system": MessageLookupByLibrary.simpleMessage("系统"),
     "systemApp": MessageLookupByLibrary.simpleMessage("系统应用"),
@@ -793,9 +806,18 @@ class MessageLookup extends MessageLookupByLibrary {
     "tonalSpotScheme": MessageLookupByLibrary.simpleMessage("调性点缀"),
     "tools": MessageLookupByLibrary.simpleMessage("工具"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("Tproxy端口"),
+    "trafficCapture": MessageLookupByLibrary.simpleMessage("流量接管"),
     "trafficUsage": MessageLookupByLibrary.simpleMessage("流量统计"),
     "tun": MessageLookupByLibrary.simpleMessage("虚拟网卡"),
     "tunDesc": MessageLookupByLibrary.simpleMessage("仅在管理员模式生效"),
+    "tunOwnsSystemTraffic": MessageLookupByLibrary.simpleMessage("虚拟网卡已接管系统流量"),
+    "tunServiceEnableFailed": MessageLookupByLibrary.simpleMessage(
+      "TUN 服务模式设置失败，请重试；首次开启时请确认管理员授权。",
+    ),
+    "tunServiceMode": MessageLookupByLibrary.simpleMessage("服务模式（TUN）"),
+    "tunServiceModeDesc": MessageLookupByLibrary.simpleMessage(
+      "通过虚拟网卡接管系统网络流量",
+    ),
     "turnOff": MessageLookupByLibrary.simpleMessage("关闭"),
     "turnOn": MessageLookupByLibrary.simpleMessage("开启"),
     "undo": MessageLookupByLibrary.simpleMessage("撤销"),

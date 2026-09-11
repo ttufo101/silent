@@ -128,9 +128,12 @@ ProxyState proxyState(Ref ref) {
   final mixedPort = ref.watch(
     patchClashConfigProvider.select((state) => state.mixedPort),
   );
+  final tunEnabled = ref.watch(
+    patchClashConfigProvider.select((state) => state.tun.enable),
+  );
   return ProxyState(
     isStart: suspend ? false : isStart,
-    systemProxy: vm2.a,
+    systemProxy: vm2.a && !tunEnabled,
     bassDomain: vm2.b,
     port: mixedPort,
   );
@@ -160,7 +163,7 @@ TrayState trayState(Ref ref) {
     mode: clashConfigVm3.a,
     port: clashConfigVm3.b,
     autoLaunch: appSettingVm3.a,
-    systemProxy: systemProxy,
+    systemProxy: systemProxy && !clashConfigVm3.c,
     tunEnable: clashConfigVm3.c,
     isStart: isStart,
     locale: appSettingVm3.b,

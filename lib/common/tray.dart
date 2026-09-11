@@ -101,17 +101,23 @@ class Tray {
       menuItems.add(speedStatistics);
     }
     menuItems.add(MenuItem.separator());
-    for (final mode in Mode.values) {
-      menuItems.add(
-        MenuItem.checkbox(
-          label: Intl.message(mode.name),
-          onClick: (_) {
-            setupAction.changeMode(mode);
-          },
-          checked: mode == trayState.mode,
-        ),
-      );
-    }
+    final modeMenuItems = Mode.values
+        .map(
+          (mode) => MenuItem.checkbox(
+            label: Intl.message(mode.name),
+            onClick: (_) {
+              setupAction.changeMode(mode);
+            },
+            checked: mode == trayState.mode,
+          ),
+        )
+        .toList();
+    menuItems.add(
+      MenuItem.submenu(
+        label: appLocalizations.outboundMode,
+        submenu: Menu(items: modeMenuItems),
+      ),
+    );
     menuItems.add(MenuItem.separator());
     if (system.isMacOS) {
       for (final group in trayState.groups) {
@@ -145,22 +151,30 @@ class Tray {
       }
     }
     if (trayState.isStart) {
-      menuItems.add(
+      final trafficCaptureItems = <MenuItem>[
         MenuItem.checkbox(
           label: appLocalizations.tun,
-          onClick: (_) {
-            systemAction.updateTun();
+          onClick: (_) async {
+            await systemAction.updateTun();
           },
           checked: trayState.tunEnable,
         ),
-      );
-      menuItems.add(
         MenuItem.checkbox(
           label: appLocalizations.systemProxy,
-          onClick: (_) {
-            systemAction.updateSystemProxy();
+          toolTip: trayState.tunEnable
+              ? appLocalizations.tunOwnsSystemTraffic
+              : null,
+          disabled: trayState.tunEnable,
+          onClick: (_) async {
+            await systemAction.updateSystemProxy();
           },
           checked: trayState.systemProxy,
+        ),
+      ];
+      menuItems.add(
+        MenuItem.submenu(
+          label: appLocalizations.trafficCapture,
+          submenu: Menu(items: trafficCaptureItems),
         ),
       );
       menuItems.add(MenuItem.separator());

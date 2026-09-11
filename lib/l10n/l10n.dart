@@ -2814,6 +2814,76 @@ class AppLocalizations {
     );
   }
 
+  /// `Service mode (TUN)`
+  String get tunServiceMode {
+    return Intl.message(
+      'Service mode (TUN)',
+      name: 'tunServiceMode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Routes system traffic through a virtual network adapter`
+  String get tunServiceModeDesc {
+    return Intl.message(
+      'Routes system traffic through a virtual network adapter',
+      name: 'tunServiceModeDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `DNS protection`
+  String get dnsProtection {
+    return Intl.message(
+      'DNS protection',
+      name: 'dnsProtection',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Uses app-managed encrypted DNS in TUN mode`
+  String get dnsProtectionDesc {
+    return Intl.message(
+      'Uses app-managed encrypted DNS in TUN mode',
+      name: 'dnsProtectionDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enable TUN service mode first`
+  String get dnsProtectionRequiresTun {
+    return Intl.message(
+      'Enable TUN service mode first',
+      name: 'dnsProtectionRequiresTun',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Could not apply TUN service mode. Try again and approve administrator access when enabling it for the first time.`
+  String get tunServiceEnableFailed {
+    return Intl.message(
+      'Could not apply TUN service mode. Try again and approve administrator access when enabling it for the first time.',
+      name: 'tunServiceEnableFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Could not apply DNS protection. Please try again.`
+  String get dnsProtectionUpdateFailed {
+    return Intl.message(
+      'Could not apply DNS protection. Please try again.',
+      name: 'dnsProtectionUpdateFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Core status`
   String get coreStatus {
     return Intl.message('Core status', name: 'coreStatus', desc: '', args: []);
@@ -5024,6 +5094,36 @@ class AppLocalizations {
     return Intl.message(
       'Advanced features',
       name: 'advancedFeatures',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Traffic capture`
+  String get trafficCapture {
+    return Intl.message(
+      'Traffic capture',
+      name: 'trafficCapture',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `TUN is handling system traffic`
+  String get tunOwnsSystemTraffic {
+    return Intl.message(
+      'TUN is handling system traffic',
+      name: 'tunOwnsSystemTraffic',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `TUN is handling system traffic. Turn off TUN and switch to the system proxy?`
+  String get switchToSystemProxyDescription {
+    return Intl.message(
+      'TUN is handling system traffic. Turn off TUN and switch to the system proxy?',
+      name: 'switchToSystemProxyDescription',
       desc: '',
       args: [],
     );

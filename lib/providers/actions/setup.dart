@@ -14,6 +14,7 @@ class SetupAction extends _$SetupAction {
   Timer? _runtimeTimer;
   final _setupScheduler = SerialTaskScheduler();
   final _listenerScheduler = SerialTaskScheduler();
+  final _networkModeScheduler = SerialTaskScheduler();
   _RunRequest? _latestRunRequest;
   DateTime? _startTime;
 
@@ -156,6 +157,66 @@ class SetupAction extends _$SetupAction {
     debouncer.call(FunctionTag.updateConfig, updateConfig);
   }
 
+  Future<bool> setTunEnabled(bool enabled) {
+    return _networkModeScheduler.run(() async {
+      final previous = ref.read(patchClashConfigProvider);
+      if (previous.tun.enable == enabled) return true;
+
+      var continueWithoutRestart = true;
+      if (enabled) {
+        continueWithoutRestart = await requestAdmin(true);
+        if (ref.read(authorizedTunEnableProvider) !=
+            TunAuthorizationState.authorized) {
+          return false;
+        }
+      }
+
+      ref
+          .read(patchClashConfigProvider.notifier)
+          .update((state) => state.copyWith.tun(enable: enabled));
+      debouncer.cancel(FunctionTag.updateConfig);
+      try {
+        if (ref.read(coreStatusProvider) != CoreStatus.connected) return true;
+        if (!continueWithoutRestart) {
+          await _restartCoreAfterAuthorization();
+        } else {
+          await applyProfile(force: true, silence: true);
+        }
+        return true;
+      } catch (_) {
+        ref.read(patchClashConfigProvider.notifier).value = previous;
+        debouncer.cancel(FunctionTag.updateConfig);
+        return false;
+      }
+    });
+  }
+
+  Future<bool> setDnsProtectionEnabled(bool enabled) {
+    return _networkModeScheduler.run(() async {
+      final tunEnabled = ref.read(patchClashConfigProvider).tun.enable;
+      final authorizationState = ref.read(authorizedTunEnableProvider);
+      if (enabled &&
+          (!tunEnabled ||
+              authorizationState != TunAuthorizationState.authorized)) {
+        return false;
+      }
+      final previous = ref.read(networkSettingProvider);
+      if (previous.dnsProtection == enabled) return true;
+      ref
+          .read(networkSettingProvider.notifier)
+          .update((state) => state.copyWith(dnsProtection: enabled));
+      try {
+        if (ref.read(coreStatusProvider) == CoreStatus.connected) {
+          await applyProfile(force: true, silence: true);
+        }
+        return true;
+      } catch (_) {
+        ref.read(networkSettingProvider.notifier).value = previous;
+        return false;
+      }
+    });
+  }
+
   @protected
   Future<bool> setCoreRunning(bool running) {
     return running
@@ -261,14 +322,10 @@ class SetupAction extends _$SetupAction {
     final profileId = setupState.profileId;
     if (profileId == null) return const VM2('', '');
     final defaultUA = globalState.packageInfo.ua;
-    final networkVM2 = ref.read(
-      networkSettingProvider.select(
-        (state) => VM2(state.appendSystemDns, state.routeMode),
-      ),
-    );
+    final networkSettings = ref.read(networkSettingProvider);
     final overrideDns = ref.read(overrideDnsProvider);
-    final appendSystemDns = networkVM2.a;
-    final routeMode = networkVM2.b;
+    final appendSystemDns = networkSettings.appendSystemDns;
+    final routeMode = networkSettings.routeMode;
     final configMap = await coreController.getConfig(profileId);
     String? scriptContent;
     final List<Rule> addedRules = [];
@@ -282,8 +339,20 @@ class SetupAction extends _$SetupAction {
       proxyGroups.addAll(setupState.proxyGroups);
       rules.addAll(setupState.rules);
     }
+    final dnsProtectionActive =
+        system.isWindows &&
+        networkSettings.dnsProtection &&
+        patchConfig.tun.enable;
+    final protectedDns = patchConfig.dns.copyWith(
+      enable: true,
+      enhancedMode: DnsMode.fakeIp,
+      nameserver: defaultDns.nameserver,
+      fallback: defaultDns.fallback,
+      proxyServerNameserver: defaultDns.proxyServerNameserver,
+    );
     final realPatchConfig = patchConfig.copyWith(
       tun: patchConfig.tun.getRealTun(routeMode),
+      dns: dnsProtectionActive ? protectedDns : patchConfig.dns,
     );
     Map<String, dynamic> rawConfig = configMap;
     if (scriptContent?.isNotEmpty == true) {
@@ -298,8 +367,8 @@ class SetupAction extends _$SetupAction {
         profileId: profileId,
         rawConfig: rawConfig,
         realPatchConfig: realPatchConfig,
-        overrideDns: overrideDns,
-        appendSystemDns: appendSystemDns,
+        overrideDns: overrideDns || dnsProtectionActive,
+        appendSystemDns: dnsProtectionActive ? false : appendSystemDns,
         addedRules: addedRules,
         defaultUA: defaultUA,
       ),
@@ -338,7 +407,7 @@ class SetupAction extends _$SetupAction {
       return true;
     }
     final authorizationState = ref.read(authorizedTunEnableProvider);
-    if (authorizationState != TunAuthorizationState.none) {
+    if (authorizationState == TunAuthorizationState.authorized) {
       return true;
     }
 

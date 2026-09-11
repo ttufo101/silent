@@ -398,6 +398,16 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "dnsHijacking": MessageLookupByLibrary.simpleMessage("DNS hijacking"),
     "dnsMode": MessageLookupByLibrary.simpleMessage("DNS mode"),
+    "dnsProtection": MessageLookupByLibrary.simpleMessage("DNS protection"),
+    "dnsProtectionDesc": MessageLookupByLibrary.simpleMessage(
+      "Uses app-managed encrypted DNS in TUN mode",
+    ),
+    "dnsProtectionRequiresTun": MessageLookupByLibrary.simpleMessage(
+      "Enable TUN service mode first",
+    ),
+    "dnsProtectionUpdateFailed": MessageLookupByLibrary.simpleMessage(
+      "Could not apply DNS protection. Please try again.",
+    ),
     "domain": MessageLookupByLibrary.simpleMessage("Domain"),
     "download": MessageLookupByLibrary.simpleMessage("Download"),
     "edit": MessageLookupByLibrary.simpleMessage("Edit"),
@@ -1105,6 +1115,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "You don\'t have an active subscription plan",
     ),
     "suspended": MessageLookupByLibrary.simpleMessage("Suspended..."),
+    "switchToSystemProxyDescription": MessageLookupByLibrary.simpleMessage(
+      "TUN is handling system traffic. Turn off TUN and switch to the system proxy?",
+    ),
     "sync": MessageLookupByLibrary.simpleMessage("Sync"),
     "system": MessageLookupByLibrary.simpleMessage("System"),
     "systemApp": MessageLookupByLibrary.simpleMessage("System APP"),
@@ -1139,10 +1152,23 @@ class MessageLookup extends MessageLookupByLibrary {
     "tonalSpotScheme": MessageLookupByLibrary.simpleMessage("TonalSpot"),
     "tools": MessageLookupByLibrary.simpleMessage("Tools"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("Tproxy Port"),
+    "trafficCapture": MessageLookupByLibrary.simpleMessage("Traffic capture"),
     "trafficUsage": MessageLookupByLibrary.simpleMessage("Traffic usage"),
     "tun": MessageLookupByLibrary.simpleMessage("TUN"),
     "tunDesc": MessageLookupByLibrary.simpleMessage(
       "only effective in administrator mode",
+    ),
+    "tunOwnsSystemTraffic": MessageLookupByLibrary.simpleMessage(
+      "TUN is handling system traffic",
+    ),
+    "tunServiceEnableFailed": MessageLookupByLibrary.simpleMessage(
+      "Could not apply TUN service mode. Try again and approve administrator access when enabling it for the first time.",
+    ),
+    "tunServiceMode": MessageLookupByLibrary.simpleMessage(
+      "Service mode (TUN)",
+    ),
+    "tunServiceModeDesc": MessageLookupByLibrary.simpleMessage(
+      "Routes system traffic through a virtual network adapter",
     ),
     "turnOff": MessageLookupByLibrary.simpleMessage("Turn Off"),
     "turnOn": MessageLookupByLibrary.simpleMessage("Turn On"),

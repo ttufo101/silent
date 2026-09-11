@@ -310,6 +310,16 @@ class MessageLookup extends MessageLookupByLibrary {
     "dnsDesc": MessageLookupByLibrary.simpleMessage("DNS関連設定の更新"),
     "dnsHijacking": MessageLookupByLibrary.simpleMessage("DNSハイジャッキング"),
     "dnsMode": MessageLookupByLibrary.simpleMessage("DNSモード"),
+    "dnsProtection": MessageLookupByLibrary.simpleMessage("DNS 汚染防止"),
+    "dnsProtectionDesc": MessageLookupByLibrary.simpleMessage(
+      "TUN モードでアプリ管理の暗号化 DNS を使用します",
+    ),
+    "dnsProtectionRequiresTun": MessageLookupByLibrary.simpleMessage(
+      "先に TUN サービスモードを有効にしてください",
+    ),
+    "dnsProtectionUpdateFailed": MessageLookupByLibrary.simpleMessage(
+      "DNS 汚染防止設定を適用できませんでした。もう一度お試しください。",
+    ),
     "domain": MessageLookupByLibrary.simpleMessage("ドメイン"),
     "download": MessageLookupByLibrary.simpleMessage("ダウンロード"),
     "edit": MessageLookupByLibrary.simpleMessage("編集"),
@@ -891,6 +901,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "現在有効なプランがありません",
     ),
     "suspended": MessageLookupByLibrary.simpleMessage("一時停止中..."),
+    "switchToSystemProxyDescription": MessageLookupByLibrary.simpleMessage(
+      "TUN がシステムトラフィックを処理しています。TUN を無効にしてシステムプロキシへ切り替えますか？",
+    ),
     "sync": MessageLookupByLibrary.simpleMessage("同期"),
     "system": MessageLookupByLibrary.simpleMessage("システム"),
     "systemApp": MessageLookupByLibrary.simpleMessage("システムアプリ"),
@@ -919,9 +932,20 @@ class MessageLookup extends MessageLookupByLibrary {
     "tonalSpotScheme": MessageLookupByLibrary.simpleMessage("トーンスポット"),
     "tools": MessageLookupByLibrary.simpleMessage("ツール"),
     "tproxyPort": MessageLookupByLibrary.simpleMessage("Tproxyポート"),
+    "trafficCapture": MessageLookupByLibrary.simpleMessage("トラフィックの取り込み"),
     "trafficUsage": MessageLookupByLibrary.simpleMessage("トラフィック使用量"),
     "tun": MessageLookupByLibrary.simpleMessage("TUN"),
     "tunDesc": MessageLookupByLibrary.simpleMessage("管理者モードでのみ有効"),
+    "tunOwnsSystemTraffic": MessageLookupByLibrary.simpleMessage(
+      "TUN がシステムトラフィックを処理しています",
+    ),
+    "tunServiceEnableFailed": MessageLookupByLibrary.simpleMessage(
+      "TUN サービスモードを設定できませんでした。再試行し、初回有効化時は管理者権限を許可してください。",
+    ),
+    "tunServiceMode": MessageLookupByLibrary.simpleMessage("サービスモード（TUN）"),
+    "tunServiceModeDesc": MessageLookupByLibrary.simpleMessage(
+      "仮想ネットワークアダプターでシステム通信を処理します",
+    ),
     "turnOff": MessageLookupByLibrary.simpleMessage("オフ"),
     "turnOn": MessageLookupByLibrary.simpleMessage("オン"),
     "undo": MessageLookupByLibrary.simpleMessage("元に戻す"),

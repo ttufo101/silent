@@ -369,6 +369,13 @@
   "restartCoreTip": "Are you sure you want to restart the core?",
   "forceRestartCoreTip": "Are you sure you want to force restart the core?",
   "dnsHijacking": "DNS hijacking",
+  "tunServiceMode": "Service mode (TUN)",
+  "tunServiceModeDesc": "Routes system traffic through a virtual network adapter",
+  "dnsProtection": "DNS protection",
+  "dnsProtectionDesc": "Uses app-managed encrypted DNS in TUN mode",
+  "dnsProtectionRequiresTun": "Enable TUN service mode first",
+  "tunServiceEnableFailed": "Could not apply TUN service mode. Try again and approve administrator access when enabling it for the first time.",
+  "dnsProtectionUpdateFailed": "Could not apply DNS protection. Please try again.",
   "coreStatus": "Core status",
   "appendSystemDns": "Append System DNS",
   "appendSystemDnsTip": "Forcefully append system DNS to the configuration",
@@ -614,5 +621,8 @@
   "personalPasswordLength": "Password must be between 8 and 72 bytes",
   "personalChangePasswordSuccess": "Password changed",
   "personalChangePasswordFailed": "Unable to change password. Check your current password and try again.",
-  "advancedFeatures": "Advanced features"
+  "advancedFeatures": "Advanced features",
+  "trafficCapture": "Traffic capture",
+  "tunOwnsSystemTraffic": "TUN is handling system traffic",
+  "switchToSystemProxyDescription": "TUN is handling system traffic. Turn off TUN and switch to the system proxy?"
 }
