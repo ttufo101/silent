@@ -1,23 +1,44 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
+import 'package:fl_clash/update/update.dart';
 import 'package:fl_clash/views/about.dart';
 import 'package:fl_clash/views/access.dart';
 import 'package:fl_clash/views/application_setting.dart';
 import 'package:fl_clash/views/config/config.dart';
+import 'package:fl_clash/views/connection/connections.dart';
 import 'package:fl_clash/views/hotkey.dart';
+import 'package:fl_clash/views/routing_domain_rules.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' show dirname, join;
 
 import 'config/advanced.dart';
 import 'developer.dart';
+
+class _SettingsIcon extends StatelessWidget {
+  const _SettingsIcon(this.name);
+
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    return SvgPicture.asset(
+      'assets/images/settings/$name.svg',
+      width: 24,
+      height: 24,
+    );
+  }
+}
 
 class ToolsView extends ConsumerStatefulWidget {
   final bool settingsRoot;
@@ -48,23 +69,18 @@ class _ToolViewState extends ConsumerState<ToolsView> {
     return _SettingsSection(
       title: context.appLocalizations.appearanceSettings,
       isFirst: true,
-      items: const [DarkModeItem()],
+      items: const [DarkModeItem(), _LocaleItem()],
     );
   }
 
-  _SettingsSection _getProxyAndNetworkList(
-    List<NavigationItem> navigationItems,
-  ) {
+  _SettingsSection _getProxyRulesList() {
     return _SettingsSection(
-      title: context.appLocalizations.proxyAndNetwork,
+      title: context.appLocalizations.proxyRules,
       items: [
-        const _ConfigItem(),
-        const _AdvancedConfigItem(),
+        const _RoutingDomainItem(type: RoutingDomainType.proxy),
+        const _RoutingDomainItem(type: RoutingDomainType.direct),
+        const _ConnectionsItem(),
         if (system.isAndroid) const _AccessItem(),
-        if (system.isWindows) const _LoopbackItem(),
-        const CloseConnectionsItem(),
-        const UsageItem(),
-        ...navigationItems.map(_buildNavigationMenuItem),
       ],
     );
   }
@@ -74,7 +90,17 @@ class _ToolViewState extends ConsumerState<ToolsView> {
   ) {
     return _SettingsSection(
       title: context.appLocalizations.advancedFeatures,
-      items: navigationItems.map(_buildNavigationMenuItem).toList(),
+      preserveHeaderStyle: true,
+      items: [
+        const _ConfigItem(),
+        const _AdvancedConfigItem(),
+        if (system.isWindows) const _LoopbackItem(),
+        const CloseConnectionsItem(),
+        const UsageItem(),
+        const OpenLogsItem(),
+        const AutoCheckUpdateItem(),
+        ...navigationItems.map(_buildNavigationMenuItem),
+      ],
     );
   }
 
@@ -82,7 +108,6 @@ class _ToolViewState extends ConsumerState<ToolsView> {
     return _SettingsSection(
       title: context.appLocalizations.system,
       items: [
-        const _LocaleItem(),
         if (system.isDesktop) const _HotkeyItem(),
         if (system.isDesktop) const MinimizeItem(),
         if (system.isDesktop) const AutoLaunchItem(),
@@ -95,9 +120,11 @@ class _ToolViewState extends ConsumerState<ToolsView> {
   _SettingsSection _getOtherList(bool enableDeveloperMode) {
     return _SettingsSection(
       title: context.appLocalizations.other,
+      preserveHeaderStyle: true,
       items: [
-        const OpenLogsItem(),
-        const AutoCheckUpdateItem(),
+        const _ComingSoonItem(type: _ComingSoonType.diagnosticLogs),
+        const _ComingSoonItem(type: _ComingSoonType.feedback),
+        const _CheckUpdateItem(),
         if (enableDeveloperMode) const _DeveloperItem(),
         const _InfoItem(),
       ],
@@ -113,14 +140,32 @@ class _ToolViewState extends ConsumerState<ToolsView> {
       moreToolsSelectorStateProvider.select((state) => state.navigationItems),
     );
     final isMobile = ref.watch(isMobileViewProvider);
-    final sections = [
-      _getAppearanceList(),
-      _getProxyAndNetworkList(isMobile ? navigationItems : const []),
-      if (!isMobile && navigationItems.isNotEmpty)
-        _getAdvancedFeaturesList(navigationItems),
-      _getSystemList(),
-      _getOtherList(enableDeveloperMode),
-    ];
+    final desktopAdvancedItems = navigationItems
+        .where((item) => item.label != PageLabel.connections)
+        .toList(growable: false);
+    final sections = isMobile
+        ? [
+            _getAppearanceList(),
+            _getProxyRulesList(),
+            _getOtherList(false),
+            _SettingsSection(
+              title: context.appLocalizations.advancedFeatures,
+              preserveHeaderStyle: true,
+              items: [
+                _AdvancedSettingsItem(
+                  navigationItems: desktopAdvancedItems,
+                  enableDeveloperMode: enableDeveloperMode,
+                ),
+              ],
+            ),
+          ]
+        : [
+            _getAppearanceList(),
+            _getProxyRulesList(),
+            _getSystemList(),
+            _getAdvancedFeaturesList(desktopAdvancedItems),
+            _getOtherList(enableDeveloperMode),
+          ];
     if (isMobile) {
       final list = ListView.separated(
         key: toolsStoreKey,
@@ -133,6 +178,7 @@ class _ToolViewState extends ConsumerState<ToolsView> {
         title: widget.settingsRoot
             ? context.appLocalizations.settings
             : context.appLocalizations.tools,
+        centerTitle: true,
         body: list,
       );
     }
@@ -236,33 +282,69 @@ class _SettingsSection extends StatelessWidget {
     required this.title,
     required this.items,
     this.isFirst = false,
+    this.preserveHeaderStyle = false,
   });
 
   final String title;
   final List<Widget> items;
   final bool isFirst;
+  final bool preserveHeaderStyle;
 
   @override
   Widget build(BuildContext context) {
     final desktop = MediaQuery.sizeOf(context).width > 600;
     return Column(
       children: [
-        ListHeader(
-          title: title,
-          padding: isFirst
-              ? listHeaderPadding.copyWith(top: 8.ap)
-              : listHeaderPadding,
-        ),
-        Material(
-          color: context.tDesign.container,
-          borderRadius: desktop ? BorderRadius.circular(9) : null,
-          clipBehavior: desktop ? Clip.antiAlias : Clip.none,
-          child: Column(
-            children: items
-                .separated(
-                  Divider(height: 0, color: context.tDesign.componentStroke),
-                )
-                .toList(),
+        if (preserveHeaderStyle)
+          ListHeader(
+            title: title,
+            padding: isFirst
+                ? listHeaderPadding.copyWith(top: 8.ap)
+                : listHeaderPadding,
+          )
+        else
+          Container(
+            alignment: AlignmentDirectional.centerStart,
+            padding: EdgeInsets.fromLTRB(16, isFirst ? 12 : 16, 16, 8),
+            child: Text(
+              title,
+              style: context.textTheme.labelLarge?.copyWith(
+                color: context.colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+        IconTheme(
+          data: IconThemeData(color: context.colorScheme.primary, size: 24),
+          child: ListTileTheme(
+            data: ListTileThemeData(
+              iconColor: context.colorScheme.primary,
+              minVerticalPadding: desktop ? 8 : 10,
+              horizontalTitleGap: 12,
+              titleTextStyle: context.textTheme.bodyLarge?.copyWith(
+                color: context.colorScheme.onSurface,
+                fontWeight: FontWeight.w400,
+              ),
+              subtitleTextStyle: context.textTheme.bodySmall?.copyWith(
+                color: context.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            child: Material(
+              color: context.tDesign.container,
+              borderRadius: desktop ? BorderRadius.circular(9) : null,
+              clipBehavior: desktop ? Clip.antiAlias : Clip.none,
+              child: Column(
+                children: items
+                    .separated(
+                      Divider(
+                        height: 0,
+                        indent: 16,
+                        color: context.tDesign.componentStroke,
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
           ),
         ),
       ],
@@ -298,7 +380,7 @@ class _LocaleItem extends ConsumerWidget {
     final subTitle = locale ?? context.appLocalizations.defaultText;
     final currentLocale = utils.getLocaleForString(locale);
     return ListItem<Locale?>.options(
-      leading: const Icon(Icons.language_outlined),
+      leading: const _SettingsIcon('translate'),
       title: Text(context.appLocalizations.language),
       subtitle: Text(Intl.message(subTitle)),
       dialogTitle: context.appLocalizations.language,
@@ -353,10 +435,172 @@ class _AccessItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListItem.open(
-      leading: const Icon(Icons.view_list),
+      leading: const _SettingsIcon('access_control'),
       title: Text(context.appLocalizations.accessControl),
       subtitle: Text(context.appLocalizations.accessControlDesc),
       widget: const AccessView(),
+    );
+  }
+}
+
+class _RoutingDomainItem extends StatelessWidget {
+  const _RoutingDomainItem({required this.type});
+
+  final RoutingDomainType type;
+
+  @override
+  Widget build(BuildContext context) {
+    final isProxy = type == RoutingDomainType.proxy;
+    return ListItem.open(
+      leading: _SettingsIcon(isProxy ? 'proxy_domains' : 'direct_domains'),
+      title: Text(
+        isProxy
+            ? context.appLocalizations.customProxyDomains
+            : context.appLocalizations.customDirectDomains,
+      ),
+      subtitle: Text(
+        isProxy
+            ? context.appLocalizations.customProxyDomainsDesc
+            : context.appLocalizations.customDirectDomainsDesc,
+      ),
+      widget: RoutingDomainRulesView(type: type),
+    );
+  }
+}
+
+class _ConnectionsItem extends StatelessWidget {
+  const _ConnectionsItem();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListItem.open(
+      leading: const _SettingsIcon('connections'),
+      title: Text(context.appLocalizations.connections),
+      subtitle: Text(context.appLocalizations.connectionsDesc),
+      widget: const ConnectionsView(),
+    );
+  }
+}
+
+enum _ComingSoonType { diagnosticLogs, feedback }
+
+class _ComingSoonItem extends StatelessWidget {
+  const _ComingSoonItem({required this.type});
+
+  final _ComingSoonType type;
+
+  @override
+  Widget build(BuildContext context) {
+    final diagnostic = type == _ComingSoonType.diagnosticLogs;
+    return ListItem(
+      leading: _SettingsIcon(diagnostic ? 'diagnostic_logs' : 'feedback'),
+      title: Text(
+        diagnostic
+            ? context.appLocalizations.uploadDiagnosticLogs
+            : context.appLocalizations.feedback,
+      ),
+      subtitle: Text(
+        diagnostic
+            ? context.appLocalizations.uploadDiagnosticLogsDesc
+            : context.appLocalizations.feedbackDesc,
+      ),
+      onTap: () {
+        context.showNotifier(context.appLocalizations.featureComingSoon);
+      },
+    );
+  }
+}
+
+class _CheckUpdateItem extends ConsumerWidget {
+  const _CheckUpdateItem();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ListItem(
+      leading: const _SettingsIcon('check_update'),
+      title: Text(context.appLocalizations.checkUpdate),
+      subtitle: Text('v${globalState.packageInfo.version}'),
+      onTap: () {
+        unawaited(checkForUpdateAndShow(context, ref));
+      },
+    );
+  }
+}
+
+class _AdvancedSettingsItem extends StatelessWidget {
+  const _AdvancedSettingsItem({
+    required this.navigationItems,
+    required this.enableDeveloperMode,
+  });
+
+  final List<NavigationItem> navigationItems;
+  final bool enableDeveloperMode;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListItem.open(
+      leading: const Icon(Icons.tune_outlined),
+      title: Text(context.appLocalizations.advancedFeatures),
+      subtitle: Text(context.appLocalizations.advancedSettingsDesc),
+      widget: _AdvancedSettingsView(
+        navigationItems: navigationItems,
+        enableDeveloperMode: enableDeveloperMode,
+      ),
+    );
+  }
+}
+
+class _AdvancedSettingsView extends StatelessWidget {
+  const _AdvancedSettingsView({
+    required this.navigationItems,
+    required this.enableDeveloperMode,
+  });
+
+  final List<NavigationItem> navigationItems;
+  final bool enableDeveloperMode;
+
+  Widget _buildNavigationItem(
+    BuildContext context,
+    NavigationItem navigationItem,
+  ) {
+    return ListItem.open(
+      leading: navigationItem.icon,
+      title: Text(Intl.message(navigationItem.label.name)),
+      subtitle: navigationItem.description == null
+          ? null
+          : Text(Intl.message(navigationItem.description!)),
+      widget: navigationItem.builder(context),
+      maxWidth: 400,
+      forceFull: false,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final items = <Widget>[
+      const AutoRunItem(),
+      const _ConfigItem(),
+      const _AdvancedConfigItem(),
+      const CloseConnectionsItem(),
+      const UsageItem(),
+      const OpenLogsItem(),
+      const AutoCheckUpdateItem(),
+      ...navigationItems.map((item) => _buildNavigationItem(context, item)),
+      if (enableDeveloperMode) const _DeveloperItem(),
+    ];
+    return CommonScaffold(
+      title: context.appLocalizations.advancedFeatures,
+      body: ListView(
+        padding: const EdgeInsets.only(bottom: 24),
+        children: [
+          _SettingsSection(
+            title: context.appLocalizations.advancedFeatures,
+            preserveHeaderStyle: true,
+            items: items,
+            isFirst: true,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -395,7 +639,7 @@ class _InfoItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListItem.open(
-      leading: const Icon(Icons.info),
+      leading: const _SettingsIcon('about'),
       title: Text(context.appLocalizations.about),
       subtitle: Text('$appName · v${globalState.packageInfo.version}'),
       widget: const AboutView(),

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:fl_clash/auth/data/gateway_client.dart';
@@ -62,11 +63,12 @@ class StarcoreApi {
       module: _module,
       method: 'GetUserInfo',
       params: const {},
+      requestTimeout: const Duration(seconds: 10),
     );
     try {
       return UserInfo.fromJson(data);
-    } on Object {
-      throw const GatewayException('Invalid GetUserInfoResponse');
+    } on Object catch (error) {
+      throw GatewayException('Invalid GetUserInfoResponse: $error');
     }
   }
 
@@ -113,7 +115,7 @@ class StarcoreApi {
       throw const GatewayException('Invalid GetLinksResponse.content');
     }
     try {
-      final bytes = base64Decode(content);
+      final bytes = await Isolate.run(() => base64Decode(content));
       if (bytes.isEmpty) {
         throw const GatewayException('Empty proxy configuration');
       }

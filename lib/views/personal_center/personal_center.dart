@@ -223,9 +223,7 @@ class _PlanSection extends StatelessWidget {
             ],
           ),
           SizedBox(height: desktop ? 22 : 26),
-          if (value.isLoading && info == null)
-            const _PlanStatus(child: CircularProgressIndicator())
-          else if (value.hasError && info == null)
+          if (value.hasError && info == null)
             _PlanStatus(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -242,6 +240,8 @@ class _PlanSection extends StatelessWidget {
                 ],
               ),
             )
+          else if (value.isLoading && info == null)
+            const _PlanStatus(child: CircularProgressIndicator())
           else if (info == null || plan == null)
             _PlanStatus(
               child: Text(

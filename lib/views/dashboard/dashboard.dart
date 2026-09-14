@@ -87,6 +87,9 @@ class _DashboardViewState extends ConsumerState<DashboardView>
   @override
   Widget build(BuildContext context) {
     final subscriptionAccess = ref.watch(subscriptionAccessStatusProvider);
+    final hasProfile = ref.watch(
+      profilesProvider.select((state) => state.isNotEmpty),
+    );
     if (subscriptionAccess == SubscriptionAccessStatus.checking) {
       final syncError = ref.watch(serverProfileSyncErrorProvider);
       if (syncError != null) {
@@ -112,6 +115,23 @@ class _DashboardViewState extends ConsumerState<DashboardView>
     }
     if (subscriptionAccess == SubscriptionAccessStatus.inactive) {
       return const NoSubscriptionView();
+    }
+    if (!hasProfile) {
+      final syncError = ref.watch(serverProfileSyncErrorProvider);
+      if (syncError != null) {
+        return Scaffold(
+          backgroundColor: context.tDesign.pageBackground,
+          body: const SafeArea(
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: _ProfileSyncFailureCard(),
+              ),
+            ),
+          ),
+        );
+      }
+      return const _DashboardPreparingView();
     }
     final groups = ref.watch(currentGroupsStateProvider).value;
     final currentGroup = _currentGroup(groups);
@@ -452,11 +472,7 @@ class _ModePanel extends ConsumerWidget {
       onTap: () => _changeMode(ref, mode),
       child: _DashboardSegment(
         compact: compact,
-        leading: Center(
-          child: Radio<Mode>(
-            value: mode,
-          ),
-        ),
+        leading: Center(child: Radio<Mode>(value: mode)),
         child: Text(
           Intl.message(mode.name),
           style: compact
@@ -809,12 +825,12 @@ class _CurrentProxyCard extends ConsumerWidget {
       for (final proxy in group?.all ?? const <Proxy>[]) proxy.name: proxy,
     };
     final selectedProxy = proxiesByName[selectedProxyName];
-    // 名称解析优先；解析不出时回退出口 IP 检测的真实国家码（连接后可用）
     final exitIpInfo = ref.watch(
       networkDetectionProvider.select((state) => state.ipInfo),
     );
-    final effectiveName =
-        realProxyName.isNotEmpty ? realProxyName : selectedProxyName;
+    final effectiveName = realProxyName.isNotEmpty
+        ? realProxyName
+        : selectedProxyName;
     final resolvedCountryCode = selectedProxy == null
         ? ProxyDisplayName.parse(effectiveName).countryCode ??
               countryCodeFromName(effectiveName)
@@ -916,13 +932,12 @@ class _HomeConnectButtonState extends ConsumerState<_HomeConnectButton> {
     }
   }
 
-  // 已暂停（SSID 排除）时，点击按钮从排除列表移除当前 WiFi，恢复 VPN（C8）
   Future<void> _resume() async {
     final ssid = ref.read(currentSSIDProvider);
     if (ssid == null) return;
-    ref.read(excludeSSIDsProvider.notifier).update(
-          (state) => state.where((e) => e != ssid).toList(),
-        );
+    ref
+        .read(excludeSSIDsProvider.notifier)
+        .update((state) => state.where((e) => e != ssid).toList());
   }
 
   @override
@@ -931,24 +946,20 @@ class _HomeConnectButtonState extends ConsumerState<_HomeConnectButton> {
     final hasProfile = ref.watch(
       profilesProvider.select((state) => state.isNotEmpty),
     );
-    final coreStatus = ref.watch(coreStatusProvider);
     final isStart = ref.watch(isStartProvider);
     final suspend = ref.watch(suspendProvider);
     final isConnected = isStart && !suspend;
     final showDisconnectStyle = isConnected || _disconnecting;
-    final preparing = coreStatus == CoreStatus.connecting && !_switching;
-    final text = preparing
-        ? context.appLocalizations.connecting
-        : _switching
+    final text = _switching
         ? _disconnecting
               ? context.appLocalizations.disconnecting
               : context.appLocalizations.connecting
         : isConnected
         ? context.appLocalizations.disconnect
         : suspend
-            ? context.appLocalizations.suspended
-            : context.appLocalizations.connectNow;
-    final disabled = !hasProfile || _switching || preparing;
+        ? context.appLocalizations.suspended
+        : context.appLocalizations.connectNow;
+    final disabled = !hasProfile || _switching;
     final button = FilledButton(
       onPressed: disabled ? null : (suspend ? _resume : _toggle),
       style: FilledButton.styleFrom(
@@ -956,13 +967,13 @@ class _HomeConnectButtonState extends ConsumerState<_HomeConnectButton> {
         backgroundColor: suspend
             ? context.colorScheme.secondaryContainer
             : showDisconnectStyle
-                ? context.colorScheme.error
-                : null,
+            ? context.colorScheme.error
+            : null,
         foregroundColor: suspend
             ? context.colorScheme.onSecondaryContainer
             : showDisconnectStyle
-                ? context.colorScheme.onError
-                : null,
+            ? context.colorScheme.onError
+            : null,
       ),
       child: _switching
           ? Row(
@@ -984,8 +995,6 @@ class _HomeConnectButtonState extends ConsumerState<_HomeConnectButton> {
             )
           : Text(text),
     );
-    // 已暂停（SSID 排除）：用 Tooltip 说明原因并提供恢复操作，
-    // 避免“核心在跑却显示连接”的误导（C8）
     return suspend
         ? Tooltip(
             message: context.appLocalizations.excludeSsidsDesc,

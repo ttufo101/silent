@@ -3,6 +3,7 @@ import 'package:fl_clash/providers/config.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class DarkModeItem extends ConsumerWidget {
   const DarkModeItem({super.key});
@@ -14,7 +15,11 @@ class DarkModeItem extends ConsumerWidget {
         ref.watch(appSettingProvider.select((state) => state.themeMode)) ==
         ThemeMode.dark;
     return ListItem.toggle(
-      leading: const Icon(Icons.dark_mode_outlined),
+      leading: SvgPicture.asset(
+        'assets/images/settings/moon.svg',
+        width: 24,
+        height: 24,
+      ),
       title: Text(appLocalizations.darkMode),
       subtitle: Text(appLocalizations.darkModeDesc),
       value: isDarkMode,

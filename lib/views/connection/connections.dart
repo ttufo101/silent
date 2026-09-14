@@ -2,8 +2,6 @@ import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/core/controller.dart';
 import 'package:fl_clash/core/method.dart';
 import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/providers/providers.dart';
-import 'package:fl_clash/views/dashboard/widgets/connected_location_card.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,7 +24,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
     const TrackerInfosState(),
   );
   final ScrollController _scrollController = ScrollController();
-  bool _requestedLocation = false;
+  bool _pollingPaused = false;
 
   @override
   Duration get pollInterval => const Duration(seconds: 1);
@@ -34,6 +32,21 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
   List<Widget> _buildActions() {
     return [
       IconButton(
+        tooltip: _pollingPaused
+            ? context.appLocalizations.resumeRefresh
+            : context.appLocalizations.pauseRefresh,
+        onPressed: () {
+          setState(() => _pollingPaused = !_pollingPaused);
+          if (_pollingPaused) {
+            stopPolling();
+          } else {
+            startPolling();
+          }
+        },
+        icon: Icon(_pollingPaused ? Icons.play_arrow : Icons.pause),
+      ),
+      IconButton(
+        tooltip: context.appLocalizations.closeAllConnections,
         onPressed: () async {
           coreController.closeConnections();
           await _refreshConnections();
@@ -57,6 +70,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
 
   @override
   Future<void> poll(PollGuard isCurrent) async {
+    if (_pollingPaused) return;
     final trackerInfos = await _readConnections();
     if (trackerInfos == null || !isCurrent()) {
       return;
@@ -108,16 +122,6 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
   @override
   Widget build(BuildContext context) {
     final appLocalizations = context.appLocalizations;
-    final isConnected =
-        ref.watch(isStartProvider) && !ref.watch(suspendProvider);
-    if (isConnected && !_requestedLocation) {
-      _requestedLocation = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) ref.read(networkDetectionProvider.notifier).startCheck();
-      });
-    } else if (!isConnected) {
-      _requestedLocation = false;
-    }
     final body = ValueListenableBuilder<TrackerInfosState>(
       valueListenable: _connectionsStateNotifier,
       builder: (context, state, _) {
@@ -128,32 +132,50 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
             illustration: const ConnectionEmptyIllustration(),
           );
         }
-        return SuperListView.separated(
-          controller: _scrollController,
-          itemCount: connections.length,
-          separatorBuilder: (_, _) => const Divider(height: 0),
-          itemBuilder: (_, index) {
-            final trackerInfo = connections[index];
-            return TrackerInfoItem(
-              key: Key(trackerInfo.id),
-              trackerInfo: trackerInfo,
-              onClickKeyword: (value) {
-                context.commonScaffoldState?.addKeyword(value);
-              },
-              trailing: IconButton(
-                padding: EdgeInsets.zero,
-                visualDensity: VisualDensity.compact,
-                style: IconButton.styleFrom(minimumSize: Size.zero),
-                icon: const Icon(Icons.block),
-                onPressed: () {
-                  _handleBlockConnection(trackerInfo.id);
+        return Column(
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              color: context.colorScheme.surfaceContainerLow,
+              child: Text(
+                appLocalizations.displayedConnections(connections.length),
+                style: context.textTheme.bodySmall?.copyWith(
+                  color: context.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            Expanded(
+              child: SuperListView.separated(
+                controller: _scrollController,
+                itemCount: connections.length,
+                separatorBuilder: (_, _) => const Divider(height: 0),
+                itemBuilder: (_, index) {
+                  final trackerInfo = connections[index];
+                  return TrackerInfoItem(
+                    key: Key(trackerInfo.id),
+                    trackerInfo: trackerInfo,
+                    onClickKeyword: (value) {
+                      context.commonScaffoldState?.addKeyword(value);
+                    },
+                    trailing: IconButton(
+                      tooltip: appLocalizations.closeConnection,
+                      padding: EdgeInsets.zero,
+                      visualDensity: VisualDensity.compact,
+                      style: IconButton.styleFrom(minimumSize: Size.zero),
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        _handleBlockConnection(trackerInfo.id);
+                      },
+                    ),
+                    detailTitle: appLocalizations.details(
+                      appLocalizations.connection,
+                    ),
+                  );
                 },
               ),
-              detailTitle: appLocalizations.details(
-                appLocalizations.connection,
-              ),
-            );
-          },
+            ),
+          ],
         );
       },
     );
@@ -162,18 +184,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
       onKeywordsUpdate: _onKeywordsUpdate,
       searchState: AppBarSearchState(onSearch: _onSearch),
       actions: _buildActions(),
-      body: Column(
-        children: [
-          if (isConnected)
-            ConnectedLocationMap(
-              networkState: ref.watch(networkDetectionProvider),
-              showExitInfo: true,
-              onRetry: () =>
-                  ref.read(networkDetectionProvider.notifier).startCheck(),
-            ),
-          Expanded(child: body),
-        ],
-      ),
+      body: body,
     );
   }
 }

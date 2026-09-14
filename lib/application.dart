@@ -37,6 +37,8 @@ class ApplicationState extends ConsumerState<Application> {
   bool _authenticatedStartupStarted = false;
   Future<void>? _attachTask;
   bool _updatePromptVisible = false;
+  bool _updateInitializationStarted = false;
+  bool _vpnPermissionRequestInProgress = false;
 
   final _pageTransitionsTheme = const PageTransitionsTheme(
     builders: <TargetPlatform, PageTransitionsBuilder>{
@@ -73,13 +75,25 @@ class ApplicationState extends ConsumerState<Application> {
         setState(() => _showSplash = false);
         startupTiming.mark('interactive shell requested');
       }
-      unawaited(_initializeUpdates());
+      unawaited(_restoreRequiredUpdate());
     });
   }
 
+  Future<void> _restoreRequiredUpdate() async {
+    try {
+      await ref.read(updateControllerProvider.notifier).restoreRequiredUpdate();
+    } on Object catch (error) {
+      commonPrint.log(
+        'required update restoration failed: $error',
+        logLevel: LogLevel.warning,
+      );
+    }
+  }
+
   Future<void> _initializeUpdates() async {
+    if (_updateInitializationStarted) return;
+    _updateInitializationStarted = true;
     final controller = ref.read(updateControllerProvider.notifier);
-    await controller.restoreRequiredUpdate();
     try {
       final info = await controller.check();
       final ignoredReleaseId = await preferences.getIgnoredUpdateReleaseId();
@@ -118,6 +132,7 @@ class ApplicationState extends ConsumerState<Application> {
 
   void _handleAuthChanged() {
     if (_authController.status == AuthStatus.authenticated) {
+      unawaited(app?.setVpnStartAllowed(true));
       if (!_authenticatedStartupStarted) {
         _authenticatedStartupStarted = true;
         if (!startupTiming.isActive) {
@@ -126,8 +141,15 @@ class ApplicationState extends ConsumerState<Application> {
         startupTiming.mark('authenticated session ready');
       }
       ref.read(serverProfileSyncErrorProvider.notifier).set(null);
+      if (mounted) {
+        setState(() => _showSplash = false);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          unawaited(_requestVpnPermissionAfterHomeTransition());
+        });
+      }
       unawaited(_prepareAndAttach());
     } else if (mounted) {
+      unawaited(app?.setVpnStartAllowed(false));
       _authenticatedStartupStarted = false;
       _profileSync.invalidate();
       if (_appAttached) {
@@ -238,7 +260,6 @@ class ApplicationState extends ConsumerState<Application> {
             startupTiming.mark('synchronized profile preparation failed');
           }
         }
-        _requestInitialVpnPermissionAfterFrame();
       }
       startupTiming.finish(
         synchronizationResult != null
@@ -249,6 +270,10 @@ class ApplicationState extends ConsumerState<Application> {
       commonPrint.log(error.toString(), logLevel: LogLevel.warning);
       ref.read(serverProfileSyncErrorProvider.notifier).set(error.toString());
       startupTiming.finish('background startup failed');
+    } finally {
+      if (mounted) {
+        unawaited(_initializeUpdates());
+      }
     }
   }
 
@@ -266,38 +291,37 @@ class ApplicationState extends ConsumerState<Application> {
     }
   }
 
-  void _requestInitialVpnPermissionAfterFrame() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _requestInitialVpnPermission();
-    });
-  }
-
   Future<void> _requestInitialVpnPermission() async {
-    final appLocalizations = context.appLocalizations;
-    if (!system.isAndroid || await preferences.hasRequestedVpnPermission) {
+    if (!system.isAndroid || _vpnPermissionRequestInProgress) {
       return;
     }
-    await preferences.markVpnPermissionRequested();
-    // 先向用户说明用途，再调用系统授权（移动端规范 §4.10：权限应在用户触发相关功能时
-    // 先解释用途，再请求授权；拒绝后由连接流程再次触发系统提示）。
-    final confirmed = await globalState.showMessage(
-      title: appLocalizations.tip,
-      message: TextSpan(text: appLocalizations.vpnEnableDesc),
-      confirmText: appLocalizations.confirm,
-      cancelable: false,
-    );
-    if (confirmed == true) {
+    _vpnPermissionRequestInProgress = true;
+    try {
+      if (await preferences.hasRequestedVpnPermission ||
+          !mounted ||
+          _authController.status != AuthStatus.authenticated) {
+        return;
+      }
       await app?.requestVpnPermission();
+      await preferences.markVpnPermissionRequested();
+    } finally {
+      _vpnPermissionRequestInProgress = false;
     }
+  }
+
+  Future<void> _requestVpnPermissionAfterHomeTransition() async {
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+    if (!mounted || _authController.status != AuthStatus.authenticated) return;
+    await WidgetsBinding.instance.endOfFrame;
+    await app?.setVpnStartAllowed(true);
+    await _requestInitialVpnPermission();
   }
 
   Widget _buildPlatformState({required Widget child}) {
     if (system.isDesktop) {
       return WindowManager(
         child: TrayManager(
-          child: HotKeyManager(
-            child: ProxyManager(child: child),
-          ),
+          child: HotKeyManager(child: ProxyManager(child: child)),
         ),
       );
     }
@@ -342,8 +366,6 @@ class ApplicationState extends ConsumerState<Application> {
         final themeMode = ref.watch(
           appSettingProvider.select((state) => state.themeMode),
         );
-        // 主题按 ViewMode 区分：移动端(触控)与桌面端(密度)使用不同圆角/控件高度，
-        // 监听 viewModeProvider 使窗口在跨 600px 阈值时自动切换主题。
         final viewMode = ref.watch(viewModeProvider);
         return MaterialApp(
           debugShowCheckedModeBanner: false,

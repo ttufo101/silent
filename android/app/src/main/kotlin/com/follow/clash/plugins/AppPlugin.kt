@@ -15,6 +15,7 @@ import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.net.toUri
 import com.follow.clash.R
+import com.follow.clash.ServiceState
 import com.follow.clash.common.Components
 import com.follow.clash.common.GlobalState
 import com.follow.clash.common.QuickAction
@@ -117,7 +118,16 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
             }
 
             "requestVpnPermission" -> {
-                prepareVpn(true) { granted -> result.success(granted) }
+                if (!ServiceState.isVpnStartAllowed()) {
+                    result.success(false)
+                } else {
+                    prepareVpn(true) { granted -> result.success(granted) }
+                }
+            }
+
+            "setVpnStartAllowed" -> {
+                ServiceState.setVpnStartAllowed(call.arguments == true)
+                result.success(null)
             }
 
             else -> {

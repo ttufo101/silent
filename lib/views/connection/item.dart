@@ -2,7 +2,6 @@ import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/config.dart';
-import 'package:fl_clash/state.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,74 +20,15 @@ class TrackerInfoItem extends ConsumerWidget {
     required this.detailTitle,
   });
 
-  static double get subTitleHeight {
-    return globalState.measure.bodySmallHeight + 20;
-  }
-
-  String _getSourceText(BuildContext context, TrackerInfo trackerInfo) {
-    final progress = trackerInfo.progressText.isNotEmpty
-        ? '${trackerInfo.progressText} · '
-        : '';
-    final traffic = Traffic(up: trackerInfo.upload, down: trackerInfo.download);
-    return '${trackerInfo.start.getLastUpdateTimeDesc(context)} · $progress${traffic.desc}';
-  }
-
   @override
   Widget build(BuildContext context, ref) {
-    final value = ref.watch(
+    final showProcessIcon = ref.watch(
       patchClashConfigProvider.select(
         (state) =>
             state.findProcessMode == FindProcessMode.always && system.isAndroid,
       ),
     );
-    final title = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(trackerInfo.desc, style: context.textTheme.bodyLarge),
-        const SizedBox(height: 6),
-        Text(
-          _getSourceText(context, trackerInfo),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: context.textTheme.bodyMedium?.copyWith(
-            color: context.colorScheme.onSurfaceVariant,
-          ),
-        ),
-      ],
-    );
-    final subTitle = SizedBox(
-      height: subTitleHeight,
-      child: Row(
-        spacing: 8,
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Flexible(
-            child: ListView.separated(
-              separatorBuilder: (_, _) => const SizedBox(width: 6),
-              padding: EdgeInsets.zero,
-              scrollDirection: Axis.horizontal,
-              itemCount: trackerInfo.chains.length,
-              itemBuilder: (_, index) {
-                final chain = trackerInfo.chains[index];
-                return CommonChip(
-                  label: chain,
-                  labelStyle: context.textTheme.bodySmall?.copyWith(
-                    color: context.colorScheme.onSurfaceVariant,
-                  ),
-                  onPressed: () {
-                    if (onClickKeyword == null) return;
-                    onClickKeyword!(chain);
-                  },
-                );
-              },
-            ),
-          ),
-          ?trailing,
-        ],
-      ),
-    );
-    final icon = value
+    final icon = showProcessIcon
         ? GestureDetector(
             onTap: () {
               if (onClickKeyword == null) return;
@@ -107,8 +47,36 @@ class TrackerInfoItem extends ConsumerWidget {
             ),
           )
         : null;
+    final chain = trackerInfo.chains.join(' → ');
+    final rule = trackerInfo.rulePayload.isEmpty
+        ? trackerInfo.rule
+        : '${trackerInfo.rule} (${trackerInfo.rulePayload})';
+    final protocol = trackerInfo.metadata.network.toUpperCase();
+    final direct = trackerInfo.chains.any(
+      (value) => value.toUpperCase() == RuleTarget.DIRECT.name,
+    );
+    Widget tag(String label, {bool primary = false}) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(
+          color: primary
+              ? context.colorScheme.primaryContainer
+              : context.colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Text(
+          label,
+          style: context.textTheme.labelMedium?.copyWith(
+            color: primary
+                ? context.colorScheme.primary
+                : context.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      );
+    }
+
     return ListItem(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       onTap: () {
         showExtend(
           context,
@@ -121,20 +89,89 @@ class TrackerInfoItem extends ConsumerWidget {
         );
       },
       title: Column(
-        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 12,
             children: [
-              ?icon,
-              Flexible(child: title),
+              tag(
+                direct
+                    ? context.appLocalizations.direct
+                    : context.appLocalizations.proxyRoute,
+                primary: !direct,
+              ),
+              if (protocol.isNotEmpty) ...[
+                const SizedBox(width: 8),
+                tag(protocol),
+              ],
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  trackerInfo.desc,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              Text(
+                trackerInfo.start.getLastUpdateTimeDesc(context),
+                style: context.textTheme.bodySmall?.copyWith(
+                  color: context.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              if (trailing != null) ...[const SizedBox(width: 4), trailing!],
             ],
           ),
-          const SizedBox(height: 8),
-          subTitle,
+          if (chain.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                ?icon,
+                if (icon != null) const SizedBox(width: 8),
+                Expanded(
+                  child: InkWell(
+                    onTap: onClickKeyword == null
+                        ? null
+                        : () => onClickKeyword!(trackerInfo.chains.first),
+                    child: Text(
+                      '${context.appLocalizations.proxyChains}: $chain',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: context.colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '${context.appLocalizations.rule}: $rule',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.textTheme.bodySmall?.copyWith(
+                    color: context.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                Traffic(
+                  up: trackerInfo.upload,
+                  down: trackerInfo.download,
+                ).desc,
+                style: context.textTheme.bodySmall?.copyWith(
+                  color: context.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

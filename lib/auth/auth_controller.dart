@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:fl_clash/auth/data/auth_api.dart';
 import 'package:fl_clash/auth/data/auth_storage.dart';
 import 'package:fl_clash/auth/data/gateway_client.dart';
@@ -22,6 +24,7 @@ class AuthController extends ChangeNotifier {
   AuthStatus status = AuthStatus.initializing;
   AuthSession? session;
   Future<void>? _refreshTask;
+  Future<void>? _sessionPersistenceTask;
   bool _remember = false;
   int _sessionRevision = 0;
 
@@ -104,16 +107,28 @@ class AuthController extends ChangeNotifier {
     session = value;
     _remember = remember;
     _client.accessToken = value.accessToken;
-    startupTiming.mark('session persistence started');
-    if (remember) {
-      await _storage.write(value);
-    } else {
-      await _storage.clear();
-    }
-    startupTiming.mark('session persistence completed');
     status = AuthStatus.authenticated;
     startupTiming.mark('authenticated state ready');
     notifyListeners();
+    startupTiming.mark('session persistence started');
+    final persistenceTask = remember ? _storage.write(value) : _storage.clear();
+    _sessionPersistenceTask = persistenceTask;
+    try {
+      await persistenceTask;
+      startupTiming.mark('session persistence completed');
+    } catch (error, stackTrace) {
+      developer.log(
+        'Session persistence failed',
+        name: 'auth',
+        error: error,
+        stackTrace: stackTrace,
+      );
+      startupTiming.mark('session persistence failed');
+    } finally {
+      if (identical(_sessionPersistenceTask, persistenceTask)) {
+        _sessionPersistenceTask = null;
+      }
+    }
   }
 
   Future<void> ensureValidAccessToken() async {
@@ -153,6 +168,12 @@ class AuthController extends ChangeNotifier {
 
   Future<void> logout() async {
     _sessionRevision++;
+    final persistenceTask = _sessionPersistenceTask;
+    if (persistenceTask != null) {
+      try {
+        await persistenceTask;
+      } catch (_) {}
+    }
     await _storage.clear();
     _client.accessToken = null;
     session = null;

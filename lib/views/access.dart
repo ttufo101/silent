@@ -249,6 +249,7 @@ class _AccessViewState extends ConsumerState<AccessView> {
     final appLocalizations = context.appLocalizations;
     return [
       _buildConfirm(),
+      Switch(value: enable, onChanged: (_) => _handleToggle()),
       CommonPopupBox(
         targetBuilder: (open) {
           return IconButton(
@@ -348,28 +349,41 @@ class _AccessViewState extends ConsumerState<AccessView> {
     final textStyle = context.textTheme.labelLarge?.copyWith(
       color: context.colorScheme.onPrimary,
     );
-    return MaterialBanner(
-      content: Text(describe),
-      actions: [
-        Card.filled(
-          color: context.colorScheme.primary,
-          elevation: 0,
-          shape: RoundedSuperellipseBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(appLocalizations.selected, style: textStyle),
-                const SizedBox(width: 4),
-                Flexible(child: Text('$count', style: textStyle)),
-              ],
+    return Material(
+      color: context.colorScheme.primaryContainer,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                describe,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-          ),
+            const SizedBox(width: 12),
+            Card.filled(
+              color: context.colorScheme.primary,
+              elevation: 0,
+              shape: RoundedSuperellipseBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(appLocalizations.selected, style: textStyle),
+                    const SizedBox(width: 4),
+                    Text('$count', style: textStyle),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -381,7 +395,7 @@ class _AccessViewState extends ConsumerState<AccessView> {
   @override
   Widget build(BuildContext context) {
     final isLoading = ref.watch(loadingProvider(LoadingTag.access));
-    final query = ref.watch(queryProvider(QueryTag.access));
+    final query = ref.watch(queryProvider(QueryTag.access)).toLowerCase();
     final packages = ref.watch(packagesProvider);
     final accessControl = ref.watch(accessControlStateProvider);
     if (_isInit) {
@@ -415,24 +429,20 @@ class _AccessViewState extends ConsumerState<AccessView> {
       searchState: AppBarSearchState(onSearch: _onSearch, autoAddSearch: false),
       title: context.appLocalizations.appAccessControl,
       actions: _buildActions(context, enable: accessControl.enable),
-      body: DisabledMask(
-        status: !accessControl.enable,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildBannerBar(mode, valueList.length),
-            const SizedBox(height: 8),
-            Expanded(
-              child: _buildContent(
-                packages: viewPackages,
-                valueList: valueList,
-              ),
-            ),
-          ],
-        ),
+      body: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildBannerBar(mode, currentList.length),
+          const SizedBox(height: 8),
+          Expanded(
+            child: _buildContent(packages: viewPackages, valueList: valueList),
+          ),
+        ],
       ),
       floatingActionButton: _buildSelectedAllButton(
-        isSelectedAll: valueList.length == viewPackageNameList.length,
+        isSelectedAll:
+            viewPackageNameList.isNotEmpty &&
+            valueList.length == viewPackageNameList.length,
         allValueList: viewPackageNameList,
       ),
     );

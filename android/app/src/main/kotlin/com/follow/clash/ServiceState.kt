@@ -45,6 +45,9 @@ object ServiceState {
     @Volatile
     private var flutterEngine: FlutterEngine? = null
 
+    @Volatile
+    private var vpnStartAllowed = false
+
     val runState = mutableRunState.asStateFlow()
 
     private val runTimeMillis: Long
@@ -63,6 +66,15 @@ object ServiceState {
     fun detachFlutterEngine(engine: FlutterEngine) {
         if (flutterEngine === engine) {
             flutterEngine = null
+        }
+    }
+
+    fun isVpnStartAllowed(): Boolean = vpnStartAllowed
+
+    fun setVpnStartAllowed(allowed: Boolean) {
+        vpnStartAllowed = allowed
+        if (!allowed && isRunningRequested()) {
+            requestStop()
         }
     }
 
@@ -97,6 +109,9 @@ object ServiceState {
     }
 
     suspend fun handleStartAction() {
+        if (!vpnStartAllowed) {
+            return
+        }
         if (isRunningRequested()) {
             return
         }
@@ -129,6 +144,9 @@ object ServiceState {
     }
 
     fun requestStart(): Deferred<Boolean> {
+        if (!vpnStartAllowed) {
+            return CompletableDeferred(false)
+        }
         val request = createRequest(running = true)
         val result = CompletableDeferred<Boolean>()
         GlobalState.launch {
@@ -225,7 +243,7 @@ object ServiceState {
     }
 
     private suspend fun start(request: RunRequest): Boolean = startPreparationLock.withLock {
-        if (!isCurrent(request)) {
+        if (!vpnStartAllowed || !isCurrent(request)) {
             return@withLock false
         }
         val options = sharedState.vpnOptions

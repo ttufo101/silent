@@ -5,9 +5,12 @@ class CommonAction extends _$CommonAction {
   @override
   void build() {}
 
-  Future<void> toggleRunning() {
+  Future<void> toggleRunning() async {
     final running = !ref.read(isStartProvider);
-    return ref
+    if (running && ref.read(coreStatusProvider) != CoreStatus.connected) {
+      await globalState.ensureCoreReady();
+    }
+    await ref
         .read(setupActionProvider.notifier)
         .setRunning(running, initialize: running && !ref.read(initProvider));
   }

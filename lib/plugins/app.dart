@@ -56,6 +56,10 @@ class App {
     return methodChannel.invokeMethod<bool>('requestVpnPermission');
   }
 
+  Future<void> setVpnStartAllowed(bool allowed) async {
+    await methodChannel.invokeMethod<void>('setVpnStartAllowed', allowed);
+  }
+
   Future<ApkInstallResult> installApk(String path) async {
     final value = await methodChannel.invokeMethod<String>('installApk', {
       'path': path,

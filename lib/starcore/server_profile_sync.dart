@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:crypto/crypto.dart';
 import 'package:fl_clash/auth/auth_controller.dart';
@@ -130,9 +131,10 @@ class ServerProfileSync {
         _setAccessStatus(SubscriptionAccessStatus.inactive);
         return _removeSubscriptionAccess(owner, generation);
       }
-      _setAccessStatus(SubscriptionAccessStatus.active);
       final bytes = links.content!;
-      final contentHash = sha256.convert(bytes).toString();
+      final contentHash = await Isolate.run(
+        () => sha256.convert(bytes).toString(),
+      );
       startupTiming.mark('profile hash ready');
       final cachedProfile = await _getValidCachedProfile(owner);
       if (cachedProfile != null) {
@@ -190,6 +192,7 @@ class ServerProfileSync {
       startupTiming.mark('profile metadata saved');
       _lastSyncFailed = false;
       synchronizationCompleted = true;
+      _setAccessStatus(SubscriptionAccessStatus.active);
       startupTiming.mark('profile persisted');
       if (apply) {
         await applyCurrentProfile();
@@ -252,7 +255,10 @@ class ServerProfileSync {
     final profile = profiles.single;
     final file = File(await appPath.getProfilePath(profile.id.toString()));
     if (!await file.exists()) return null;
-    final contentHash = sha256.convert(await file.readAsBytes()).toString();
+    final bytes = await file.readAsBytes();
+    final contentHash = await Isolate.run(
+      () => sha256.convert(bytes).toString(),
+    );
     return contentHash == metadata.contentHash ? profile : null;
   }
 

@@ -5238,6 +5238,246 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `Proxy rules`
+  String get proxyRules {
+    return Intl.message('Proxy rules', name: 'proxyRules', desc: '', args: []);
+  }
+
+  /// `Custom proxy domains`
+  String get customProxyDomains {
+    return Intl.message(
+      'Custom proxy domains',
+      name: 'customProxyDomains',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Always route selected domains through the proxy`
+  String get customProxyDomainsDesc {
+    return Intl.message(
+      'Always route selected domains through the proxy',
+      name: 'customProxyDomainsDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Custom direct domains`
+  String get customDirectDomains {
+    return Intl.message(
+      'Custom direct domains',
+      name: 'customDirectDomains',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Always connect to selected domains directly`
+  String get customDirectDomainsDesc {
+    return Intl.message(
+      'Always connect to selected domains directly',
+      name: 'customDirectDomainsDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter a domain, such as google.com`
+  String get domainInputHint {
+    return Intl.message(
+      'Enter a domain, such as google.com',
+      name: 'domainInputHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add`
+  String get addDomain {
+    return Intl.message('Add', name: 'addDomain', desc: '', args: []);
+  }
+
+  /// `The domain and its subdomains will always use the proxy in Rule mode. Reconnect to apply changes.`
+  String get proxyDomainHelp {
+    return Intl.message(
+      'The domain and its subdomains will always use the proxy in Rule mode. Reconnect to apply changes.',
+      name: 'proxyDomainHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The domain and its subdomains will always connect directly in Rule mode. Reconnect to apply changes.`
+  String get directDomainHelp {
+    return Intl.message(
+      'The domain and its subdomains will always connect directly in Rule mode. Reconnect to apply changes.',
+      name: 'directDomainHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter a valid domain`
+  String get domainInvalid {
+    return Intl.message(
+      'Enter a valid domain',
+      name: 'domainInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This domain has already been added`
+  String get domainDuplicate {
+    return Intl.message(
+      'This domain has already been added',
+      name: 'domainDuplicate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This domain already exists in the other rule list`
+  String get domainConflict {
+    return Intl.message(
+      'This domain already exists in the other rule list',
+      name: 'domainConflict',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Saved. Reconnect to apply changes`
+  String get domainSavedReconnect {
+    return Intl.message(
+      'Saved. Reconnect to apply changes',
+      name: 'domainSavedReconnect',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No custom domains`
+  String get noCustomDomains {
+    return Intl.message(
+      'No custom domains',
+      name: 'noCustomDomains',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Upload diagnostic logs`
+  String get uploadDiagnosticLogs {
+    return Intl.message(
+      'Upload diagnostic logs',
+      name: 'uploadDiagnosticLogs',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Send runtime logs to help diagnose a problem`
+  String get uploadDiagnosticLogsDesc {
+    return Intl.message(
+      'Send runtime logs to help diagnose a problem',
+      name: 'uploadDiagnosticLogsDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Feedback`
+  String get feedback {
+    return Intl.message('Feedback', name: 'feedback', desc: '', args: []);
+  }
+
+  /// `Send a suggestion or report a problem`
+  String get feedbackDesc {
+    return Intl.message(
+      'Send a suggestion or report a problem',
+      name: 'feedbackDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This feature will be available in a future version`
+  String get featureComingSoon {
+    return Intl.message(
+      'This feature will be available in a future version',
+      name: 'featureComingSoon',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `System behavior, core configuration, and diagnostics`
+  String get advancedSettingsDesc {
+    return Intl.message(
+      'System behavior, core configuration, and diagnostics',
+      name: 'advancedSettingsDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pause refresh`
+  String get pauseRefresh {
+    return Intl.message(
+      'Pause refresh',
+      name: 'pauseRefresh',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Resume refresh`
+  String get resumeRefresh {
+    return Intl.message(
+      'Resume refresh',
+      name: 'resumeRefresh',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Close all connections`
+  String get closeAllConnections {
+    return Intl.message(
+      'Close all connections',
+      name: 'closeAllConnections',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Close connection`
+  String get closeConnection {
+    return Intl.message(
+      'Close connection',
+      name: 'closeConnection',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Showing {count} connections`
+  String displayedConnections(Object count) {
+    return Intl.message(
+      'Showing $count connections',
+      name: 'displayedConnections',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Proxy`
+  String get proxyRoute {
+    return Intl.message('Proxy', name: 'proxyRoute', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {
