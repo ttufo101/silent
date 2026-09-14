@@ -89,9 +89,11 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m30(value) => "${value} ГБ";
 
-  static String m31(label) => "${label} должен быть URL";
+  static String m31(version) => "Версия ${version}";
 
-  static String m32(count) =>
+  static String m32(label) => "${label} должен быть URL";
+
+  static String m33(count) =>
       "${Intl.plural(count, one: '${count} год назад', few: '${count} года назад', many: '${count} лет назад', other: '${count} года назад')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -287,9 +289,6 @@ class MessageLookup extends MessageLookupByLibrary {
       "Отменить выбор всего",
     ),
     "checkUpdate": MessageLookupByLibrary.simpleMessage("Проверить обновления"),
-    "checkUpdateError": MessageLookupByLibrary.simpleMessage(
-      "Текущее приложение уже является последней версией",
-    ),
     "clearData": MessageLookupByLibrary.simpleMessage("Очистить данные"),
     "clipboardExport": MessageLookupByLibrary.simpleMessage(
       "Экспорт в буфер обмена",
@@ -395,9 +394,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "disconnect": MessageLookupByLibrary.simpleMessage("Отключиться"),
     "disconnected": MessageLookupByLibrary.simpleMessage("Отключено"),
     "disconnecting": MessageLookupByLibrary.simpleMessage("Отключение..."),
-    "discoverNewVersion": MessageLookupByLibrary.simpleMessage(
-      "Обнаружена новая версия",
-    ),
     "dnsDesc": MessageLookupByLibrary.simpleMessage(
       "Обновление настроек, связанных с DNS",
     ),
@@ -506,7 +502,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "geoipCode": MessageLookupByLibrary.simpleMessage("Код Geoip"),
     "global": MessageLookupByLibrary.simpleMessage("Глобальный"),
     "go": MessageLookupByLibrary.simpleMessage("Перейти"),
-    "goDownload": MessageLookupByLibrary.simpleMessage("Перейти к загрузке"),
     "goToConfigureScript": MessageLookupByLibrary.simpleMessage(
       "Перейти к настройке скрипта",
     ),
@@ -682,9 +677,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "noData": MessageLookupByLibrary.simpleMessage("Нет данных"),
     "noHotKey": MessageLookupByLibrary.simpleMessage("Нет горячей клавиши"),
     "noInfo": MessageLookupByLibrary.simpleMessage("Нет информации"),
-    "noLongerRemind": MessageLookupByLibrary.simpleMessage(
-      "Больше не напоминать",
-    ),
     "noNetwork": MessageLookupByLibrary.simpleMessage("Нет сети"),
     "noNetworkApp": MessageLookupByLibrary.simpleMessage("Приложение без сети"),
     "noRecords": MessageLookupByLibrary.simpleMessage("Нет записей"),
@@ -886,6 +878,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "requests": MessageLookupByLibrary.simpleMessage("Запросы"),
     "requestsDesc": MessageLookupByLibrary.simpleMessage(
       "Просмотр последних записей запросов",
+    ),
+    "requiredUpdateTitle": MessageLookupByLibrary.simpleMessage(
+      "Требуется обновление",
     ),
     "reset": MessageLookupByLibrary.simpleMessage("Сброс"),
     "resetPageChangesTip": MessageLookupByLibrary.simpleMessage(
@@ -1246,9 +1241,48 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "unnamed": MessageLookupByLibrary.simpleMessage("Без имени"),
     "update": MessageLookupByLibrary.simpleMessage("Обновить"),
+    "updateAvailableTitle": MessageLookupByLibrary.simpleMessage(
+      "Доступно обновление",
+    ),
+    "updateCancelDownload": MessageLookupByLibrary.simpleMessage(
+      "Отменить загрузку",
+    ),
+    "updateCheckFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось проверить обновления. Проверьте подключение к сети.",
+    ),
+    "updateDownloadFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось подготовить обновление. Повторите попытку.",
+    ),
+    "updateDownloading": MessageLookupByLibrary.simpleMessage(
+      "Загрузка обновления…",
+    ),
+    "updateInstallNow": MessageLookupByLibrary.simpleMessage(
+      "Установить сейчас",
+    ),
+    "updateInstallPermissionRequired": MessageLookupByLibrary.simpleMessage(
+      "Разрешите приложению устанавливать обновления, затем снова нажмите «Установить».",
+    ),
+    "updateInstallerOpened": MessageLookupByLibrary.simpleMessage(
+      "Установщик открыт",
+    ),
+    "updateLater": MessageLookupByLibrary.simpleMessage("Позже"),
+    "updateNow": MessageLookupByLibrary.simpleMessage("Обновить сейчас"),
+    "updatePackageSize": MessageLookupByLibrary.simpleMessage(
+      "Размер загрузки",
+    ),
+    "updateReadyToInstall": MessageLookupByLibrary.simpleMessage(
+      "Обновление готово к установке",
+    ),
+    "updateUpToDate": MessageLookupByLibrary.simpleMessage(
+      "Установлена последняя версия",
+    ),
+    "updateVerifying": MessageLookupByLibrary.simpleMessage(
+      "Проверка обновления…",
+    ),
+    "updateVersion": m31,
     "upload": MessageLookupByLibrary.simpleMessage("Загрузка"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m31,
+    "urlTip": m32,
     "useHosts": MessageLookupByLibrary.simpleMessage("Использовать hosts"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage(
       "Использовать системные hosts",
@@ -1272,7 +1306,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "whitelistMode": MessageLookupByLibrary.simpleMessage(
       "Режим белого списка",
     ),
-    "yearsAgo": m32,
+    "yearsAgo": m33,
     "zh_CN": MessageLookupByLibrary.simpleMessage("Упрощенный китайский"),
   };
 }

@@ -83,9 +83,11 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m30(value) => "${value}G";
 
-  static String m31(label) => "${label}はURLである必要があります";
+  static String m31(version) => "バージョン ${version}";
 
-  static String m32(count) => "${count}年前";
+  static String m32(label) => "${label}はURLである必要があります";
+
+  static String m33(count) => "${count}年前";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -218,7 +220,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "cancel": MessageLookupByLibrary.simpleMessage("キャンセル"),
     "cancelSelectAll": MessageLookupByLibrary.simpleMessage("全選択解除"),
     "checkUpdate": MessageLookupByLibrary.simpleMessage("更新を確認"),
-    "checkUpdateError": MessageLookupByLibrary.simpleMessage("アプリは最新版です"),
     "clearData": MessageLookupByLibrary.simpleMessage("データを消去"),
     "clipboardExport": MessageLookupByLibrary.simpleMessage("クリップボードにエクスポート"),
     "clipboardImport": MessageLookupByLibrary.simpleMessage("クリップボードからインポート"),
@@ -306,7 +307,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "disconnect": MessageLookupByLibrary.simpleMessage("切断"),
     "disconnected": MessageLookupByLibrary.simpleMessage("切断済み"),
     "disconnecting": MessageLookupByLibrary.simpleMessage("切断中..."),
-    "discoverNewVersion": MessageLookupByLibrary.simpleMessage("新バージョンを発見"),
     "dnsDesc": MessageLookupByLibrary.simpleMessage("DNS関連設定の更新"),
     "dnsHijacking": MessageLookupByLibrary.simpleMessage("DNSハイジャッキング"),
     "dnsMode": MessageLookupByLibrary.simpleMessage("DNSモード"),
@@ -393,7 +393,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "geoipCode": MessageLookupByLibrary.simpleMessage("GeoIPコード"),
     "global": MessageLookupByLibrary.simpleMessage("グローバル"),
     "go": MessageLookupByLibrary.simpleMessage("移動"),
-    "goDownload": MessageLookupByLibrary.simpleMessage("ダウンロードへ"),
     "goToConfigureScript": MessageLookupByLibrary.simpleMessage("スクリプト設定に移動"),
     "hasCacheChange": MessageLookupByLibrary.simpleMessage("変更をキャッシュしますか？"),
     "helperCorruptTip": MessageLookupByLibrary.simpleMessage(
@@ -519,7 +518,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "noData": MessageLookupByLibrary.simpleMessage("データなし"),
     "noHotKey": MessageLookupByLibrary.simpleMessage("ホットキーなし"),
     "noInfo": MessageLookupByLibrary.simpleMessage("情報なし"),
-    "noLongerRemind": MessageLookupByLibrary.simpleMessage("今後表示しない"),
     "noNetwork": MessageLookupByLibrary.simpleMessage("ネットワークなし"),
     "noNetworkApp": MessageLookupByLibrary.simpleMessage("ネットワークなしアプリ"),
     "noRecords": MessageLookupByLibrary.simpleMessage("履歴なし"),
@@ -672,6 +670,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "request": MessageLookupByLibrary.simpleMessage("リクエスト"),
     "requests": MessageLookupByLibrary.simpleMessage("リクエスト"),
     "requestsDesc": MessageLookupByLibrary.simpleMessage("最近のリクエスト記録を表示"),
+    "requiredUpdateTitle": MessageLookupByLibrary.simpleMessage("更新が必要です"),
     "reset": MessageLookupByLibrary.simpleMessage("リセット"),
     "resetPageChangesTip": MessageLookupByLibrary.simpleMessage(
       "現在のページに変更があります。リセットしてもよろしいですか？",
@@ -957,9 +956,38 @@ class MessageLookup extends MessageLookupByLibrary {
     "unknownNetworkError": MessageLookupByLibrary.simpleMessage("不明なネットワークエラー"),
     "unnamed": MessageLookupByLibrary.simpleMessage("無題"),
     "update": MessageLookupByLibrary.simpleMessage("更新"),
+    "updateAvailableTitle": MessageLookupByLibrary.simpleMessage("更新があります"),
+    "updateCancelDownload": MessageLookupByLibrary.simpleMessage(
+      "ダウンロードをキャンセル",
+    ),
+    "updateCheckFailed": MessageLookupByLibrary.simpleMessage(
+      "更新を確認できません。ネットワークを確認してください。",
+    ),
+    "updateDownloadFailed": MessageLookupByLibrary.simpleMessage(
+      "更新を準備できません。もう一度お試しください。",
+    ),
+    "updateDownloading": MessageLookupByLibrary.simpleMessage(
+      "更新をダウンロードしています…",
+    ),
+    "updateInstallNow": MessageLookupByLibrary.simpleMessage("今すぐインストール"),
+    "updateInstallPermissionRequired": MessageLookupByLibrary.simpleMessage(
+      "更新のインストールを許可してから、もう一度インストールをタップしてください。",
+    ),
+    "updateInstallerOpened": MessageLookupByLibrary.simpleMessage(
+      "インストーラーを開きました",
+    ),
+    "updateLater": MessageLookupByLibrary.simpleMessage("後で"),
+    "updateNow": MessageLookupByLibrary.simpleMessage("今すぐ更新"),
+    "updatePackageSize": MessageLookupByLibrary.simpleMessage("ダウンロードサイズ"),
+    "updateReadyToInstall": MessageLookupByLibrary.simpleMessage(
+      "更新をインストールできます",
+    ),
+    "updateUpToDate": MessageLookupByLibrary.simpleMessage("最新バージョンを使用しています"),
+    "updateVerifying": MessageLookupByLibrary.simpleMessage("更新を確認しています…"),
+    "updateVersion": m31,
     "upload": MessageLookupByLibrary.simpleMessage("アップロード"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m31,
+    "urlTip": m32,
     "useHosts": MessageLookupByLibrary.simpleMessage("ホストを使用"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage("システムホストを使用"),
     "userAgent": MessageLookupByLibrary.simpleMessage("ユーザーエージェント"),
@@ -975,7 +1003,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnTip": MessageLookupByLibrary.simpleMessage("変更はVPN再起動後に有効"),
     "webDAVConfiguration": MessageLookupByLibrary.simpleMessage("WebDAV設定"),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("ホワイトリストモード"),
-    "yearsAgo": m32,
+    "yearsAgo": m33,
     "zh_CN": MessageLookupByLibrary.simpleMessage("簡体字中国語"),
   };
 }

@@ -66,9 +66,9 @@ class _NoSubscriptionViewState extends ConsumerState<NoSubscriptionView> {
                     child: FilledButton.icon(
                       onPressed: _openShop,
                       style: FilledButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
-                        ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(TDesignRadius.card),
+                      ),
                       ),
                       icon: const Icon(Icons.shopping_bag_outlined, size: 22),
                       label: Text(
@@ -82,11 +82,7 @@ class _NoSubscriptionViewState extends ConsumerState<NoSubscriptionView> {
                   const SizedBox(height: 24),
                   TextButton(
                     onPressed: _refreshing ? null : _refresh,
-                    style: TextButton.styleFrom(
-                      minimumSize: Size.zero,
-                      padding: EdgeInsets.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
+                    style: TextButton.styleFrom(),
                     child: _refreshing
                         ? SizedBox(
                             width: 18,

@@ -779,7 +779,10 @@ class _TestApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: TDesignThemeData.build(brightness: Brightness.light),
+      theme: TDesignThemeData.build(
+        brightness: Brightness.light,
+        viewMode: ViewMode.mobile,
+      ),
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -803,7 +806,10 @@ class _ThemeManagedTestApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: TDesignThemeData.build(brightness: Brightness.light),
+      theme: TDesignThemeData.build(
+        brightness: Brightness.light,
+        viewMode: ViewMode.mobile,
+      ),
       navigatorKey: globalState.navigatorKey,
       localizationsDelegates: const [
         AppLocalizations.delegate,

@@ -5,6 +5,7 @@ import 'package:fl_clash/auth/data/gateway_client.dart';
 import 'package:fl_clash/common/startup_timing.dart';
 import 'package:fl_clash/starcore/models/plan.dart';
 import 'package:fl_clash/starcore/models/user_info.dart';
+import 'package:fl_clash/update/update_info.dart';
 
 class ServerLinks {
   const ServerLinks({required this.hasSubscription, this.content});
@@ -18,6 +19,24 @@ class StarcoreApi {
 
   static const _module = 'starland.starcore.com';
   final GatewayClient _client;
+
+  Future<UpdateInfo> checkUpdate({
+    required String platform,
+    required String currentVersion,
+  }) async {
+    final data = await _client.call(
+      module: _module,
+      method: 'CheckUpdate',
+      params: {'platform': platform, 'current_version': currentVersion},
+      requestTimeout: const Duration(seconds: 10),
+      authenticated: false,
+    );
+    try {
+      return UpdateInfo.fromJson(data);
+    } on Object {
+      throw const GatewayException('Invalid CheckUpdateResponse');
+    }
+  }
 
   Future<List<Plan>> getPlans() async {
     final data = await _client.call(

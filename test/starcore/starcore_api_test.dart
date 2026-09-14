@@ -55,6 +55,7 @@ class _FakeGatewayClient extends GatewayClient {
     required String method,
     required Map<String, dynamic> params,
     Duration? requestTimeout,
+    bool authenticated = true,
   }) async {
     this.module = module;
     this.method = method;

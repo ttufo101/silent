@@ -919,31 +919,151 @@ class AppLocalizations {
     );
   }
 
-  /// `Discover the new version`
-  String get discoverNewVersion {
+  /// `Update available`
+  String get updateAvailableTitle {
     return Intl.message(
-      'Discover the new version',
-      name: 'discoverNewVersion',
+      'Update available',
+      name: 'updateAvailableTitle',
       desc: '',
       args: [],
     );
   }
 
-  /// `The current application is already the latest version`
-  String get checkUpdateError {
+  /// `Update required`
+  String get requiredUpdateTitle {
     return Intl.message(
-      'The current application is already the latest version',
-      name: 'checkUpdateError',
+      'Update required',
+      name: 'requiredUpdateTitle',
       desc: '',
       args: [],
     );
   }
 
-  /// `Go to download`
-  String get goDownload {
+  /// `Version {version}`
+  String updateVersion(Object version) {
     return Intl.message(
-      'Go to download',
-      name: 'goDownload',
+      'Version $version',
+      name: 'updateVersion',
+      desc: '',
+      args: [version],
+    );
+  }
+
+  /// `Download size`
+  String get updatePackageSize {
+    return Intl.message(
+      'Download size',
+      name: 'updatePackageSize',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Later`
+  String get updateLater {
+    return Intl.message('Later', name: 'updateLater', desc: '', args: []);
+  }
+
+  /// `Update now`
+  String get updateNow {
+    return Intl.message('Update now', name: 'updateNow', desc: '', args: []);
+  }
+
+  /// `Install now`
+  String get updateInstallNow {
+    return Intl.message(
+      'Install now',
+      name: 'updateInstallNow',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Downloading update…`
+  String get updateDownloading {
+    return Intl.message(
+      'Downloading update…',
+      name: 'updateDownloading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Verifying update…`
+  String get updateVerifying {
+    return Intl.message(
+      'Verifying update…',
+      name: 'updateVerifying',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update ready to install`
+  String get updateReadyToInstall {
+    return Intl.message(
+      'Update ready to install',
+      name: 'updateReadyToInstall',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Installer opened`
+  String get updateInstallerOpened {
+    return Intl.message(
+      'Installer opened',
+      name: 'updateInstallerOpened',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cancel download`
+  String get updateCancelDownload {
+    return Intl.message(
+      'Cancel download',
+      name: 'updateCancelDownload',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unable to prepare the update. Please try again.`
+  String get updateDownloadFailed {
+    return Intl.message(
+      'Unable to prepare the update. Please try again.',
+      name: 'updateDownloadFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unable to check for updates. Please check your network.`
+  String get updateCheckFailed {
+    return Intl.message(
+      'Unable to check for updates. Please check your network.',
+      name: 'updateCheckFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You are using the latest version`
+  String get updateUpToDate {
+    return Intl.message(
+      'You are using the latest version',
+      name: 'updateUpToDate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Allow this app to install updates, then tap Install again.`
+  String get updateInstallPermissionRequired {
+    return Intl.message(
+      'Allow this app to install updates, then tap Install again.',
+      name: 'updateInstallPermissionRequired',
       desc: '',
       args: [],
     );
@@ -3092,16 +3212,6 @@ class AppLocalizations {
   /// `Just now`
   String get justNow {
     return Intl.message('Just now', name: 'justNow', desc: '', args: []);
-  }
-
-  /// `Don't remind again`
-  String get noLongerRemind {
-    return Intl.message(
-      'Don\'t remind again',
-      name: 'noLongerRemind',
-      desc: '',
-      args: [],
-    );
   }
 
   /// `Access Control Settings`

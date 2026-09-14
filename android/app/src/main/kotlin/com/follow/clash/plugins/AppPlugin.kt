@@ -8,6 +8,7 @@ import android.net.VpnService
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
+import androidx.core.content.FileProvider
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
@@ -33,6 +34,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.io.File
 
 class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware {
 
@@ -108,6 +110,10 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
 
             "openAppSettings" -> {
                 result.success(openAppSettings())
+            }
+
+            "installApk" -> {
+                result.success(installApk(call.argument<String>("path")))
             }
 
             "requestVpnPermission" -> {
@@ -275,5 +281,41 @@ class AppPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware 
 
     private companion object {
         const val VPN_PERMISSION_REQUEST_CODE = 1001
+    }
+
+    private fun installApk(path: String?): String {
+        val activity = activity ?: return "failed"
+        val file = path?.let(::File) ?: return "failed"
+        if (!file.isFile || file.extension.lowercase() != "apk") return "failed"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+            !activity.packageManager.canRequestPackageInstalls()
+        ) {
+            return try {
+                activity.startActivity(
+                    Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                        data = "package:${activity.packageName}".toUri()
+                    },
+                )
+                "permissionRequired"
+            } catch (_: Exception) {
+                "failed"
+            }
+        }
+        return try {
+            val uri = FileProvider.getUriForFile(
+                activity,
+                "${activity.packageName}.fileProvider",
+                file,
+            )
+            activity.startActivity(
+                Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(uri, "application/vnd.android.package-archive")
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                },
+            )
+            "launched"
+        } catch (_: Exception) {
+            "failed"
+        }
     }
 }

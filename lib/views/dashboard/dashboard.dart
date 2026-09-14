@@ -272,7 +272,7 @@ class _DashboardPlaceholder extends StatelessWidget {
       height: height,
       decoration: BoxDecoration(
         color: context.tDesign.container,
-        borderRadius: BorderRadius.circular(9),
+        borderRadius: BorderRadius.circular(TDesignRadius.card),
       ),
     );
   }
@@ -352,7 +352,7 @@ class _SpeedPanel extends ConsumerWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: context.tDesign.secondaryContainer,
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: BorderRadius.circular(TDesignRadius.card),
         ),
         child: Icon(icon, size: compact ? 22 : 28, color: color),
       ),
@@ -396,7 +396,7 @@ class _SpeedPanel extends ConsumerWidget {
         Container(
           decoration: BoxDecoration(
             color: context.tDesign.container,
-            borderRadius: BorderRadius.circular(9),
+            borderRadius: BorderRadius.circular(TDesignRadius.card),
           ),
           child: Row(
             children: [
@@ -405,7 +405,7 @@ class _SpeedPanel extends ConsumerWidget {
                   context,
                   icon: Icons.arrow_upward,
                   compact: !isMobile,
-                  color: context.tDesign.warning,
+                  color: context.tDesign.warning.color,
                   label: context.appLocalizations.upload,
                   value: traffic.up,
                 ),
@@ -422,7 +422,7 @@ class _SpeedPanel extends ConsumerWidget {
                   context,
                   icon: Icons.arrow_downward,
                   compact: !isMobile,
-                  color: context.tDesign.success,
+                  color: context.tDesign.success.color,
                   label: context.appLocalizations.download,
                   value: traffic.down,
                 ),
@@ -455,7 +455,6 @@ class _ModePanel extends ConsumerWidget {
         leading: Center(
           child: Radio<Mode>(
             value: mode,
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
         ),
         child: Text(
@@ -484,7 +483,7 @@ class _ModePanel extends ConsumerWidget {
         SizedBox(height: isMobile ? 8 : 6),
         Material(
           color: context.tDesign.container,
-          borderRadius: BorderRadius.circular(9),
+          borderRadius: BorderRadius.circular(TDesignRadius.card),
           clipBehavior: Clip.antiAlias,
           child: RadioGroup<Mode>(
             groupValue: mode,
@@ -651,7 +650,7 @@ class _DesktopToggleRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: context.tDesign.container,
-      borderRadius: BorderRadius.circular(9),
+      borderRadius: BorderRadius.circular(TDesignRadius.card),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: updating || onChanged == null ? null : () => onChanged!(!value),
@@ -755,7 +754,7 @@ class _ProfileSyncFailureCardState
       padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 12),
       decoration: BoxDecoration(
         color: context.tDesign.container,
-        borderRadius: BorderRadius.circular(9),
+        borderRadius: BorderRadius.circular(TDesignRadius.card),
         border: Border.all(color: context.tDesign.componentBorder),
       ),
       child: Row(
@@ -810,15 +809,22 @@ class _CurrentProxyCard extends ConsumerWidget {
       for (final proxy in group?.all ?? const <Proxy>[]) proxy.name: proxy,
     };
     final selectedProxy = proxiesByName[selectedProxyName];
-    final countryCode = selectedProxy == null
-        ? ProxyDisplayName.parse(
-            realProxyName.isNotEmpty ? realProxyName : selectedProxyName,
-          ).countryCode
+    // 名称解析优先；解析不出时回退出口 IP 检测的真实国家码（连接后可用）
+    final exitIpInfo = ref.watch(
+      networkDetectionProvider.select((state) => state.ipInfo),
+    );
+    final effectiveName =
+        realProxyName.isNotEmpty ? realProxyName : selectedProxyName;
+    final resolvedCountryCode = selectedProxy == null
+        ? ProxyDisplayName.parse(effectiveName).countryCode ??
+              countryCodeFromName(effectiveName)
         : resolveProxyCountryCode(selectedProxy, proxiesByName);
+    final countryCode =
+        resolvedCountryCode ?? normalizeCountryCode(exitIpInfo?.countryCode);
     return Material(
       color: context.tDesign.container,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(9),
+        borderRadius: BorderRadius.circular(TDesignRadius.card),
         side: BorderSide(color: context.tDesign.componentBorder),
       ),
       clipBehavior: Clip.antiAlias,
@@ -910,6 +916,15 @@ class _HomeConnectButtonState extends ConsumerState<_HomeConnectButton> {
     }
   }
 
+  // 已暂停（SSID 排除）时，点击按钮从排除列表移除当前 WiFi，恢复 VPN（C8）
+  Future<void> _resume() async {
+    final ssid = ref.read(currentSSIDProvider);
+    if (ssid == null) return;
+    ref.read(excludeSSIDsProvider.notifier).update(
+          (state) => state.where((e) => e != ssid).toList(),
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isMobile = ref.watch(isMobileViewProvider);
@@ -930,15 +945,24 @@ class _HomeConnectButtonState extends ConsumerState<_HomeConnectButton> {
               : context.appLocalizations.connecting
         : isConnected
         ? context.appLocalizations.disconnect
-        : context.appLocalizations.connectNow;
-    return FilledButton(
-      onPressed: !hasProfile || _switching || preparing ? null : _toggle,
+        : suspend
+            ? context.appLocalizations.suspended
+            : context.appLocalizations.connectNow;
+    final disabled = !hasProfile || _switching || preparing;
+    final button = FilledButton(
+      onPressed: disabled ? null : (suspend ? _resume : _toggle),
       style: FilledButton.styleFrom(
         minimumSize: isMobile ? null : const Size.fromHeight(48),
-        backgroundColor: showDisconnectStyle ? context.colorScheme.error : null,
-        foregroundColor: showDisconnectStyle
-            ? context.colorScheme.onError
-            : null,
+        backgroundColor: suspend
+            ? context.colorScheme.secondaryContainer
+            : showDisconnectStyle
+                ? context.colorScheme.error
+                : null,
+        foregroundColor: suspend
+            ? context.colorScheme.onSecondaryContainer
+            : showDisconnectStyle
+                ? context.colorScheme.onError
+                : null,
       ),
       child: _switching
           ? Row(
@@ -960,5 +984,13 @@ class _HomeConnectButtonState extends ConsumerState<_HomeConnectButton> {
             )
           : Text(text),
     );
+    // 已暂停（SSID 排除）：用 Tooltip 说明原因并提供恢复操作，
+    // 避免“核心在跑却显示连接”的误导（C8）
+    return suspend
+        ? Tooltip(
+            message: context.appLocalizations.excludeSsidsDesc,
+            child: button,
+          )
+        : button;
   }
 }

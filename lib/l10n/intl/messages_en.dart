@@ -90,9 +90,11 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m30(value) => "${value}G";
 
-  static String m31(label) => "${label} must be a url";
+  static String m31(version) => "Version ${version}";
 
-  static String m32(count) =>
+  static String m32(label) => "${label} must be a url";
+
+  static String m33(count) =>
       "${Intl.plural(count, one: '1 year ago', other: '${count} years ago')}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
@@ -286,9 +288,6 @@ class MessageLookup extends MessageLookupByLibrary {
       "Cancel select all",
     ),
     "checkUpdate": MessageLookupByLibrary.simpleMessage("Check for updates"),
-    "checkUpdateError": MessageLookupByLibrary.simpleMessage(
-      "The current application is already the latest version",
-    ),
     "clearData": MessageLookupByLibrary.simpleMessage("Clear Data"),
     "clipboardExport": MessageLookupByLibrary.simpleMessage("Export clipboard"),
     "clipboardImport": MessageLookupByLibrary.simpleMessage("Clipboard import"),
@@ -390,9 +389,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "disconnect": MessageLookupByLibrary.simpleMessage("Disconnect"),
     "disconnected": MessageLookupByLibrary.simpleMessage("Disconnected"),
     "disconnecting": MessageLookupByLibrary.simpleMessage("Disconnecting..."),
-    "discoverNewVersion": MessageLookupByLibrary.simpleMessage(
-      "Discover the new version",
-    ),
     "dnsDesc": MessageLookupByLibrary.simpleMessage(
       "Update DNS related settings",
     ),
@@ -493,7 +489,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "geoipCode": MessageLookupByLibrary.simpleMessage("Geoip code"),
     "global": MessageLookupByLibrary.simpleMessage("Global"),
     "go": MessageLookupByLibrary.simpleMessage("Go"),
-    "goDownload": MessageLookupByLibrary.simpleMessage("Go to download"),
     "goToConfigureScript": MessageLookupByLibrary.simpleMessage(
       "Go to configure script",
     ),
@@ -657,9 +652,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "noData": MessageLookupByLibrary.simpleMessage("No data"),
     "noHotKey": MessageLookupByLibrary.simpleMessage("No HotKey"),
     "noInfo": MessageLookupByLibrary.simpleMessage("No info"),
-    "noLongerRemind": MessageLookupByLibrary.simpleMessage(
-      "Don\'t remind again",
-    ),
     "noNetwork": MessageLookupByLibrary.simpleMessage("No network"),
     "noNetworkApp": MessageLookupByLibrary.simpleMessage("No network APP"),
     "noRecords": MessageLookupByLibrary.simpleMessage("No records"),
@@ -849,6 +841,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "requests": MessageLookupByLibrary.simpleMessage("Requests"),
     "requestsDesc": MessageLookupByLibrary.simpleMessage(
       "View recently request records",
+    ),
+    "requiredUpdateTitle": MessageLookupByLibrary.simpleMessage(
+      "Update required",
     ),
     "reset": MessageLookupByLibrary.simpleMessage("Reset"),
     "resetPageChangesTip": MessageLookupByLibrary.simpleMessage(
@@ -1183,9 +1178,44 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "unnamed": MessageLookupByLibrary.simpleMessage("Unnamed"),
     "update": MessageLookupByLibrary.simpleMessage("Update"),
+    "updateAvailableTitle": MessageLookupByLibrary.simpleMessage(
+      "Update available",
+    ),
+    "updateCancelDownload": MessageLookupByLibrary.simpleMessage(
+      "Cancel download",
+    ),
+    "updateCheckFailed": MessageLookupByLibrary.simpleMessage(
+      "Unable to check for updates. Please check your network.",
+    ),
+    "updateDownloadFailed": MessageLookupByLibrary.simpleMessage(
+      "Unable to prepare the update. Please try again.",
+    ),
+    "updateDownloading": MessageLookupByLibrary.simpleMessage(
+      "Downloading update…",
+    ),
+    "updateInstallNow": MessageLookupByLibrary.simpleMessage("Install now"),
+    "updateInstallPermissionRequired": MessageLookupByLibrary.simpleMessage(
+      "Allow this app to install updates, then tap Install again.",
+    ),
+    "updateInstallerOpened": MessageLookupByLibrary.simpleMessage(
+      "Installer opened",
+    ),
+    "updateLater": MessageLookupByLibrary.simpleMessage("Later"),
+    "updateNow": MessageLookupByLibrary.simpleMessage("Update now"),
+    "updatePackageSize": MessageLookupByLibrary.simpleMessage("Download size"),
+    "updateReadyToInstall": MessageLookupByLibrary.simpleMessage(
+      "Update ready to install",
+    ),
+    "updateUpToDate": MessageLookupByLibrary.simpleMessage(
+      "You are using the latest version",
+    ),
+    "updateVerifying": MessageLookupByLibrary.simpleMessage(
+      "Verifying update…",
+    ),
+    "updateVersion": m31,
     "upload": MessageLookupByLibrary.simpleMessage("Upload"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m31,
+    "urlTip": m32,
     "useHosts": MessageLookupByLibrary.simpleMessage("Use hosts"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage("Use system hosts"),
     "userAgent": MessageLookupByLibrary.simpleMessage("User-Agent"),
@@ -1205,7 +1235,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "WebDAV configuration",
     ),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("Whitelist mode"),
-    "yearsAgo": m32,
+    "yearsAgo": m33,
     "zh_CN": MessageLookupByLibrary.simpleMessage("Simplified Chinese"),
   };
 }

@@ -306,7 +306,6 @@ class GlobalState {
       });
     };
     container.read(systemActionProvider.notifier).updateTray();
-    container.read(commonActionProvider.notifier).autoCheckUpdate();
     autoLaunch?.updateStatus(container.read(appSettingProvider).autoLaunch);
     if (!container.read(appSettingProvider).silentLaunch) {
       window?.show();

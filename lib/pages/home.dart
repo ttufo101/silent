@@ -310,8 +310,10 @@ class _NavigationBarDefaultsM3 extends NavigationBarThemeData {
     });
   }
 
+  // 选中项通过"形状(胶囊底) + 颜色(primary)"共同表达，满足规范 §4.3
+  // "不能只改变颜色"；透明背景改为浅色填充胶囊指示。
   @override
-  Color? get indicatorColor => Colors.transparent;
+  Color? get indicatorColor => _colors.primary.withValues(alpha: 0.12);
 
   @override
   ShapeBorder? get indicatorShape => const StadiumBorder();

@@ -345,8 +345,8 @@ class _DelayStatus extends StatelessWidget {
       return context.colorScheme.onSurfaceVariant;
     }
     if (value < 0) return context.colorScheme.error;
-    if (value < 600) return context.tDesign.success;
-    return context.tDesign.warning;
+    if (value < 600) return context.tDesign.success.color;
+    return context.tDesign.warning.color;
   }
 
   @override

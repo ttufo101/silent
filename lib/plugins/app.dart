@@ -56,9 +56,14 @@ class App {
     return methodChannel.invokeMethod<bool>('requestVpnPermission');
   }
 
-  Future<bool> openFile(String path) async {
-    return await methodChannel.invokeMethod<bool>('openFile', {'path': path}) ??
-        false;
+  Future<ApkInstallResult> installApk(String path) async {
+    final value = await methodChannel.invokeMethod<String>('installApk', {
+      'path': path,
+    });
+    return ApkInstallResult.values.firstWhere(
+      (result) => result.name == value,
+      orElse: () => ApkInstallResult.failed,
+    );
   }
 
   final Map<String, ImageProvider?> _packageIcons = {};
@@ -134,7 +139,8 @@ class App {
     if (!Platform.isAndroid) return false;
     return methodChannel.invokeMethod<bool>('openAppSettings');
   }
-
 }
+
+enum ApkInstallResult { launched, permissionRequired, failed }
 
 final app = system.isAndroid ? App() : null;

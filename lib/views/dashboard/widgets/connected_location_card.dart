@@ -120,7 +120,7 @@ class _ConnectedLocationMapState extends State<ConnectedLocationMap>
                     top: markerY - 46,
                     child: _PulseMarker(
                       animation: _pulseController,
-                      color: context.tDesign.success,
+                      color: context.tDesign.success.color,
                     ),
                   ),
                 if (widget.showExitInfo)

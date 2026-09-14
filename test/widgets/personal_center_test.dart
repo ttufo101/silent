@@ -2,6 +2,7 @@ import 'package:fl_clash/auth/auth_controller.dart';
 import 'package:fl_clash/auth/models/auth_session.dart';
 import 'package:fl_clash/auth/providers.dart';
 import 'package:fl_clash/common/tdesign.dart';
+import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/starcore/models/plan.dart';
 import 'package:fl_clash/starcore/models/user_info.dart';
@@ -111,7 +112,10 @@ class _TestScope extends StatelessWidget {
         userInfoProvider.overrideWith((ref, uid) async => info),
       ],
       child: MaterialApp(
-        theme: TDesignThemeData.build(brightness: Brightness.light),
+        theme: TDesignThemeData.build(
+          brightness: Brightness.light,
+          viewMode: ViewMode.mobile,
+        ),
         locale: locale,
         localizationsDelegates: const [
           AppLocalizations.delegate,

@@ -1,11 +1,13 @@
+import 'dart:async';
+
 import 'package:fl_clash/auth/providers.dart';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/providers/app.dart';
 import 'package:fl_clash/starcore/models/user_info.dart';
 import 'package:fl_clash/starcore/providers.dart';
 import 'package:fl_clash/state.dart';
-import 'package:fl_clash/views/about.dart';
 import 'package:fl_clash/views/personal_center/change_password.dart';
+import 'package:fl_clash/update/update.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -48,10 +50,8 @@ class _PersonalCenterViewState extends ConsumerState<PersonalCenterView> {
     ).push(MaterialPageRoute<void>(builder: (_) => const ChangePasswordView()));
   }
 
-  void _openAbout() {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute<void>(builder: (_) => const AboutView()));
+  void _checkUpdate() {
+    unawaited(checkForUpdateAndShow(context, ref));
   }
 
   @override
@@ -98,7 +98,7 @@ class _PersonalCenterViewState extends ConsumerState<PersonalCenterView> {
                   isMobile: isMobile,
                   loggingOut: _loggingOut,
                   onChangePassword: _openChangePassword,
-                  onOpenAbout: _openAbout,
+                  onCheckUpdate: _checkUpdate,
                   onLogout: _loggingOut ? null : _logout,
                 ),
               ),
@@ -471,14 +471,14 @@ class _MenuGroup extends StatelessWidget {
     required this.isMobile,
     required this.loggingOut,
     required this.onChangePassword,
-    required this.onOpenAbout,
+    required this.onCheckUpdate,
     required this.onLogout,
   });
 
   final bool isMobile;
   final bool loggingOut;
   final VoidCallback onChangePassword;
-  final VoidCallback onOpenAbout;
+  final VoidCallback onCheckUpdate;
   final VoidCallback? onLogout;
 
   @override
@@ -502,7 +502,7 @@ class _MenuGroup extends StatelessWidget {
                 _MenuRow(
                   label: context.appLocalizations.personalAppVersion,
                   value: globalState.packageInfo.version,
-                  onTap: onOpenAbout,
+                  onTap: onCheckUpdate,
                 ),
               ],
             ),

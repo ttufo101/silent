@@ -1,4 +1,5 @@
 import 'package:fl_clash/common/tdesign.dart';
+import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/starcore/models/plan.dart';
 import 'package:fl_clash/starcore/providers.dart';
@@ -175,7 +176,10 @@ class _TestApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: TDesignThemeData.build(brightness: Brightness.light),
+      theme: TDesignThemeData.build(
+        brightness: Brightness.light,
+        viewMode: ViewMode.mobile,
+      ),
       locale: locale,
       localizationsDelegates: const [
         AppLocalizations.delegate,

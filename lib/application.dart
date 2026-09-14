@@ -14,6 +14,7 @@ import 'package:fl_clash/plugins/app.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/starcore/server_profile_sync.dart';
+import 'package:fl_clash/update/update.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -35,6 +36,7 @@ class ApplicationState extends ConsumerState<Application> {
   bool _appAttached = false;
   bool _authenticatedStartupStarted = false;
   Future<void>? _attachTask;
+  bool _updatePromptVisible = false;
 
   final _pageTransitionsTheme = const PageTransitionsTheme(
     builders: <TargetPlatform, PageTransitionsBuilder>{
@@ -45,9 +47,13 @@ class ApplicationState extends ConsumerState<Application> {
     },
   );
 
-  ThemeData _getAppTheme({required Brightness brightness}) {
+  ThemeData _getAppTheme({
+    required Brightness brightness,
+    required ViewMode viewMode,
+  }) {
     return TDesignThemeData.build(
       brightness: brightness,
+      viewMode: viewMode,
     ).copyWith(pageTransitionsTheme: _pageTransitionsTheme);
   }
 
@@ -67,7 +73,36 @@ class ApplicationState extends ConsumerState<Application> {
         setState(() => _showSplash = false);
         startupTiming.mark('interactive shell requested');
       }
+      unawaited(_initializeUpdates());
     });
+  }
+
+  Future<void> _initializeUpdates() async {
+    final controller = ref.read(updateControllerProvider.notifier);
+    await controller.restoreRequiredUpdate();
+    try {
+      final info = await controller.check();
+      final ignoredReleaseId = await preferences.getIgnoredUpdateReleaseId();
+      if (!mounted) return;
+      if (info == null ||
+          info.forceUpdate ||
+          !ref.read(appSettingProvider).autoCheckUpdate ||
+          _updatePromptVisible ||
+          ignoredReleaseId == info.releaseId) {
+        return;
+      }
+      _updatePromptVisible = true;
+      try {
+        await showUpdatePrompt(context, rememberDismissal: true);
+      } finally {
+        _updatePromptVisible = false;
+      }
+    } on Object catch (error) {
+      commonPrint.log(
+        'update check failed: $error',
+        logLevel: LogLevel.warning,
+      );
+    }
   }
 
   Future<void> _initializeAuth() async {
@@ -238,18 +273,31 @@ class ApplicationState extends ConsumerState<Application> {
   }
 
   Future<void> _requestInitialVpnPermission() async {
+    final appLocalizations = context.appLocalizations;
     if (!system.isAndroid || await preferences.hasRequestedVpnPermission) {
       return;
     }
     await preferences.markVpnPermissionRequested();
-    await app?.requestVpnPermission();
+    // 先向用户说明用途，再调用系统授权（移动端规范 §4.10：权限应在用户触发相关功能时
+    // 先解释用途，再请求授权；拒绝后由连接流程再次触发系统提示）。
+    final confirmed = await globalState.showMessage(
+      title: appLocalizations.tip,
+      message: TextSpan(text: appLocalizations.vpnEnableDesc),
+      confirmText: appLocalizations.confirm,
+      cancelable: false,
+    );
+    if (confirmed == true) {
+      await app?.requestVpnPermission();
+    }
   }
 
   Widget _buildPlatformState({required Widget child}) {
     if (system.isDesktop) {
       return WindowManager(
         child: TrayManager(
-          child: HotKeyManager(child: ProxyManager(child: child)),
+          child: HotKeyManager(
+            child: ProxyManager(child: child),
+          ),
         ),
       );
     }
@@ -294,6 +342,9 @@ class ApplicationState extends ConsumerState<Application> {
         final themeMode = ref.watch(
           appSettingProvider.select((state) => state.themeMode),
         );
+        // 主题按 ViewMode 区分：移动端(触控)与桌面端(密度)使用不同圆角/控件高度，
+        // 监听 viewModeProvider 使窗口在跨 600px 阈值时自动切换主题。
+        final viewMode = ref.watch(viewModeProvider);
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           navigatorKey: globalState.navigatorKey,
@@ -316,22 +367,27 @@ class ApplicationState extends ConsumerState<Application> {
           locale: utils.getLocaleForString(locale),
           supportedLocales: AppLocalizations.delegate.supportedLocales,
           themeMode: themeMode,
-          theme: _getAppTheme(brightness: Brightness.light),
-          darkTheme: _getAppTheme(brightness: Brightness.dark),
-          home: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 180),
-            switchInCurve: Curves.easeOutCubic,
-            switchOutCurve: Curves.easeInCubic,
-            child: _showSplash
-                ? const _SplashView(key: ValueKey('splash'))
-                : _authController.status == AuthStatus.authenticated ||
-                      (_authController.status == AuthStatus.initializing &&
-                          ref.read(profilesProvider).isNotEmpty)
-                ? KeyedSubtree(key: const ValueKey('home'), child: child!)
-                : LoginView(
-                    key: const ValueKey('login'),
-                    controller: _authController,
-                  ),
+          theme: _getAppTheme(brightness: Brightness.light, viewMode: viewMode),
+          darkTheme: _getAppTheme(
+            brightness: Brightness.dark,
+            viewMode: viewMode,
+          ),
+          home: UpdateGate(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 180),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              child: _showSplash
+                  ? const _SplashView(key: ValueKey('splash'))
+                  : _authController.status == AuthStatus.authenticated ||
+                        (_authController.status == AuthStatus.initializing &&
+                            ref.read(profilesProvider).isNotEmpty)
+                  ? KeyedSubtree(key: const ValueKey('home'), child: child!)
+                  : LoginView(
+                      key: const ValueKey('login'),
+                      controller: _authController,
+                    ),
+            ),
           ),
         );
       },

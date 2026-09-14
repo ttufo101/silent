@@ -44,6 +44,9 @@ base class _TestPlatformFile extends PlatformFile {
   Future<int> length() => File(filePath).length();
 
   @override
+  int? lengthSync() => File(filePath).lengthSync();
+
+  @override
   Future<Uint8List> readAsBytes() => File(filePath).readAsBytes();
 
   @override

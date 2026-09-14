@@ -29,7 +29,7 @@
 | `gateway.proto` | `Gateway.Call` 对应的 HTTP 入口 | `lib/auth/data/gateway_client.dart` |
 | `login.proto` | `Login`、`Register`、`RefreshToken`、`GetRestToken`、`ResetPassword` | `lib/auth/data/auth_api.dart`，module 为 `starland.login.com` |
 | `vfcode.proto` | `SendEmailCode`，用于密码找回 | 同上，module 为 `starland.vfcode.com`；其他验证码 RPC 未在该适配层接入 |
-| `starcore.proto` | `GetPlans`、`GetUserInfo`、`GetLinks`、`ChangePassword` | `lib/starcore/data/starcore_api.dart`，module 为 `starland.starcore.com` |
+| `starcore.proto` | `CheckUpdate`、`GetPlans`、`GetUserInfo`、`GetLinks`、`ChangePassword` | `lib/starcore/data/starcore_api.dart`，module 为 `starland.starcore.com` |
 | `order.proto` | 当前业务适配层未发现调用 | 定义创建/查询订单、支付及回调，不代表客户端已完成购买闭环 |
 | `uidflake.proto` | 当前业务适配层未发现调用 | ID 生成服务，不应仅因存在 proto 就增加客户端入口 |
 
@@ -37,6 +37,8 @@
 协议注明 `GetPlanForPurchase`、`GrantSubscription`、`RevokeSubscription` 用于 order 服务或管理工具，
 不能据此假设客户端可调用这些权益管理接口。实际网关开放与鉴权策略仍需检查服务端。
 模块字符串以客户端已使用的值为证据，不能简单从 proto service 大小写推导路由名。
+
+`CheckUpdate` 是无需登录的公开接口。客户端仍通过 Gateway 公共信封调用，但明确发送空 `jwt_token`；启动后和个人中心手动入口共享同一个检查任务。当前仅支持 `android` 的 `apk` 与 `windows` 的 `exe`，安装包在应用缓存中流式下载，并严格校验 `package_size_bytes` 与小写十六进制 `package_sha256`。下载地址暂时允许 HTTP 或 HTTPS，默认只接受 Gateway 主机；额外自建升级主机通过编译参数 `UPDATE_HOSTS` 配置。Windows 校验后通过 Inno Setup 升级，Android 通过 FileProvider 交给系统安装器。当前没有额外执行发布签名验证，HTTP 与同信道 SHA256 只能检测文件损坏，不能证明来源真实性。
 
 ## 认证与字段适配
 

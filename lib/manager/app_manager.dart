@@ -138,8 +138,11 @@ class AppSidebarContainer extends ConsumerWidget {
     final currentIndex = navigationState.currentIndex;
     return ColoredBox(
       color: context.colorScheme.surfaceContainer,
-      child: Row(
+      child: Column(
         children: [
+          Expanded(
+            child: Row(
+              children: [
           AnimatedVisibility.sidebar(
             visible: !isMobileView,
             child: Material(
@@ -168,7 +171,9 @@ class AppSidebarContainer extends ConsumerWidget {
                           useIndicator: true,
                           indicatorColor: context.colorScheme.primaryContainer,
                           indicatorShape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(9),
+                            borderRadius: BorderRadius.circular(
+                              TDesignRadius.control(navigationState.viewMode),
+                            ),
                           ),
                           selectedLabelTextStyle: context.textTheme.titleSmall
                               ?.copyWith(
@@ -221,6 +226,66 @@ class AppSidebarContainer extends ConsumerWidget {
               ),
             ),
           ),
+        ],
+      ),
+          ),
+          if (!isMobileView) const _DesktopStatusBar(),
+        ],
+      ),
+    );
+  }
+}
+
+class _DesktopStatusBar extends ConsumerWidget {
+  const _DesktopStatusBar();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isStart = ref.watch(isStartProvider);
+    final suspend = ref.watch(suspendProvider);
+    final connected = isStart && !suspend;
+    final localIp = ref.watch(localIpProvider);
+    final appLocalizations = context.appLocalizations;
+    final statusText = suspend
+        ? appLocalizations.suspended
+        : connected
+            ? appLocalizations.connected
+            : appLocalizations.disconnected;
+    final statusColor = suspend
+        ? context.tDesign.warning.color
+        : connected
+            ? context.tDesign.success.color
+            : context.colorScheme.onSurfaceVariant;
+    return Container(
+      height: 28,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: context.colorScheme.surfaceContainerHighest,
+        border: Border(
+          top: BorderSide(color: context.tDesign.componentStroke),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.circle, size: 8, color: statusColor),
+          const SizedBox(width: 6),
+          Text(
+            statusText,
+            style: context.textTheme.bodySmall?.copyWith(
+              color: statusColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          if (localIp != null) ...[
+            const SizedBox(width: 16),
+            Icon(
+              Icons.language,
+              size: 14,
+              color: context.colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 4),
+            Text(localIp, style: context.textTheme.bodySmall),
+          ],
         ],
       ),
     );
@@ -281,7 +346,7 @@ class _DesktopAccountSummary extends ConsumerWidget {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: context.colorScheme.surface,
-                borderRadius: BorderRadius.circular(9),
+                borderRadius: BorderRadius.circular(TDesignRadius.card),
                 border: Border.all(color: context.tDesign.componentStroke),
               ),
               child: Column(

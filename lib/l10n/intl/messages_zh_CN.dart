@@ -83,9 +83,11 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m30(value) => "${value}G";
 
-  static String m31(label) => "${label}必须为URL";
+  static String m31(version) => "版本 ${version}";
 
-  static String m32(count) => "${count} 年前";
+  static String m32(label) => "${label}必须为URL";
+
+  static String m33(count) => "${count} 年前";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -200,7 +202,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "cancel": MessageLookupByLibrary.simpleMessage("取消"),
     "cancelSelectAll": MessageLookupByLibrary.simpleMessage("取消全选"),
     "checkUpdate": MessageLookupByLibrary.simpleMessage("检查更新"),
-    "checkUpdateError": MessageLookupByLibrary.simpleMessage("当前应用已经是最新版了"),
     "clearData": MessageLookupByLibrary.simpleMessage("清除数据"),
     "clipboardExport": MessageLookupByLibrary.simpleMessage("导出剪贴板"),
     "clipboardImport": MessageLookupByLibrary.simpleMessage("剪贴板导入"),
@@ -270,7 +271,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "disconnect": MessageLookupByLibrary.simpleMessage("断开连接"),
     "disconnected": MessageLookupByLibrary.simpleMessage("已断开"),
     "disconnecting": MessageLookupByLibrary.simpleMessage("正在断开..."),
-    "discoverNewVersion": MessageLookupByLibrary.simpleMessage("发现新版本"),
     "dnsDesc": MessageLookupByLibrary.simpleMessage("更新DNS相关设置"),
     "dnsHijacking": MessageLookupByLibrary.simpleMessage("DNS劫持"),
     "dnsMode": MessageLookupByLibrary.simpleMessage("DNS模式"),
@@ -347,7 +347,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "geoipCode": MessageLookupByLibrary.simpleMessage("Geoip代码"),
     "global": MessageLookupByLibrary.simpleMessage("全局"),
     "go": MessageLookupByLibrary.simpleMessage("前往"),
-    "goDownload": MessageLookupByLibrary.simpleMessage("前往下载"),
     "goToConfigureScript": MessageLookupByLibrary.simpleMessage("前往配置脚本"),
     "hasCacheChange": MessageLookupByLibrary.simpleMessage("是否缓存修改"),
     "helperCorruptTip": MessageLookupByLibrary.simpleMessage(
@@ -457,7 +456,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "noData": MessageLookupByLibrary.simpleMessage("暂无数据"),
     "noHotKey": MessageLookupByLibrary.simpleMessage("暂无快捷键"),
     "noInfo": MessageLookupByLibrary.simpleMessage("暂无信息"),
-    "noLongerRemind": MessageLookupByLibrary.simpleMessage("不再提示"),
     "noNetwork": MessageLookupByLibrary.simpleMessage("无网络"),
     "noNetworkApp": MessageLookupByLibrary.simpleMessage("无网络应用"),
     "noRecords": MessageLookupByLibrary.simpleMessage("暂无记录"),
@@ -584,6 +582,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "request": MessageLookupByLibrary.simpleMessage("请求"),
     "requests": MessageLookupByLibrary.simpleMessage("请求"),
     "requestsDesc": MessageLookupByLibrary.simpleMessage("查看最近请求记录"),
+    "requiredUpdateTitle": MessageLookupByLibrary.simpleMessage("需要更新后继续使用"),
     "reset": MessageLookupByLibrary.simpleMessage("重置"),
     "resetPageChangesTip": MessageLookupByLibrary.simpleMessage(
       "当前页面存在更改，确定重置吗？",
@@ -827,9 +826,28 @@ class MessageLookup extends MessageLookupByLibrary {
     "unknownNetworkError": MessageLookupByLibrary.simpleMessage("未知网络错误"),
     "unnamed": MessageLookupByLibrary.simpleMessage("未命名"),
     "update": MessageLookupByLibrary.simpleMessage("更新"),
+    "updateAvailableTitle": MessageLookupByLibrary.simpleMessage("发现新版本"),
+    "updateCancelDownload": MessageLookupByLibrary.simpleMessage("取消下载"),
+    "updateCheckFailed": MessageLookupByLibrary.simpleMessage(
+      "无法检查更新，请检查网络后重试",
+    ),
+    "updateDownloadFailed": MessageLookupByLibrary.simpleMessage("无法准备更新，请重试"),
+    "updateDownloading": MessageLookupByLibrary.simpleMessage("正在下载更新…"),
+    "updateInstallNow": MessageLookupByLibrary.simpleMessage("立即安装"),
+    "updateInstallPermissionRequired": MessageLookupByLibrary.simpleMessage(
+      "请允许本应用安装更新，然后再次点击安装",
+    ),
+    "updateInstallerOpened": MessageLookupByLibrary.simpleMessage("安装程序已打开"),
+    "updateLater": MessageLookupByLibrary.simpleMessage("稍后再说"),
+    "updateNow": MessageLookupByLibrary.simpleMessage("立即更新"),
+    "updatePackageSize": MessageLookupByLibrary.simpleMessage("下载大小"),
+    "updateReadyToInstall": MessageLookupByLibrary.simpleMessage("更新已准备好"),
+    "updateUpToDate": MessageLookupByLibrary.simpleMessage("当前已是最新版本"),
+    "updateVerifying": MessageLookupByLibrary.simpleMessage("正在验证安装包…"),
+    "updateVersion": m31,
     "upload": MessageLookupByLibrary.simpleMessage("上传"),
     "url": MessageLookupByLibrary.simpleMessage("URL"),
-    "urlTip": m31,
+    "urlTip": m32,
     "useHosts": MessageLookupByLibrary.simpleMessage("使用Hosts"),
     "useSystemHosts": MessageLookupByLibrary.simpleMessage("使用系统Hosts"),
     "userAgent": MessageLookupByLibrary.simpleMessage("用户代理"),
@@ -845,7 +863,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "vpnTip": MessageLookupByLibrary.simpleMessage("重启VPN后改变生效"),
     "webDAVConfiguration": MessageLookupByLibrary.simpleMessage("WebDAV配置"),
     "whitelistMode": MessageLookupByLibrary.simpleMessage("白名单模式"),
-    "yearsAgo": m32,
+    "yearsAgo": m33,
     "zh_CN": MessageLookupByLibrary.simpleMessage("中文简体"),
   };
 }

@@ -24,7 +24,7 @@ class GatewayClient {
           dio ??
           Dio(
             BaseOptions(
-              baseUrl: 'http://47.120.10.73:12001',
+              baseUrl: gatewayBaseUrl,
               connectTimeout: const Duration(seconds: 15),
               receiveTimeout: const Duration(seconds: 30),
               sendTimeout: const Duration(seconds: 15),
@@ -35,6 +35,8 @@ class GatewayClient {
           );
 
   static const _path = '/startlandapi';
+  static const gatewayBaseUrl = 'http://47.120.10.73:12001';
+  static const _configuredUpdateHosts = String.fromEnvironment('UPDATE_HOSTS');
   final Dio _dio;
   String? accessToken;
   Map<String, String>? _commonFields;
@@ -44,6 +46,7 @@ class GatewayClient {
     required String method,
     required Map<String, dynamic> params,
     Duration? requestTimeout,
+    bool authenticated = true,
   }) async {
     final cancelToken = CancelToken();
     Timer? timeoutTimer;
@@ -59,7 +62,10 @@ class GatewayClient {
         _path,
         cancelToken: cancelToken,
         data: {
-          'com': {...await _getCommonFields(), 'jwt_token': accessToken ?? ''},
+          'com': {
+            ...await _getCommonFields(),
+            'jwt_token': authenticated ? accessToken ?? '' : '',
+          },
           'req': {'module': module, 'method': method, 'params': params},
         },
       );
@@ -92,6 +98,16 @@ class GatewayClient {
     } finally {
       timeoutTimer?.cancel();
     }
+  }
+
+  static bool isTrustedUpdateUri(Uri uri) {
+    if (uri.scheme != 'http' && uri.scheme != 'https') return false;
+    final gatewayHost = Uri.parse(gatewayBaseUrl).host.toLowerCase();
+    final configuredHosts = _configuredUpdateHosts
+        .split(',')
+        .map((host) => host.trim().toLowerCase())
+        .where((host) => host.isNotEmpty);
+    return {gatewayHost, ...configuredHosts}.contains(uri.host.toLowerCase());
   }
 
   Future<Map<String, String>> _getCommonFields() async {

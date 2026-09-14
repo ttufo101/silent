@@ -11,6 +11,8 @@ class Preferences {
   static const _serverProfileOwnerKey = 'serverProfileOwner';
   static const _serverProfileHashKey = 'serverProfileHash';
   static const _serverProfileSyncedAtKey = 'serverProfileSyncedAt';
+  static const _requiredUpdateKey = 'requiredUpdate';
+  static const _ignoredUpdateReleaseIdKey = 'ignoredUpdateReleaseId';
 
   static Preferences? _instance;
   Completer<SharedPreferences?> sharedPreferencesCompleter = Completer();
@@ -82,6 +84,31 @@ class Preferences {
     await preferences?.remove(_serverProfileOwnerKey);
     await preferences?.remove(_serverProfileHashKey);
     await preferences?.remove(_serverProfileSyncedAtKey);
+  }
+
+  Future<String?> getRequiredUpdate() async {
+    final sharedPreferences = await sharedPreferencesCompleter.future;
+    return sharedPreferences?.getString(_requiredUpdateKey);
+  }
+
+  Future<void> saveRequiredUpdate(String value) async {
+    final sharedPreferences = await sharedPreferencesCompleter.future;
+    await sharedPreferences?.setString(_requiredUpdateKey, value);
+  }
+
+  Future<void> clearRequiredUpdate() async {
+    final sharedPreferences = await sharedPreferencesCompleter.future;
+    await sharedPreferences?.remove(_requiredUpdateKey);
+  }
+
+  Future<String?> getIgnoredUpdateReleaseId() async {
+    final sharedPreferences = await sharedPreferencesCompleter.future;
+    return sharedPreferences?.getString(_ignoredUpdateReleaseIdKey);
+  }
+
+  Future<void> saveIgnoredUpdateReleaseId(String value) async {
+    final sharedPreferences = await sharedPreferencesCompleter.future;
+    await sharedPreferences?.setString(_ignoredUpdateReleaseIdKey, value);
   }
 
   Future<void> saveShareState(SharedState shareState) async {
