@@ -24,12 +24,6 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final hasViewSize = ref.watch(
-      viewSizeProvider.select((size) => !size.isEmpty),
-    );
-    if (!hasViewSize) {
-      return const SizedBox.shrink();
-    }
     return CallbackShortcuts(
       bindings: {
         const SingleActivator(LogicalKeyboardKey.digit1, control: true): () {

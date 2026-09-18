@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:fl_clash/auth/providers.dart';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/providers/app.dart';
@@ -7,7 +5,6 @@ import 'package:fl_clash/starcore/models/user_info.dart';
 import 'package:fl_clash/starcore/providers.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/views/personal_center/change_password.dart';
-import 'package:fl_clash/update/update.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -48,10 +45,6 @@ class _PersonalCenterViewState extends ConsumerState<PersonalCenterView> {
     Navigator.of(
       context,
     ).push(MaterialPageRoute<void>(builder: (_) => const ChangePasswordView()));
-  }
-
-  void _checkUpdate() {
-    unawaited(checkForUpdateAndShow(context, ref));
   }
 
   @override
@@ -98,7 +91,6 @@ class _PersonalCenterViewState extends ConsumerState<PersonalCenterView> {
                   isMobile: isMobile,
                   loggingOut: _loggingOut,
                   onChangePassword: _openChangePassword,
-                  onCheckUpdate: _checkUpdate,
                   onLogout: _loggingOut ? null : _logout,
                 ),
               ),
@@ -174,7 +166,10 @@ class _AccountHeader extends StatelessWidget {
 }
 
 class _PlanSection extends StatelessWidget {
-  const _PlanSection({required this.value, required this.onRetry});
+  const _PlanSection({
+    required this.value,
+    required this.onRetry,
+  });
 
   final AsyncValue<UserInfo> value;
   final VoidCallback onRetry;
@@ -471,14 +466,12 @@ class _MenuGroup extends StatelessWidget {
     required this.isMobile,
     required this.loggingOut,
     required this.onChangePassword,
-    required this.onCheckUpdate,
     required this.onLogout,
   });
 
   final bool isMobile;
   final bool loggingOut;
   final VoidCallback onChangePassword;
-  final VoidCallback onCheckUpdate;
   final VoidCallback? onLogout;
 
   @override
@@ -497,12 +490,6 @@ class _MenuGroup extends StatelessWidget {
                 _MenuRow(
                   label: context.appLocalizations.personalChangePassword,
                   onTap: onChangePassword,
-                ),
-                const Divider(height: 0.5, indent: 16),
-                _MenuRow(
-                  label: context.appLocalizations.personalAppVersion,
-                  value: globalState.packageInfo.version,
-                  onTap: onCheckUpdate,
                 ),
               ],
             ),
@@ -532,7 +519,6 @@ class _MenuRow extends StatelessWidget {
   const _MenuRow({
     required this.label,
     this.iconAsset,
-    this.value,
     this.onTap,
     this.destructive = false,
     this.loading = false,
@@ -541,7 +527,6 @@ class _MenuRow extends StatelessWidget {
 
   final String? iconAsset;
   final String label;
-  final String? value;
   final VoidCallback? onTap;
   final bool destructive;
   final bool loading;
@@ -585,23 +570,6 @@ class _MenuRow extends StatelessWidget {
                   style: context.textTheme.bodyLarge?.copyWith(color: color),
                 ),
               ),
-              if (value != null) ...[
-                const SizedBox(width: 12),
-                Flexible(
-                  child: Text(
-                    value!,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.end,
-                    style: context.textTheme.bodyLarge?.copyWith(
-                      color: context.colorScheme.onSurface.withValues(
-                        alpha: 0.4,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 4),
-              ],
               if (showChevron)
                 SizedBox.square(
                   dimension: 24,

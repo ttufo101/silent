@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:fl_clash/state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -19,20 +20,7 @@ class GatewayException implements Exception {
 }
 
 class GatewayClient {
-  GatewayClient({Dio? dio})
-    : _dio =
-          dio ??
-          Dio(
-            BaseOptions(
-              baseUrl: gatewayBaseUrl,
-              connectTimeout: const Duration(seconds: 15),
-              receiveTimeout: const Duration(seconds: 30),
-              sendTimeout: const Duration(seconds: 15),
-              contentType: Headers.jsonContentType,
-              validateStatus: (status) =>
-                  status != null && status >= 200 && status < 600,
-            ),
-          );
+  GatewayClient({Dio? dio}) : _dio = dio ?? _createDio();
 
   static const _path = '/startlandapi';
   static const gatewayBaseUrl = 'http://47.120.10.73:12001';
@@ -40,6 +28,29 @@ class GatewayClient {
   final Dio _dio;
   String? accessToken;
   Map<String, String>? _commonFields;
+  Future<Map<String, String>>? _commonFieldsTask;
+
+  static Dio _createDio() {
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: gatewayBaseUrl,
+        connectTimeout: const Duration(seconds: 15),
+        receiveTimeout: const Duration(seconds: 30),
+        sendTimeout: const Duration(seconds: 15),
+        contentType: Headers.jsonContentType,
+        validateStatus: (status) =>
+            status != null && status >= 200 && status < 600,
+      ),
+    );
+    dio.httpClientAdapter = IOHttpClientAdapter(
+      createHttpClient: () {
+        final client = HttpClient();
+        client.findProxy = (_) => 'DIRECT';
+        return client;
+      },
+    );
+    return dio;
+  }
 
   Future<Map<String, dynamic>> call({
     required String module,
@@ -48,6 +59,7 @@ class GatewayClient {
     Duration? requestTimeout,
     bool authenticated = true,
   }) async {
+    final commonFields = await _getCommonFields();
     final cancelToken = CancelToken();
     Timer? timeoutTimer;
     var requestTimedOut = false;
@@ -63,7 +75,7 @@ class GatewayClient {
         cancelToken: cancelToken,
         data: {
           'com': {
-            ...await _getCommonFields(),
+            ...commonFields,
             'jwt_token': authenticated ? accessToken ?? '' : '',
           },
           'req': {'module': module, 'method': method, 'params': params},
@@ -113,6 +125,20 @@ class GatewayClient {
   Future<Map<String, String>> _getCommonFields() async {
     final existing = _commonFields;
     if (existing != null) return existing;
+    final existingTask = _commonFieldsTask;
+    if (existingTask != null) return existingTask;
+    final task = _loadCommonFields();
+    _commonFieldsTask = task;
+    try {
+      return await task;
+    } finally {
+      if (identical(_commonFieldsTask, task)) {
+        _commonFieldsTask = null;
+      }
+    }
+  }
+
+  Future<Map<String, String>> _loadCommonFields() async {
     final preferences = await SharedPreferences.getInstance();
     var deviceId = preferences.getString('authDeviceId');
     deviceId ??= _createDeviceId();

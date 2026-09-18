@@ -9,15 +9,25 @@ final plansProvider = FutureProvider<List<Plan>>((ref) {
   return ref.watch(starcoreApiProvider).getPlans();
 });
 
-final userInfoProvider = FutureProvider.autoDispose.family<UserInfo, String>((
+final userInfoProvider = FutureProvider.family<UserInfo, String>((
   ref,
   _,
 ) async {
+  final stopwatch = Stopwatch()..start();
+  final authController = ref.read(authControllerProvider);
+  final api = ref.read(starcoreApiProvider);
   try {
-    await ref.read(authControllerProvider).ensureValidAccessToken();
-    return await ref.read(starcoreApiProvider).getUserInfo();
+    await authController.ensureValidAccessToken();
+    final info = await api.getUserInfo();
+    commonPrint.log(
+      'GetUserInfo completed in ${stopwatch.elapsedMilliseconds}ms',
+    );
+    return info;
   } catch (error, stackTrace) {
-    commonPrint.log('GetUserInfo failed: $error', logLevel: LogLevel.warning);
+    commonPrint.log(
+      'GetUserInfo failed after ${stopwatch.elapsedMilliseconds}ms: $error',
+      logLevel: LogLevel.warning,
+    );
     Error.throwWithStackTrace(error, stackTrace);
   }
 }, retry: (_, _) => null);

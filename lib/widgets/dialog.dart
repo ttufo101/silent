@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:fl_clash/common/tdesign.dart';
 import 'package:fl_clash/providers/app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,13 +29,13 @@ class CommonDialog extends ConsumerWidget {
   Widget build(BuildContext context, ref) {
     final size = ref.watch(viewSizeProvider);
     final isDesktop = size.width > 600;
-    final dialogMaxWidth = maxWidth ?? (isDesktop ? 560.0 : 300.0);
+    final dialogMaxWidth = maxWidth ?? (isDesktop ? 560.0 : 360.0);
     return AlertDialog(
       insetPadding: EdgeInsets.all(isDesktop ? 24 : 20),
       title: Text(title),
       actions: actions,
       contentPadding: padding,
-      backgroundColor: backgroundColor,
+      backgroundColor: backgroundColor ?? context.tDesign.container,
       content: Container(
         constraints: BoxConstraints(
           maxHeight: min(

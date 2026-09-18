@@ -213,14 +213,17 @@ class VpnService : SystemVpnService(), ManagedService {
 
     private fun Builder.configureAccessControl(options: VpnOptions) {
         val accessControl = options.accessControlProps
-        if (!accessControl.enable) return
+        if (!accessControl.enable) {
+            addDisallowedApplication(packageName)
+            return
+        }
         when (accessControl.mode) {
             AccessControlMode.ACCEPT_SELECTED -> {
-                (accessControl.acceptList + packageName).forEach(::addAllowedApplication)
+                (accessControl.acceptList - packageName).forEach(::addAllowedApplication)
             }
 
             AccessControlMode.REJECT_SELECTED -> {
-                (accessControl.rejectList - packageName).forEach(::addDisallowedApplication)
+                (accessControl.rejectList + packageName).forEach(::addDisallowedApplication)
             }
         }
     }

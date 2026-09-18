@@ -193,7 +193,7 @@ class GlobalState {
               ),
             ],
             child: Container(
-              width: 300,
+              width: double.infinity,
               constraints: const BoxConstraints(maxHeight: 200),
               child: SingleChildScrollView(
                 child: SelectableText.rich(
@@ -257,11 +257,14 @@ class GlobalState {
     bool? dismissible,
     bool filter = true,
   }) async {
+    final targetContext = context ?? globalState.navigatorKey.currentContext!;
     return showModal<T>(
       useRootNavigator: false,
-      context: context ?? globalState.navigatorKey.currentContext!,
+      context: targetContext,
       configuration: FadeScaleTransitionConfiguration(
-        barrierColor: Colors.black38,
+        barrierColor: Theme.of(
+          targetContext,
+        ).colorScheme.scrim.withValues(alpha: 0.42),
         barrierDismissible: dismissible ?? true,
       ),
       builder: (_) => child,

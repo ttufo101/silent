@@ -72,8 +72,10 @@ class TDesignTokens extends ThemeExtension<TDesignTokens> {
   final TDesignStateColor success;
   final TDesignStateColor warning;
   final TDesignStateColor error;
+
   /// 三级文字（占位符）：浅色 #000 40% / 深色 #FFF 35%
   final Color textPlaceholder;
+
   /// 四级文字（禁用）：浅色 #000 26% / 深色 #FFF 22%
   final Color textDisabled;
 
@@ -250,7 +252,10 @@ class TDesignTokens extends ThemeExtension<TDesignTokens> {
 }
 
 class TDesignThemeData {
-  static ThemeData build({required Brightness brightness, required ViewMode viewMode}) {
+  static ThemeData build({
+    required Brightness brightness,
+    required ViewMode viewMode,
+  }) {
     final isDark = brightness == Brightness.dark;
     final tokens = isDark ? TDesignTokens.dark : TDesignTokens.light;
     final brand = tokens.brand.color;
@@ -312,7 +317,9 @@ class TDesignThemeData {
       viewMode,
     );
     // 圆角按 ViewMode 区分：移动端(触控)偏大、桌面端(密度)偏小，对照两端规范 §2.2
-    final radiusControl = BorderRadius.circular(TDesignRadius.control(viewMode));
+    final radiusControl = BorderRadius.circular(
+      TDesignRadius.control(viewMode),
+    );
     final radiusCard = BorderRadius.circular(TDesignRadius.card);
     final shapeControl = RoundedRectangleBorder(borderRadius: radiusControl);
     final shapeCard = RoundedRectangleBorder(borderRadius: radiusCard);
@@ -351,6 +358,14 @@ class TDesignThemeData {
           side: BorderSide(color: tokens.componentBorder),
           shape: shapeControl,
           textStyle: textTheme.titleMedium,
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: brand,
+          minimumSize: buttonMinSize,
+          shape: shapeControl,
+          textStyle: textTheme.labelLarge,
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -401,6 +416,13 @@ class TDesignThemeData {
         elevation: 8,
         backgroundColor: tokens.container,
         surfaceTintColor: Colors.transparent,
+        titleTextStyle: textTheme.titleLarge?.copyWith(
+          color: colorScheme.onSurface,
+          fontWeight: FontWeight.w600,
+        ),
+        contentTextStyle: textTheme.bodyMedium?.copyWith(
+          color: colorScheme.onSurfaceVariant,
+        ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(TDesignRadius.sheet(viewMode)),
         ),

@@ -4834,6 +4834,16 @@ class AppLocalizations {
     );
   }
 
+  /// `Preparing nodes...`
+  String get preparingNodes {
+    return Intl.message(
+      'Preparing nodes...',
+      name: 'preparingNodes',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Retry`
   String get retry {
     return Intl.message('Retry', name: 'retry', desc: '', args: []);
@@ -5204,6 +5214,16 @@ class AppLocalizations {
     return Intl.message(
       'Advanced features',
       name: 'advancedFeatures',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `System settings`
+  String get systemSettings {
+    return Intl.message(
+      'System settings',
+      name: 'systemSettings',
       desc: '',
       args: [],
     );

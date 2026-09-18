@@ -20,10 +20,20 @@ class UserSubscription {
   final int remainingTrafficBytes;
 
   factory UserSubscription.fromJson(Map<String, dynamic> json) {
+    final plan = Plan.fromJson(_readMap(json, 'plan'));
+    final rawExpiresAt = _readSignedInt(
+      json,
+      'expires_at',
+      fallbackKey: 'expiresAt',
+    );
+    final expiresAt = plan.type == PlanType.traffic && rawExpiresAt < 0
+        ? 0
+        : rawExpiresAt;
+    if (expiresAt < 0) throw const FormatException('Invalid expires_at');
     return UserSubscription(
-      plan: Plan.fromJson(_readMap(json, 'plan')),
+      plan: plan,
       startsAt: _readInt(json, 'starts_at', fallbackKey: 'startsAt'),
-      expiresAt: _readInt(json, 'expires_at', fallbackKey: 'expiresAt'),
+      expiresAt: expiresAt,
       remainingDays: _readInt(
         json,
         'remaining_days',
@@ -181,6 +191,25 @@ int _readInt(
     _ => null,
   };
   if (parsed == null || parsed < 0) throw FormatException('Invalid $key');
+  return parsed;
+}
+
+int _readSignedInt(
+  Map<String, dynamic> json,
+  String key, {
+  String? fallbackKey,
+  int defaultValue = 0,
+}) {
+  final value = _readValue(json, key, fallbackKey: fallbackKey);
+  if (value == null) return defaultValue;
+  final parsed = switch (value) {
+    final int number => number,
+    final num number when number.isFinite && number == number.roundToDouble() =>
+      number.toInt(),
+    final String text => int.tryParse(text),
+    _ => null,
+  };
+  if (parsed == null) throw FormatException('Invalid $key');
   return parsed;
 }
 

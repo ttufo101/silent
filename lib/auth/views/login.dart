@@ -79,59 +79,15 @@ class _LoginViewState extends State<LoginView> {
               onFieldSubmitted: (_) => _submit(),
               onChanged: (_) => setState(() {}),
             ),
-            SizedBox(
-              height: 48,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: InkWell(
-                      onTap: _loading
-                          ? null
-                          : () => setState(() => _remember = !_remember),
-                      child: Row(
-                        children: [
-                          Checkbox(
-                            value: _remember,
-                            materialTapTargetSize:
-                                MaterialTapTargetSize.shrinkWrap,
-                            onChanged: _loading
-                                ? null
-                                : (value) => setState(
-                                    () => _remember = value ?? false,
-                                  ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              context.appLocalizations.authRemember,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Flexible(
-                    child: TextButton(
-                      onPressed: _loading
-                          ? null
-                          : () => Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                builder: (_) => ForgotPasswordEmailView(
-                                  api: widget.controller.api,
-                                ),
-                              ),
-                            ),
-                      child: Text(
-                        context.appLocalizations.authForgotPassword,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.end,
-                      ),
-                    ),
-                  ),
-                ],
+            _LoginOptionsRow(
+              remember: _remember,
+              enabled: !_loading,
+              onRememberChanged: (value) => setState(() => _remember = value),
+              onForgotPassword: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) =>
+                      ForgotPasswordEmailView(api: widget.controller.api),
+                ),
               ),
             ),
             if (_error != null) ...[
@@ -163,6 +119,78 @@ class _LoginViewState extends State<LoginView> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _LoginOptionsRow extends StatelessWidget {
+  const _LoginOptionsRow({
+    required this.remember,
+    required this.enabled,
+    required this.onRememberChanged,
+    required this.onForgotPassword,
+  });
+
+  final bool remember;
+  final bool enabled;
+  final ValueChanged<bool> onRememberChanged;
+  final VoidCallback onForgotPassword;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 48,
+      child: Row(
+        children: [
+          Expanded(
+            child: InkWell(
+              onTap: enabled ? () => onRememberChanged(!remember) : null,
+              child: SizedBox(
+                height: 48,
+                child: Row(
+                  children: [
+                    SizedBox.square(
+                      dimension: 24,
+                      child: Checkbox(
+                        value: remember,
+                        visualDensity: VisualDensity.compact,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        onChanged: enabled
+                            ? (value) => onRememberChanged(value ?? false)
+                            : null,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        context.appLocalizations.authRemember,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Flexible(
+            child: TextButton(
+              style: TextButton.styleFrom(
+                minimumSize: const Size(48, 48),
+                padding: EdgeInsets.zero,
+                alignment: AlignmentDirectional.centerEnd,
+              ),
+              onPressed: enabled ? onForgotPassword : null,
+              child: Text(
+                context.appLocalizations.authForgotPassword,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.end,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

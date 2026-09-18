@@ -13,6 +13,7 @@ import 'package:fl_clash/manager/manager.dart';
 import 'package:fl_clash/plugins/app.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
+import 'package:fl_clash/starcore/providers.dart';
 import 'package:fl_clash/starcore/server_profile_sync.dart';
 import 'package:fl_clash/update/update.dart';
 import 'package:flutter/material.dart';
@@ -132,7 +133,9 @@ class ApplicationState extends ConsumerState<Application> {
 
   void _handleAuthChanged() {
     if (_authController.status == AuthStatus.authenticated) {
+      final uid = _authController.session!.uid;
       unawaited(app?.setVpnStartAllowed(true));
+      unawaited(_prefetchUserInfo(uid));
       if (!_authenticatedStartupStarted) {
         _authenticatedStartupStarted = true;
         if (!startupTiming.isActive) {
@@ -143,13 +146,11 @@ class ApplicationState extends ConsumerState<Application> {
       ref.read(serverProfileSyncErrorProvider.notifier).set(null);
       if (mounted) {
         setState(() => _showSplash = false);
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          unawaited(_requestVpnPermissionAfterHomeTransition());
-        });
       }
       unawaited(_prepareAndAttach());
     } else if (mounted) {
       unawaited(app?.setVpnStartAllowed(false));
+      ref.invalidate(userInfoProvider);
       _authenticatedStartupStarted = false;
       _profileSync.invalidate();
       if (_appAttached) {
@@ -158,6 +159,17 @@ class ApplicationState extends ConsumerState<Application> {
       setState(() {
         _showSplash = false;
       });
+    }
+  }
+
+  Future<void> _prefetchUserInfo(String uid) async {
+    try {
+      await ref.read(userInfoProvider(uid).future);
+    } on Object catch (error) {
+      commonPrint.log(
+        'User info prefetch failed: $error',
+        logLevel: LogLevel.warning,
+      );
     }
   }
 
@@ -207,6 +219,7 @@ class ApplicationState extends ConsumerState<Application> {
       startupTiming.mark('home requested');
       WidgetsBinding.instance.addPostFrameCallback((_) {
         startupTiming.mark('home first frame');
+        unawaited(_requestVpnPermissionAfterHomeTransition());
       });
       unawaited(
         _completeStartup(

@@ -98,7 +98,6 @@ class _ToolViewState extends ConsumerState<ToolsView> {
         const CloseConnectionsItem(),
         const UsageItem(),
         const OpenLogsItem(),
-        const AutoCheckUpdateItem(),
         ...navigationItems.map(_buildNavigationMenuItem),
       ],
     );
@@ -106,13 +105,15 @@ class _ToolViewState extends ConsumerState<ToolsView> {
 
   _SettingsSection _getSystemList() {
     return _SettingsSection(
-      title: context.appLocalizations.system,
+      title: context.appLocalizations.systemSettings,
       items: [
         if (system.isDesktop) const _HotkeyItem(),
         if (system.isDesktop) const MinimizeItem(),
         if (system.isDesktop) const AutoLaunchItem(),
         if (system.isDesktop) const SilentLaunchItem(),
         const AutoRunItem(),
+        const AutoCheckUpdateItem(),
+        const _CheckUpdateItem(),
       ],
     );
   }
@@ -124,7 +125,6 @@ class _ToolViewState extends ConsumerState<ToolsView> {
       items: [
         const _ComingSoonItem(type: _ComingSoonType.diagnosticLogs),
         const _ComingSoonItem(type: _ComingSoonType.feedback),
-        const _CheckUpdateItem(),
         if (enableDeveloperMode) const _DeveloperItem(),
         const _InfoItem(),
       ],
@@ -147,6 +147,7 @@ class _ToolViewState extends ConsumerState<ToolsView> {
         ? [
             _getAppearanceList(),
             _getProxyRulesList(),
+            _getSystemList(),
             _getOtherList(false),
             _SettingsSection(
               title: context.appLocalizations.advancedFeatures,
@@ -578,13 +579,11 @@ class _AdvancedSettingsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = <Widget>[
-      const AutoRunItem(),
       const _ConfigItem(),
       const _AdvancedConfigItem(),
       const CloseConnectionsItem(),
       const UsageItem(),
       const OpenLogsItem(),
-      const AutoCheckUpdateItem(),
       ...navigationItems.map((item) => _buildNavigationItem(context, item)),
       if (enableDeveloperMode) const _DeveloperItem(),
     ];

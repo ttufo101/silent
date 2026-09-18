@@ -59,6 +59,8 @@
 - `GetUserInfo` 用于个人中心展示账号、当前套餐、剩余天数、剩余流量和设备数量；
   `bound_device_count` 是曾经绑定且尚未被剔除的设备数量，页面以它和 `current_plan.max_devices` 展示设备配额。
   用户信息模型兼容 Gateway 的 snake_case 与 camelCase 字段名，数值字段兼容整数和数字字符串。
+  线上 Gateway 可能把流量套餐无到期时间序列化为负数哨兵；客户端仅对 `traffic` 类型将负的 `expires_at`
+  归一化为协议值 `0`，时间套餐仍拒绝负时间戳。
 - `ChangePassword` 使用当前登录密码与新密码；客户端在调用前保证 Access Token 有效，密码长度遵循协议的
   8 至 72 字节限制。
 - `GetLinks.has_subscription` 是客户端判断当前用户是否拥有有效套餐权益的依据。无权益时允许 `content` 为空；

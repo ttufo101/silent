@@ -246,7 +246,7 @@ class _DashboardPreparingView extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _DashboardPlaceholder(
+                    _DashboardPreparingHero(
                       height: isMobile ? 232 : desktopHeroHeight,
                     ),
                     SizedBox(height: isMobile ? 24 : 16),
@@ -276,6 +276,43 @@ class _DashboardPreparingView extends ConsumerWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _DashboardPreparingHero extends StatelessWidget {
+  const _DashboardPreparingHero({required this.height});
+
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: context.tDesign.secondaryContainer,
+        borderRadius: BorderRadius.circular(TDesignRadius.card),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox.square(
+            dimension: 28,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.5,
+              color: context.colorScheme.primary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            context.appLocalizations.preparingNodes,
+            style: context.textTheme.bodyMedium?.copyWith(
+              color: context.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
       ),
     );
   }
