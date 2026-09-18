@@ -24,7 +24,7 @@ class SetupAction extends _$SetupAction {
   void build() {}
 
   SetupParams get _setupParams {
-    final selectedMap = ref.read(selectedMapProvider);
+    final selectedMap = ref.read(coreSelectedMapProvider);
     final testUrl = ref.read(
       appSettingProvider.select((state) => state.testUrl),
     );
@@ -253,15 +253,25 @@ class SetupAction extends _$SetupAction {
     }, args: [silence, force]);
   }
 
-  void changeMode(Mode mode) {
-    ref
-        .read(patchClashConfigProvider.notifier)
-        .update((state) => state.copyWith(mode: mode));
-    if (mode == Mode.global) {
+  Future<void> changeMode(Mode mode) async {
+    await globalState.safeRun(() async {
+      if (mode == Mode.global) {
+        final selectedNodeName = ref.read(selectedNodeNameProvider);
+        if (selectedNodeName != null &&
+            selectedNodeName.isNotEmpty &&
+            ref.read(coreStatusProvider) == CoreStatus.connected) {
+          await ref
+              .read(proxiesActionProvider.notifier)
+              .changeProxy(
+                groupName: GroupName.GLOBAL.name,
+                proxyName: selectedNodeName,
+              );
+        }
+      }
       ref
-          .read(proxiesActionProvider.notifier)
-          .updateCurrentGroupName(GroupName.GLOBAL.name);
-    }
+          .read(patchClashConfigProvider.notifier)
+          .update((state) => state.copyWith(mode: mode));
+    }, silence: false);
   }
 
   void autoApplyProfile() {

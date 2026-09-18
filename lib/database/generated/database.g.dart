@@ -38,6 +38,17 @@ class $ProfilesTable extends Profiles
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _selectedNodeNameMeta = const VerificationMeta(
+    'selectedNodeName',
+  );
+  @override
+  late final GeneratedColumn<String> selectedNodeName = GeneratedColumn<String>(
+    'selected_node_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   late final GeneratedColumnWithTypeConverter<OverwriteType, String>
   overwriteType = GeneratedColumn<String>(
@@ -72,6 +83,7 @@ class $ProfilesTable extends Profiles
     id,
     label,
     currentGroupName,
+    selectedNodeName,
     overwriteType,
     scriptId,
     selectedMap,
@@ -108,6 +120,15 @@ class $ProfilesTable extends Profiles
         ),
       );
     }
+    if (data.containsKey('selected_node_name')) {
+      context.handle(
+        _selectedNodeNameMeta,
+        selectedNodeName.isAcceptableOrUnknown(
+          data['selected_node_name']!,
+          _selectedNodeNameMeta,
+        ),
+      );
+    }
     if (data.containsKey('script_id')) {
       context.handle(
         _scriptIdMeta,
@@ -134,6 +155,10 @@ class $ProfilesTable extends Profiles
       currentGroupName: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}current_group_name'],
+      ),
+      selectedNodeName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}selected_node_name'],
       ),
       overwriteType: $ProfilesTable.$converteroverwriteType.fromSql(
         attachedDatabase.typeMapping.read(
@@ -171,6 +196,7 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
   final int id;
   final String label;
   final String? currentGroupName;
+  final String? selectedNodeName;
   final OverwriteType overwriteType;
   final int? scriptId;
   final Map<String, String> selectedMap;
@@ -178,6 +204,7 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
     required this.id,
     required this.label,
     this.currentGroupName,
+    this.selectedNodeName,
     required this.overwriteType,
     this.scriptId,
     required this.selectedMap,
@@ -189,6 +216,9 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
     map['label'] = Variable<String>(label);
     if (!nullToAbsent || currentGroupName != null) {
       map['current_group_name'] = Variable<String>(currentGroupName);
+    }
+    if (!nullToAbsent || selectedNodeName != null) {
+      map['selected_node_name'] = Variable<String>(selectedNodeName);
     }
     {
       map['overwrite_type'] = Variable<String>(
@@ -213,6 +243,9 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
       currentGroupName: currentGroupName == null && nullToAbsent
           ? const Value.absent()
           : Value(currentGroupName),
+      selectedNodeName: selectedNodeName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(selectedNodeName),
       overwriteType: Value(overwriteType),
       scriptId: scriptId == null && nullToAbsent
           ? const Value.absent()
@@ -230,6 +263,7 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
       id: serializer.fromJson<int>(json['id']),
       label: serializer.fromJson<String>(json['label']),
       currentGroupName: serializer.fromJson<String?>(json['currentGroupName']),
+      selectedNodeName: serializer.fromJson<String?>(json['selectedNodeName']),
       overwriteType: $ProfilesTable.$converteroverwriteType.fromJson(
         serializer.fromJson<String>(json['overwriteType']),
       ),
@@ -246,6 +280,7 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
       'id': serializer.toJson<int>(id),
       'label': serializer.toJson<String>(label),
       'currentGroupName': serializer.toJson<String?>(currentGroupName),
+      'selectedNodeName': serializer.toJson<String?>(selectedNodeName),
       'overwriteType': serializer.toJson<String>(
         $ProfilesTable.$converteroverwriteType.toJson(overwriteType),
       ),
@@ -258,6 +293,7 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
     int? id,
     String? label,
     Value<String?> currentGroupName = const Value.absent(),
+    Value<String?> selectedNodeName = const Value.absent(),
     OverwriteType? overwriteType,
     Value<int?> scriptId = const Value.absent(),
     Map<String, String>? selectedMap,
@@ -267,6 +303,9 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
     currentGroupName: currentGroupName.present
         ? currentGroupName.value
         : this.currentGroupName,
+    selectedNodeName: selectedNodeName.present
+        ? selectedNodeName.value
+        : this.selectedNodeName,
     overwriteType: overwriteType ?? this.overwriteType,
     scriptId: scriptId.present ? scriptId.value : this.scriptId,
     selectedMap: selectedMap ?? this.selectedMap,
@@ -278,6 +317,9 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
       currentGroupName: data.currentGroupName.present
           ? data.currentGroupName.value
           : this.currentGroupName,
+      selectedNodeName: data.selectedNodeName.present
+          ? data.selectedNodeName.value
+          : this.selectedNodeName,
       overwriteType: data.overwriteType.present
           ? data.overwriteType.value
           : this.overwriteType,
@@ -294,6 +336,7 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
           ..write('id: $id, ')
           ..write('label: $label, ')
           ..write('currentGroupName: $currentGroupName, ')
+          ..write('selectedNodeName: $selectedNodeName, ')
           ..write('overwriteType: $overwriteType, ')
           ..write('scriptId: $scriptId, ')
           ..write('selectedMap: $selectedMap')
@@ -306,6 +349,7 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
     id,
     label,
     currentGroupName,
+    selectedNodeName,
     overwriteType,
     scriptId,
     selectedMap,
@@ -317,6 +361,7 @@ class RawProfile extends DataClass implements Insertable<RawProfile> {
           other.id == this.id &&
           other.label == this.label &&
           other.currentGroupName == this.currentGroupName &&
+          other.selectedNodeName == this.selectedNodeName &&
           other.overwriteType == this.overwriteType &&
           other.scriptId == this.scriptId &&
           other.selectedMap == this.selectedMap);
@@ -326,6 +371,7 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
   final Value<int> id;
   final Value<String> label;
   final Value<String?> currentGroupName;
+  final Value<String?> selectedNodeName;
   final Value<OverwriteType> overwriteType;
   final Value<int?> scriptId;
   final Value<Map<String, String>> selectedMap;
@@ -333,6 +379,7 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
     this.id = const Value.absent(),
     this.label = const Value.absent(),
     this.currentGroupName = const Value.absent(),
+    this.selectedNodeName = const Value.absent(),
     this.overwriteType = const Value.absent(),
     this.scriptId = const Value.absent(),
     this.selectedMap = const Value.absent(),
@@ -341,6 +388,7 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
     this.id = const Value.absent(),
     required String label,
     this.currentGroupName = const Value.absent(),
+    this.selectedNodeName = const Value.absent(),
     required OverwriteType overwriteType,
     this.scriptId = const Value.absent(),
     required Map<String, String> selectedMap,
@@ -351,6 +399,7 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
     Expression<int>? id,
     Expression<String>? label,
     Expression<String>? currentGroupName,
+    Expression<String>? selectedNodeName,
     Expression<String>? overwriteType,
     Expression<int>? scriptId,
     Expression<String>? selectedMap,
@@ -359,6 +408,7 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
       if (id != null) 'id': id,
       if (label != null) 'label': label,
       if (currentGroupName != null) 'current_group_name': currentGroupName,
+      if (selectedNodeName != null) 'selected_node_name': selectedNodeName,
       if (overwriteType != null) 'overwrite_type': overwriteType,
       if (scriptId != null) 'script_id': scriptId,
       if (selectedMap != null) 'selected_map': selectedMap,
@@ -369,6 +419,7 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
     Value<int>? id,
     Value<String>? label,
     Value<String?>? currentGroupName,
+    Value<String?>? selectedNodeName,
     Value<OverwriteType>? overwriteType,
     Value<int?>? scriptId,
     Value<Map<String, String>>? selectedMap,
@@ -377,6 +428,7 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
       id: id ?? this.id,
       label: label ?? this.label,
       currentGroupName: currentGroupName ?? this.currentGroupName,
+      selectedNodeName: selectedNodeName ?? this.selectedNodeName,
       overwriteType: overwriteType ?? this.overwriteType,
       scriptId: scriptId ?? this.scriptId,
       selectedMap: selectedMap ?? this.selectedMap,
@@ -394,6 +446,9 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
     }
     if (currentGroupName.present) {
       map['current_group_name'] = Variable<String>(currentGroupName.value);
+    }
+    if (selectedNodeName.present) {
+      map['selected_node_name'] = Variable<String>(selectedNodeName.value);
     }
     if (overwriteType.present) {
       map['overwrite_type'] = Variable<String>(
@@ -417,6 +472,7 @@ class ProfilesCompanion extends UpdateCompanion<RawProfile> {
           ..write('id: $id, ')
           ..write('label: $label, ')
           ..write('currentGroupName: $currentGroupName, ')
+          ..write('selectedNodeName: $selectedNodeName, ')
           ..write('overwriteType: $overwriteType, ')
           ..write('scriptId: $scriptId, ')
           ..write('selectedMap: $selectedMap')
@@ -3098,6 +3154,7 @@ typedef $$ProfilesTableCreateCompanionBuilder =
       Value<int> id,
       required String label,
       Value<String?> currentGroupName,
+      Value<String?> selectedNodeName,
       required OverwriteType overwriteType,
       Value<int?> scriptId,
       required Map<String, String> selectedMap,
@@ -3107,6 +3164,7 @@ typedef $$ProfilesTableUpdateCompanionBuilder =
       Value<int> id,
       Value<String> label,
       Value<String?> currentGroupName,
+      Value<String?> selectedNodeName,
       Value<OverwriteType> overwriteType,
       Value<int?> scriptId,
       Value<Map<String, String>> selectedMap,
@@ -3176,6 +3234,11 @@ class $$ProfilesTableFilterComposer
 
   ColumnFilters<String> get currentGroupName => $composableBuilder(
     column: $table.currentGroupName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get selectedNodeName => $composableBuilder(
+    column: $table.selectedNodeName,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3275,6 +3338,11 @@ class $$ProfilesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get selectedNodeName => $composableBuilder(
+    column: $table.selectedNodeName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get overwriteType => $composableBuilder(
     column: $table.overwriteType,
     builder: (column) => ColumnOrderings(column),
@@ -3308,6 +3376,11 @@ class $$ProfilesTableAnnotationComposer
 
   GeneratedColumn<String> get currentGroupName => $composableBuilder(
     column: $table.currentGroupName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get selectedNodeName => $composableBuilder(
+    column: $table.selectedNodeName,
     builder: (column) => column,
   );
 
@@ -3411,6 +3484,7 @@ class $$ProfilesTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<String> label = const Value.absent(),
                 Value<String?> currentGroupName = const Value.absent(),
+                Value<String?> selectedNodeName = const Value.absent(),
                 Value<OverwriteType> overwriteType = const Value.absent(),
                 Value<int?> scriptId = const Value.absent(),
                 Value<Map<String, String>> selectedMap = const Value.absent(),
@@ -3418,6 +3492,7 @@ class $$ProfilesTableTableManager
                 id: id,
                 label: label,
                 currentGroupName: currentGroupName,
+                selectedNodeName: selectedNodeName,
                 overwriteType: overwriteType,
                 scriptId: scriptId,
                 selectedMap: selectedMap,
@@ -3427,6 +3502,7 @@ class $$ProfilesTableTableManager
                 Value<int> id = const Value.absent(),
                 required String label,
                 Value<String?> currentGroupName = const Value.absent(),
+                Value<String?> selectedNodeName = const Value.absent(),
                 required OverwriteType overwriteType,
                 Value<int?> scriptId = const Value.absent(),
                 required Map<String, String> selectedMap,
@@ -3434,6 +3510,7 @@ class $$ProfilesTableTableManager
                 id: id,
                 label: label,
                 currentGroupName: currentGroupName,
+                selectedNodeName: selectedNodeName,
                 overwriteType: overwriteType,
                 scriptId: scriptId,
                 selectedMap: selectedMap,

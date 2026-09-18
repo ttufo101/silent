@@ -30,6 +30,7 @@ abstract class Profile with _$Profile {
     required int id,
     @Default('') String label,
     String? currentGroupName,
+    String? selectedNodeName,
     @Default({}) Map<String, String> selectedMap,
     @Default(OverwriteType.standard) OverwriteType overwriteType,
     int? scriptId,

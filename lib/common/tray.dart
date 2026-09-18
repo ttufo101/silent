@@ -106,7 +106,7 @@ class Tray {
           (mode) => MenuItem.checkbox(
             label: Intl.message(mode.name),
             onClick: (_) {
-              setupAction.changeMode(mode);
+              setupAction.changeMode(mode).ignore();
             },
             checked: mode == trayState.mode,
           ),
@@ -129,12 +129,26 @@ class Tray {
               checked:
                   ref.read(selectedProxyNameProvider(group.name)) == proxy.name,
               onClick: (_) {
+                final realProxyName = ref
+                    .read(realSelectedProxyStateProvider(proxy.name))
+                    .proxyName;
+                final selectedNodeName = realProxyName.isEmpty
+                    ? proxy.name
+                    : realProxyName;
                 ref
                     .read(profilesActionProvider.notifier)
-                    .updateCurrentSelectedMap(group.name, proxy.name);
+                    .updateSelectedNode(
+                      groupName: group.name,
+                      proxyName: proxy.name,
+                      selectedNodeName: selectedNodeName,
+                    );
                 ref
                     .read(proxiesActionProvider.notifier)
-                    .changeProxy(groupName: group.name, proxyName: proxy.name);
+                    .changeSelectedNodeDebounce(
+                      groupName: group.name,
+                      proxyName: proxy.name,
+                      selectedNodeName: selectedNodeName,
+                    );
               },
             ),
           );

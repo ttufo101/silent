@@ -49,7 +49,7 @@ final class CurrentGroupsStateProvider
 }
 
 String _$currentGroupsStateHash() =>
-    r'dbf8f02606a31486c99d7b89d19914cd5a1fc496';
+    r'1c0dfd92a3bf36a409f1d2037cc441a8f816f025';
 
 @ProviderFor(navigationItemsState)
 final navigationItemsStateProvider = NavigationItemsStateProvider._();
@@ -228,7 +228,7 @@ final class ProxyStateProvider
   }
 }
 
-String _$proxyStateHash() => r'b4a316e7f67927d6903af702d2b4e542c11c11c8';
+String _$proxyStateHash() => r'a1e381c4d6fc4a891ecdb2c71138c45f11561ac0';
 
 @ProviderFor(trayState)
 final trayStateProvider = TrayStateProvider._();
@@ -269,7 +269,7 @@ final class TrayStateProvider
   }
 }
 
-String _$trayStateHash() => r'b03770ae2eb7fe1a73372f1128af3b38fdebb818';
+String _$trayStateHash() => r'24ee9ac8d2af263213bc4e963f8708ae554f4620';
 
 @ProviderFor(trayTitleState)
 final trayTitleStateProvider = TrayTitleStateProvider._();
@@ -873,6 +873,94 @@ final class SelectedMapProvider
 
 String _$selectedMapHash() => r'd4438d8d87d0c7ec7d9c5d02f577cdba6ba2a785';
 
+@ProviderFor(selectedNodeName)
+final selectedNodeNameProvider = SelectedNodeNameProvider._();
+
+final class SelectedNodeNameProvider
+    extends $FunctionalProvider<String?, String?, String?>
+    with $Provider<String?> {
+  SelectedNodeNameProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'selectedNodeNameProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$selectedNodeNameHash();
+
+  @$internal
+  @override
+  $ProviderElement<String?> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  String? create(Ref ref) {
+    return selectedNodeName(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(String? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<String?>(value),
+    );
+  }
+}
+
+String _$selectedNodeNameHash() => r'812a107ae92ad192d3a8ac9389e7102a3fb64654';
+
+@ProviderFor(coreSelectedMap)
+final coreSelectedMapProvider = CoreSelectedMapProvider._();
+
+final class CoreSelectedMapProvider
+    extends
+        $FunctionalProvider<
+          Map<String, String>,
+          Map<String, String>,
+          Map<String, String>
+        >
+    with $Provider<Map<String, String>> {
+  CoreSelectedMapProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'coreSelectedMapProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$coreSelectedMapHash();
+
+  @$internal
+  @override
+  $ProviderElement<Map<String, String>> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  Map<String, String> create(Ref ref) {
+    return coreSelectedMap(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(Map<String, String> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<Map<String, String>>(value),
+    );
+  }
+}
+
+String _$coreSelectedMapHash() => r'e3454be0072bf84f563be5a59296d6acb028ab41';
+
 @ProviderFor(getHotKeyAction)
 final getHotKeyActionProvider = GetHotKeyActionFamily._();
 
@@ -1430,7 +1518,7 @@ final class SharedStateProvider
   }
 }
 
-String _$sharedStateHash() => r'f0135f2d87023b31a330aeacad4b9107533f3074';
+String _$sharedStateHash() => r'345f428e3a472b33ad30ce54adc8d1660bd3f9a1';
 
 @ProviderFor(overlayTopOffset)
 final overlayTopOffsetProvider = OverlayTopOffsetProvider._();

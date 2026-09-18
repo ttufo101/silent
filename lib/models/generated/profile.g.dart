@@ -26,6 +26,7 @@ _Profile _$ProfileFromJson(Map<String, dynamic> json) => _Profile(
   id: (json['id'] as num).toInt(),
   label: json['label'] as String? ?? '',
   currentGroupName: json['currentGroupName'] as String?,
+  selectedNodeName: json['selectedNodeName'] as String?,
   selectedMap:
       (json['selectedMap'] as Map<String, dynamic>?)?.map(
         (k, e) => MapEntry(k, e as String),
@@ -41,6 +42,7 @@ Map<String, dynamic> _$ProfileToJson(_Profile instance) => <String, dynamic>{
   'id': instance.id,
   'label': instance.label,
   'currentGroupName': instance.currentGroupName,
+  'selectedNodeName': instance.selectedNodeName,
   'selectedMap': instance.selectedMap,
   'overwriteType': _$OverwriteTypeEnumMap[instance.overwriteType]!,
   'scriptId': instance.scriptId,

@@ -28,16 +28,24 @@ void changeProxySelection({
     globalState.showNotifier(currentAppLocalizations.notSelectedTip);
     return;
   }
-  final currentProxyName = ref.read(proxyNameProvider(groupName));
-  final nextProxyName = isComputedSelected && currentProxyName == proxy.name
-      ? ''
-      : proxy.name;
+  final realProxyName = ref
+      .read(realSelectedProxyStateProvider(proxy.name))
+      .proxyName;
+  final selectedNodeName = realProxyName.isEmpty ? proxy.name : realProxyName;
   ref
       .read(profilesActionProvider.notifier)
-      .updateCurrentSelectedMap(groupName, nextProxyName);
+      .updateSelectedNode(
+        groupName: groupName,
+        proxyName: proxy.name,
+        selectedNodeName: selectedNodeName,
+      );
   ref
       .read(proxiesActionProvider.notifier)
-      .changeProxyDebounce(groupName, nextProxyName);
+      .changeSelectedNodeDebounce(
+        groupName: groupName,
+        proxyName: proxy.name,
+        selectedNodeName: selectedNodeName,
+      );
 }
 
 Future<void> proxyDelayTest(Proxy proxy, [String? testUrl]) async {
@@ -123,10 +131,31 @@ const _countryKeywords = <String, List<String>>{
   'kr': ['韩国', '韓國', '首尔', '首爾', 'korea', 'seoul'],
   'sg': ['新加坡', '狮城', '獅城', 'singapore'],
   'us': [
-    '美国', '美國', '洛杉矶', '洛杉磯', '圣何塞', '聖何塞', '西雅图', '西雅圖',
-    '凤凰城', '鳳凰城', '芝加哥', '纽约', '紐約', '达拉斯', '達拉斯',
-    'united states', 'los angeles', 'san jose', 'seattle', 'chicago',
-    'new york', 'dallas', 'phoenix', 'usa', 'america',
+    '美国',
+    '美國',
+    '洛杉矶',
+    '洛杉磯',
+    '圣何塞',
+    '聖何塞',
+    '西雅图',
+    '西雅圖',
+    '凤凰城',
+    '鳳凰城',
+    '芝加哥',
+    '纽约',
+    '紐約',
+    '达拉斯',
+    '達拉斯',
+    'united states',
+    'los angeles',
+    'san jose',
+    'seattle',
+    'chicago',
+    'new york',
+    'dallas',
+    'phoenix',
+    'usa',
+    'america',
   ],
   'gb': ['英国', '英國', '伦敦', '倫敦', 'united kingdom', 'london'],
   'de': ['德国', '德國', '法兰克福', '法蘭克福', 'germany', 'frankfurt'],
@@ -214,12 +243,14 @@ String? resolveProxyCountryCode(Proxy proxy, Map<String, Proxy> proxiesByName) {
   Proxy? current = proxy;
   final visited = <String>{};
   while (current != null && visited.add(current.name)) {
-    final directCode = ProxyDisplayName.parse(current.name).countryCode ??
+    final directCode =
+        ProxyDisplayName.parse(current.name).countryCode ??
         countryCodeFromName(current.name);
     if (directCode != null) return directCode;
     final selectedName = current.now;
     if (selectedName == null || selectedName.isEmpty) return null;
-    final selectedCode = ProxyDisplayName.parse(selectedName).countryCode ??
+    final selectedCode =
+        ProxyDisplayName.parse(selectedName).countryCode ??
         countryCodeFromName(selectedName);
     if (selectedCode != null) return selectedCode;
     current = proxiesByName[selectedName];

@@ -164,6 +164,9 @@ class ServerProfileSync {
               currentGroupName: sameOwner
                   ? profiles.first.currentGroupName
                   : null,
+              selectedNodeName: sameOwner
+                  ? profiles.first.selectedNodeName
+                  : null,
               selectedMap: sameOwner ? profiles.first.selectedMap : {},
               overwriteType: sameOwner
                   ? profiles.first.overwriteType

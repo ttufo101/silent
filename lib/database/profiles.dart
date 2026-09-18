@@ -11,6 +11,8 @@ class Profiles extends Table {
 
   TextColumn get currentGroupName => text().nullable()();
 
+  TextColumn get selectedNodeName => text().nullable()();
+
   TextColumn get overwriteType => textEnum<OverwriteType>()();
 
   IntColumn get scriptId => integer().nullable()();
@@ -75,6 +77,7 @@ extension RawProfilExt on RawProfile {
       id: id,
       label: label,
       currentGroupName: currentGroupName,
+      selectedNodeName: selectedNodeName,
       selectedMap: selectedMap,
       overwriteType: overwriteType,
       scriptId: scriptId,
@@ -88,6 +91,7 @@ extension ProfilesCompanionExt on Profile {
       id: Value(id),
       label: label,
       currentGroupName: Value(currentGroupName),
+      selectedNodeName: Value(selectedNodeName),
       selectedMap: selectedMap,
       overwriteType: overwriteType,
       scriptId: Value(scriptId),

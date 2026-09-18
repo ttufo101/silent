@@ -15,9 +15,6 @@ part 'generated/state.g.dart';
 
 @riverpod
 GroupsState currentGroupsState(Ref ref) {
-  final mode = ref.watch(
-    patchClashConfigProvider.select((state) => state.mode),
-  );
   final groups = ref.watch(
     groupsProvider.select(
       (state) => state.map((item) {
@@ -29,15 +26,10 @@ GroupsState currentGroupsState(Ref ref) {
     ),
   );
   return GroupsState(
-    value: switch (mode) {
-      Mode.direct => [],
-      Mode.global => groups.toList(),
-      Mode.rule =>
-        groups
-            .where((item) => item.hidden == false)
-            .where((element) => element.name != GroupName.GLOBAL.name)
-            .toList(),
-    },
+    value: groups
+        .where((item) => item.hidden == false)
+        .where((element) => element.name != GroupName.GLOBAL.name)
+        .toList(),
   );
 }
 
@@ -325,6 +317,24 @@ Map<String, String> selectedMap(Ref ref) {
 }
 
 @riverpod
+String? selectedNodeName(Ref ref) {
+  return ref.watch(
+    currentProfileProvider.select((state) => state?.selectedNodeName),
+  );
+}
+
+@riverpod
+Map<String, String> coreSelectedMap(Ref ref) {
+  final selectedMap = ref.watch(selectedMapProvider);
+  final selectedNodeName = ref.watch(selectedNodeNameProvider);
+  if (selectedNodeName == null || selectedNodeName.isEmpty) {
+    return selectedMap;
+  }
+  return Map<String, String>.from(selectedMap)
+    ..[GroupName.GLOBAL.name] = selectedNodeName;
+}
+
+@riverpod
 HotKeyAction getHotKeyAction(Ref ref, HotAction hotAction) {
   return ref.watch(
     hotKeyActionsProvider.select((state) {
@@ -407,11 +417,10 @@ VM2<bool, bool> autoSetSystemDnsState(Ref ref) {
 @riverpod
 SharedState sharedState(Ref ref) {
   ref.watch((appSettingProvider).select((state) => state.locale));
-  final currentProfileVM2 = ref.watch(
-    currentProfileProvider.select(
-      (state) => VM2(state?.label ?? '', state?.selectedMap ?? {}),
-    ),
+  final currentProfileName = ref.watch(
+    currentProfileProvider.select((state) => state?.label ?? ''),
   );
+  final selectedMap = ref.watch(coreSelectedMapProvider);
   final appSettingVM2 = ref.watch(
     appSettingProvider.select(
       (state) => VM2(state.onlyStatisticsProxy, state.testUrl),
@@ -426,8 +435,6 @@ SharedState sharedState(Ref ref) {
     ),
   );
   final vpnSetting = ref.watch(vpnSettingProvider);
-  final currentProfileName = currentProfileVM2.a;
-  final selectedMap = currentProfileVM2.b;
   final onlyStatisticsProxy = appSettingVM2.a;
   final testUrl = appSettingVM2.b;
   final stack = clashConfigVM2.a;

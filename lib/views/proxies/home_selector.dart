@@ -66,9 +66,7 @@ class _HomeProxySelectorViewState extends ConsumerState<HomeProxySelectorView> {
         (state) => state.value.getGroup(widget.groupName),
       ),
     );
-    final selectedProxyName = ref.watch(
-      selectedProxyNameProvider(widget.groupName),
-    );
+    final selectedProxyName = ref.watch(selectedNodeNameProvider);
     final isMobile = ref.watch(isMobileViewProvider);
     final proxies = group?.all ?? const <Proxy>[];
     final delays = <String, int?>{

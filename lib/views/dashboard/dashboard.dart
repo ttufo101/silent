@@ -56,14 +56,8 @@ class _DashboardViewState extends ConsumerState<DashboardView>
         (groups.isEmpty ? null : groups.first);
   }
 
-  String _exitIdentity(Group? group) {
-    if (group == null) return '';
-    final selectedName = ref.watch(selectedProxyNameProvider(group.name)) ?? '';
-    if (selectedName.isEmpty) return group.name;
-    final realName = ref
-        .watch(realSelectedProxyStateProvider(selectedName))
-        .proxyName;
-    return '$selectedName|$realName';
+  String _exitIdentity() {
+    return ref.watch(selectedNodeNameProvider) ?? '';
   }
 
   void _syncExitCheck({required bool connected, required String exitIdentity}) {
@@ -136,7 +130,7 @@ class _DashboardViewState extends ConsumerState<DashboardView>
     final groups = ref.watch(currentGroupsStateProvider).value;
     final currentGroup = _currentGroup(groups);
     final connected = ref.watch(isStartProvider) && !ref.watch(suspendProvider);
-    final exitIdentity = _exitIdentity(currentGroup);
+    final exitIdentity = _exitIdentity();
     final announcement = ref.watch(dashboardAnnouncementProvider);
     final isMobile = ref.watch(isMobileViewProvider);
     final desktopHeroHeight = (MediaQuery.sizeOf(context).height * 0.36).clamp(
@@ -496,7 +490,7 @@ class _ModePanel extends ConsumerWidget {
   const _ModePanel();
 
   void _changeMode(WidgetRef ref, Mode mode) {
-    ref.read(setupActionProvider.notifier).changeMode(mode);
+    ref.read(setupActionProvider.notifier).changeMode(mode).ignore();
   }
 
   Widget _item(
@@ -846,10 +840,8 @@ class _CurrentProxyCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final group = this.group;
     final isMobile = ref.watch(isMobileViewProvider);
-    final selectedProxyName = group == null
-        ? ''
-        : ref.watch(selectedProxyNameProvider(group.name)) ?? '';
-    final hasProxy = group != null && selectedProxyName.isNotEmpty;
+    final selectedProxyName = ref.watch(selectedNodeNameProvider) ?? '';
+    final hasProxy = selectedProxyName.isNotEmpty;
     final realProxyName = hasProxy
         ? ref.watch(realSelectedProxyStateProvider(selectedProxyName)).proxyName
         : '';
@@ -983,6 +975,9 @@ class _HomeConnectButtonState extends ConsumerState<_HomeConnectButton> {
     final hasProfile = ref.watch(
       profilesProvider.select((state) => state.isNotEmpty),
     );
+    final hasSelectedNode = ref.watch(
+      selectedNodeNameProvider.select((state) => state?.isNotEmpty == true),
+    );
     final isStart = ref.watch(isStartProvider);
     final suspend = ref.watch(suspendProvider);
     final isConnected = isStart && !suspend;
@@ -996,7 +991,10 @@ class _HomeConnectButtonState extends ConsumerState<_HomeConnectButton> {
         : suspend
         ? context.appLocalizations.suspended
         : context.appLocalizations.connectNow;
-    final disabled = !hasProfile || _switching;
+    final disabled =
+        !hasProfile ||
+        _switching ||
+        (!isConnected && !suspend && !hasSelectedNode);
     final button = FilledButton(
       onPressed: disabled ? null : (suspend ? _resume : _toggle),
       style: FilledButton.styleFrom(

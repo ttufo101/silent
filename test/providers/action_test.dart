@@ -13,7 +13,7 @@ import 'package:riverpod/riverpod.dart';
 
 void main() {
   group('ProfilesAction', () {
-    test('updates the selected proxy for the current profile', () {
+    test('updates the selected node for the current profile', () {
       final profile = Profile.normal(label: 'Server');
       final container = ProviderContainer(
         overrides: [
@@ -24,11 +24,21 @@ void main() {
       addTearDown(container.dispose);
       final action = container.read(profilesActionProvider.notifier);
 
-      action.updateCurrentSelectedMap('Group', 'Proxy');
+      action.updateSelectedNode(
+        groupName: 'Group',
+        proxyName: 'Proxy',
+        selectedNodeName: 'US:Proxy',
+      );
       final updated = container.read(profilesProvider).single;
       expect(updated.selectedMap['Group'], 'Proxy');
+      expect(updated.selectedMap['GLOBAL'], 'US:Proxy');
+      expect(updated.selectedNodeName, 'US:Proxy');
 
-      action.updateCurrentSelectedMap('Group', 'Proxy');
+      action.updateSelectedNode(
+        groupName: 'Group',
+        proxyName: 'Proxy',
+        selectedNodeName: 'US:Proxy',
+      );
       expect(container.read(profilesProvider), hasLength(1));
     });
   });

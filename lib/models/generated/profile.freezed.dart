@@ -287,7 +287,7 @@ as int,
 /// @nodoc
 mixin _$Profile {
 
- int get id; String get label; String? get currentGroupName; Map<String, String> get selectedMap; OverwriteType get overwriteType; int? get scriptId;
+ int get id; String get label; String? get currentGroupName; String? get selectedNodeName; Map<String, String> get selectedMap; OverwriteType get overwriteType; int? get scriptId;
 /// Create a copy of Profile
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -300,16 +300,16 @@ $ProfileCopyWith<Profile> get copyWith => _$ProfileCopyWithImpl<Profile>(this as
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Profile&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&(identical(other.currentGroupName, currentGroupName) || other.currentGroupName == currentGroupName)&&const DeepCollectionEquality().equals(other.selectedMap, selectedMap)&&(identical(other.overwriteType, overwriteType) || other.overwriteType == overwriteType)&&(identical(other.scriptId, scriptId) || other.scriptId == scriptId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Profile&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&(identical(other.currentGroupName, currentGroupName) || other.currentGroupName == currentGroupName)&&(identical(other.selectedNodeName, selectedNodeName) || other.selectedNodeName == selectedNodeName)&&const DeepCollectionEquality().equals(other.selectedMap, selectedMap)&&(identical(other.overwriteType, overwriteType) || other.overwriteType == overwriteType)&&(identical(other.scriptId, scriptId) || other.scriptId == scriptId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,label,currentGroupName,const DeepCollectionEquality().hash(selectedMap),overwriteType,scriptId);
+int get hashCode => Object.hash(runtimeType,id,label,currentGroupName,selectedNodeName,const DeepCollectionEquality().hash(selectedMap),overwriteType,scriptId);
 
 @override
 String toString() {
-  return 'Profile(id: $id, label: $label, currentGroupName: $currentGroupName, selectedMap: $selectedMap, overwriteType: $overwriteType, scriptId: $scriptId)';
+  return 'Profile(id: $id, label: $label, currentGroupName: $currentGroupName, selectedNodeName: $selectedNodeName, selectedMap: $selectedMap, overwriteType: $overwriteType, scriptId: $scriptId)';
 }
 
 
@@ -320,7 +320,7 @@ abstract mixin class $ProfileCopyWith<$Res>  {
   factory $ProfileCopyWith(Profile value, $Res Function(Profile) _then) = _$ProfileCopyWithImpl;
 @useResult
 $Res call({
- int id, String label, String? currentGroupName, Map<String, String> selectedMap, OverwriteType overwriteType, int? scriptId
+ int id, String label, String? currentGroupName, String? selectedNodeName, Map<String, String> selectedMap, OverwriteType overwriteType, int? scriptId
 });
 
 
@@ -337,11 +337,12 @@ class _$ProfileCopyWithImpl<$Res>
 
 /// Create a copy of Profile
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? label = null,Object? currentGroupName = freezed,Object? selectedMap = null,Object? overwriteType = null,Object? scriptId = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? label = null,Object? currentGroupName = freezed,Object? selectedNodeName = freezed,Object? selectedMap = null,Object? overwriteType = null,Object? scriptId = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
 as String,currentGroupName: freezed == currentGroupName ? _self.currentGroupName : currentGroupName // ignore: cast_nullable_to_non_nullable
+as String?,selectedNodeName: freezed == selectedNodeName ? _self.selectedNodeName : selectedNodeName // ignore: cast_nullable_to_non_nullable
 as String?,selectedMap: null == selectedMap ? _self.selectedMap : selectedMap // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,overwriteType: null == overwriteType ? _self.overwriteType : overwriteType // ignore: cast_nullable_to_non_nullable
 as OverwriteType,scriptId: freezed == scriptId ? _self.scriptId : scriptId // ignore: cast_nullable_to_non_nullable
@@ -430,10 +431,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String label,  String? currentGroupName,  Map<String, String> selectedMap,  OverwriteType overwriteType,  int? scriptId)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String label,  String? currentGroupName,  String? selectedNodeName,  Map<String, String> selectedMap,  OverwriteType overwriteType,  int? scriptId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Profile() when $default != null:
-return $default(_that.id,_that.label,_that.currentGroupName,_that.selectedMap,_that.overwriteType,_that.scriptId);case _:
+return $default(_that.id,_that.label,_that.currentGroupName,_that.selectedNodeName,_that.selectedMap,_that.overwriteType,_that.scriptId);case _:
   return orElse();
 
 }
@@ -451,10 +452,10 @@ return $default(_that.id,_that.label,_that.currentGroupName,_that.selectedMap,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String label,  String? currentGroupName,  Map<String, String> selectedMap,  OverwriteType overwriteType,  int? scriptId)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String label,  String? currentGroupName,  String? selectedNodeName,  Map<String, String> selectedMap,  OverwriteType overwriteType,  int? scriptId)  $default,) {final _that = this;
 switch (_that) {
 case _Profile():
-return $default(_that.id,_that.label,_that.currentGroupName,_that.selectedMap,_that.overwriteType,_that.scriptId);case _:
+return $default(_that.id,_that.label,_that.currentGroupName,_that.selectedNodeName,_that.selectedMap,_that.overwriteType,_that.scriptId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -471,10 +472,10 @@ return $default(_that.id,_that.label,_that.currentGroupName,_that.selectedMap,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String label,  String? currentGroupName,  Map<String, String> selectedMap,  OverwriteType overwriteType,  int? scriptId)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String label,  String? currentGroupName,  String? selectedNodeName,  Map<String, String> selectedMap,  OverwriteType overwriteType,  int? scriptId)?  $default,) {final _that = this;
 switch (_that) {
 case _Profile() when $default != null:
-return $default(_that.id,_that.label,_that.currentGroupName,_that.selectedMap,_that.overwriteType,_that.scriptId);case _:
+return $default(_that.id,_that.label,_that.currentGroupName,_that.selectedNodeName,_that.selectedMap,_that.overwriteType,_that.scriptId);case _:
   return null;
 
 }
@@ -486,12 +487,13 @@ return $default(_that.id,_that.label,_that.currentGroupName,_that.selectedMap,_t
 @JsonSerializable()
 
 class _Profile implements Profile {
-  const _Profile({required this.id, this.label = '', this.currentGroupName, final  Map<String, String> selectedMap = const {}, this.overwriteType = OverwriteType.standard, this.scriptId}): _selectedMap = selectedMap;
+  const _Profile({required this.id, this.label = '', this.currentGroupName, this.selectedNodeName, final  Map<String, String> selectedMap = const {}, this.overwriteType = OverwriteType.standard, this.scriptId}): _selectedMap = selectedMap;
   factory _Profile.fromJson(Map<String, dynamic> json) => _$ProfileFromJson(json);
 
 @override final  int id;
 @override@JsonKey() final  String label;
 @override final  String? currentGroupName;
+@override final  String? selectedNodeName;
  final  Map<String, String> _selectedMap;
 @override@JsonKey() Map<String, String> get selectedMap {
   if (_selectedMap is EqualUnmodifiableMapView) return _selectedMap;
@@ -515,16 +517,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Profile&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&(identical(other.currentGroupName, currentGroupName) || other.currentGroupName == currentGroupName)&&const DeepCollectionEquality().equals(other._selectedMap, _selectedMap)&&(identical(other.overwriteType, overwriteType) || other.overwriteType == overwriteType)&&(identical(other.scriptId, scriptId) || other.scriptId == scriptId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Profile&&(identical(other.id, id) || other.id == id)&&(identical(other.label, label) || other.label == label)&&(identical(other.currentGroupName, currentGroupName) || other.currentGroupName == currentGroupName)&&(identical(other.selectedNodeName, selectedNodeName) || other.selectedNodeName == selectedNodeName)&&const DeepCollectionEquality().equals(other._selectedMap, _selectedMap)&&(identical(other.overwriteType, overwriteType) || other.overwriteType == overwriteType)&&(identical(other.scriptId, scriptId) || other.scriptId == scriptId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,label,currentGroupName,const DeepCollectionEquality().hash(_selectedMap),overwriteType,scriptId);
+int get hashCode => Object.hash(runtimeType,id,label,currentGroupName,selectedNodeName,const DeepCollectionEquality().hash(_selectedMap),overwriteType,scriptId);
 
 @override
 String toString() {
-  return 'Profile(id: $id, label: $label, currentGroupName: $currentGroupName, selectedMap: $selectedMap, overwriteType: $overwriteType, scriptId: $scriptId)';
+  return 'Profile(id: $id, label: $label, currentGroupName: $currentGroupName, selectedNodeName: $selectedNodeName, selectedMap: $selectedMap, overwriteType: $overwriteType, scriptId: $scriptId)';
 }
 
 
@@ -535,7 +537,7 @@ abstract mixin class _$ProfileCopyWith<$Res> implements $ProfileCopyWith<$Res> {
   factory _$ProfileCopyWith(_Profile value, $Res Function(_Profile) _then) = __$ProfileCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String label, String? currentGroupName, Map<String, String> selectedMap, OverwriteType overwriteType, int? scriptId
+ int id, String label, String? currentGroupName, String? selectedNodeName, Map<String, String> selectedMap, OverwriteType overwriteType, int? scriptId
 });
 
 
@@ -552,11 +554,12 @@ class __$ProfileCopyWithImpl<$Res>
 
 /// Create a copy of Profile
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? label = null,Object? currentGroupName = freezed,Object? selectedMap = null,Object? overwriteType = null,Object? scriptId = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? label = null,Object? currentGroupName = freezed,Object? selectedNodeName = freezed,Object? selectedMap = null,Object? overwriteType = null,Object? scriptId = freezed,}) {
   return _then(_Profile(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,label: null == label ? _self.label : label // ignore: cast_nullable_to_non_nullable
 as String,currentGroupName: freezed == currentGroupName ? _self.currentGroupName : currentGroupName // ignore: cast_nullable_to_non_nullable
+as String?,selectedNodeName: freezed == selectedNodeName ? _self.selectedNodeName : selectedNodeName // ignore: cast_nullable_to_non_nullable
 as String?,selectedMap: null == selectedMap ? _self._selectedMap : selectedMap // ignore: cast_nullable_to_non_nullable
 as Map<String, String>,overwriteType: null == overwriteType ? _self.overwriteType : overwriteType // ignore: cast_nullable_to_non_nullable
 as OverwriteType,scriptId: freezed == scriptId ? _self.scriptId : scriptId // ignore: cast_nullable_to_non_nullable
