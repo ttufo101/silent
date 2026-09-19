@@ -24,6 +24,7 @@ class GatewayClient {
 
   static const _path = '/startlandapi';
   static const gatewayBaseUrl = 'http://47.120.10.73:12001';
+  static const _updateServerHost = '106.52.77.108';
   static const _configuredUpdateHosts = String.fromEnvironment('UPDATE_HOSTS');
   final Dio _dio;
   String? accessToken;
@@ -114,6 +115,9 @@ class GatewayClient {
 
   static bool isTrustedUpdateUri(Uri uri) {
     if (uri.scheme != 'http' && uri.scheme != 'https') return false;
+    if (uri.host == _updateServerHost) {
+      return uri.scheme == 'http' && uri.port == 80;
+    }
     final gatewayHost = Uri.parse(gatewayBaseUrl).host.toLowerCase();
     final configuredHosts = _configuredUpdateHosts
         .split(',')

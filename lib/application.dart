@@ -76,8 +76,14 @@ class ApplicationState extends ConsumerState<Application> {
         setState(() => _showSplash = false);
         startupTiming.mark('interactive shell requested');
       }
-      unawaited(_restoreRequiredUpdate());
+      unawaited(_initializeUpdateFlow());
     });
+  }
+
+  Future<void> _initializeUpdateFlow() async {
+    await _restoreRequiredUpdate();
+    if (!mounted) return;
+    await _initializeUpdates();
   }
 
   Future<void> _restoreRequiredUpdate() async {
@@ -92,7 +98,10 @@ class ApplicationState extends ConsumerState<Application> {
   }
 
   Future<void> _initializeUpdates() async {
-    if (_updateInitializationStarted) return;
+    if (_updateInitializationStarted ||
+        !ref.read(appSettingProvider).autoCheckUpdate) {
+      return;
+    }
     _updateInitializationStarted = true;
     final controller = ref.read(updateControllerProvider.notifier);
     try {
@@ -101,7 +110,6 @@ class ApplicationState extends ConsumerState<Application> {
       if (!mounted) return;
       if (info == null ||
           info.forceUpdate ||
-          !ref.read(appSettingProvider).autoCheckUpdate ||
           _updatePromptVisible ||
           ignoredReleaseId == info.releaseId) {
         return;
@@ -283,10 +291,6 @@ class ApplicationState extends ConsumerState<Application> {
       commonPrint.log(error.toString(), logLevel: LogLevel.warning);
       ref.read(serverProfileSyncErrorProvider.notifier).set(error.toString());
       startupTiming.finish('background startup failed');
-    } finally {
-      if (mounted) {
-        unawaited(_initializeUpdates());
-      }
     }
   }
 

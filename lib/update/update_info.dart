@@ -97,6 +97,20 @@ class UpdateInfo {
     'release_id': releaseId,
   };
 
+  UpdateInfo asForcedUpdate() => UpdateInfo(
+    updateAvailable: updateAvailable,
+    forceUpdate: true,
+    latestVersion: latestVersion,
+    minimumVersion: minimumVersion,
+    updateUrl: updateUrl,
+    updateTitle: updateTitle,
+    updateDescription: updateDescription,
+    packageSizeBytes: packageSizeBytes,
+    packageSha256: packageSha256,
+    packageType: packageType,
+    releaseId: releaseId,
+  );
+
   static bool _readBool(Map<String, dynamic> json, String key) {
     final value = _readValue(json, key);
     if (value is bool) return value;

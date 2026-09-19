@@ -919,6 +919,16 @@ class AppLocalizations {
     );
   }
 
+  /// `Checking for updates…`
+  String get updateChecking {
+    return Intl.message(
+      'Checking for updates…',
+      name: 'updateChecking',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Update available`
   String get updateAvailableTitle {
     return Intl.message(
@@ -3402,6 +3412,66 @@ class AppLocalizations {
   /// `Delay Test`
   String get delayTest {
     return Intl.message('Delay Test', name: 'delayTest', desc: '', args: []);
+  }
+
+  /// `Refresh node configuration`
+  String get refreshNodeConfiguration {
+    return Intl.message(
+      'Refresh node configuration',
+      name: 'refreshNodeConfiguration',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Node configuration is up to date`
+  String get nodeConfigurationUpToDate {
+    return Intl.message(
+      'Node configuration is up to date',
+      name: 'nodeConfigurationUpToDate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Node configuration updated with {count} nodes`
+  String nodeConfigurationUpdated(Object count) {
+    return Intl.message(
+      'Node configuration updated with $count nodes',
+      name: 'nodeConfigurationUpdated',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Testing latency {completed}/{total}`
+  String delayTestProgress(Object completed, Object total) {
+    return Intl.message(
+      'Testing latency $completed/$total',
+      name: 'delayTestProgress',
+      desc: '',
+      args: [completed, total],
+    );
+  }
+
+  /// `Latency test completed`
+  String get delayTestCompleted {
+    return Intl.message(
+      'Latency test completed',
+      name: 'delayTestCompleted',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unable to test node latency`
+  String get delayTestFailed {
+    return Intl.message(
+      'Unable to test node latency',
+      name: 'delayTestFailed',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Proxy group is empty`

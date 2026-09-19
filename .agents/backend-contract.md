@@ -38,7 +38,7 @@
 不能据此假设客户端可调用这些权益管理接口。实际网关开放与鉴权策略仍需检查服务端。
 模块字符串以客户端已使用的值为证据，不能简单从 proto service 大小写推导路由名。
 
-`CheckUpdate` 是无需登录的公开接口。客户端仍通过 Gateway 公共信封调用，但明确发送空 `jwt_token`；启动后和个人中心手动入口共享同一个检查任务。当前仅支持 `android` 的 `apk` 与 `windows` 的 `exe`，安装包在应用缓存中流式下载，并严格校验 `package_size_bytes` 与小写十六进制 `package_sha256`。下载地址暂时允许 HTTP 或 HTTPS，默认只接受 Gateway 主机；额外自建升级主机通过编译参数 `UPDATE_HOSTS` 配置。Windows 校验后通过 Inno Setup 升级，Android 通过 FileProvider 交给系统安装器。当前没有额外执行发布签名验证，HTTP 与同信道 SHA256 只能检测文件损坏，不能证明来源真实性。
+`CheckUpdate` 是无需登录的公开接口。客户端仍通过 Gateway 公共信封调用，但明确发送空 `jwt_token`；启动后和设置页手动入口共享同一个检查任务。当前仅支持 `android` 的 `apk` 与 `windows` 的 `exe`，安装包在应用缓存中流式下载，并严格校验 `package_size_bytes` 与小写十六进制 `package_sha256`。当前安装包服务器固定为 `http://106.52.77.108:80`，也接受 Gateway 主机；额外自建升级主机可通过编译参数 `UPDATE_HOSTS` 配置。下载地址必须直接返回 HTTP 200 和安装包内容，不跟随重定向。Windows 校验后通过 Inno Setup 升级，Android 通过 FileProvider 交给系统安装器。当前没有额外执行发布签名验证，HTTP 与同信道 SHA256 只能检测文件损坏，不能证明来源真实性；迁移 HTTPS 的遗留项记录在仓库根目录 `iss.md`。
 
 ## 认证与字段适配
 

@@ -8,6 +8,8 @@ import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+enum _ProxyMaintenanceTask { idle, syncingConfiguration, testingDelay }
+
 class HomeProxySelectorView extends ConsumerStatefulWidget {
   final String groupName;
 
@@ -19,24 +21,41 @@ class HomeProxySelectorView extends ConsumerStatefulWidget {
 }
 
 class _HomeProxySelectorViewState extends ConsumerState<HomeProxySelectorView> {
-  bool _isTesting = false;
+  _ProxyMaintenanceTask _task = _ProxyMaintenanceTask.idle;
+  int _testedCount = 0;
+  int _totalCount = 0;
+  String? _frozenRecommendedName;
 
-  Future<void> _refresh(Group group) async {
-    if (_isTesting) return;
+  bool get _isBusy => _task != _ProxyMaintenanceTask.idle;
+
+  Future<void> _refreshConfiguration() async {
+    if (_isBusy) return;
+    final previousSelectedNode = ref.read(selectedNodeNameProvider);
     setState(() {
-      _isTesting = true;
+      _task = _ProxyMaintenanceTask.syncingConfiguration;
     });
     try {
-      await ref.read(serverProfileSyncProvider).synchronize();
-      final refreshedGroup = ref
-          .read(currentGroupsStateProvider)
-          .value
-          .getGroup(widget.groupName);
-      final effectiveGroup =
-          refreshedGroup ??
-          ref.read(currentGroupsStateProvider).value.firstOrNull;
-      if (effectiveGroup != null) {
-        await delayTest(effectiveGroup.all, effectiveGroup.testUrl);
+      final result = await ref.read(serverProfileSyncProvider).synchronize();
+      if (!mounted) return;
+      if (!result.hasSubscription) {
+        context.showNotifier(
+          context.appLocalizations.subscriptionUnavailableTitle,
+        );
+        return;
+      }
+      if (result.changed) {
+        ref.read(delayDataSourceProvider.notifier).value = {};
+        _restoreSelectionIfMissing(previousSelectedNode);
+        final group = _effectiveGroup();
+        context.showNotifier(
+          context.appLocalizations.nodeConfigurationUpdated(
+            group?.all.length ?? 0,
+          ),
+        );
+      } else {
+        context.showNotifier(
+          context.appLocalizations.nodeConfigurationUpToDate,
+        );
       }
     } catch (error) {
       if (mounted) {
@@ -46,10 +65,138 @@ class _HomeProxySelectorViewState extends ConsumerState<HomeProxySelectorView> {
     } finally {
       if (mounted) {
         setState(() {
-          _isTesting = false;
+          _task = _ProxyMaintenanceTask.idle;
         });
       }
     }
+  }
+
+  Group? _effectiveGroup() {
+    final groups = ref.read(currentGroupsStateProvider).value;
+    return groups.getGroup(widget.groupName) ?? groups.firstOrNull;
+  }
+
+  void _restoreSelectionIfMissing(String? previousSelectedNode) {
+    if (previousSelectedNode == null || previousSelectedNode.isEmpty) return;
+    final selectedNode = ref.read(selectedNodeNameProvider);
+    if (selectedNode != null && selectedNode.isNotEmpty) return;
+    final group = _effectiveGroup();
+    if (group == null) return;
+    for (final proxy in group.all) {
+      final realProxyName = ref
+          .read(realSelectedProxyStateProvider(proxy.name))
+          .proxyName;
+      if (realProxyName.isEmpty ||
+          RuleTarget.baseTargets.contains(realProxyName)) {
+        continue;
+      }
+      changeProxySelection(
+        groupName: group.name,
+        groupType: group.type,
+        proxy: proxy,
+      );
+      return;
+    }
+  }
+
+  Future<void> _testAllDelays(Group group) async {
+    if (_isBusy || group.all.isEmpty) return;
+    final currentDelays = <String, int?>{
+      for (final proxy in group.all)
+        proxy.name: ref.read(
+          delayProvider(proxyName: proxy.name, testUrl: group.testUrl),
+        ),
+    };
+    final recommended = _recommendedProxy(group.all, currentDelays);
+    setState(() {
+      _task = _ProxyMaintenanceTask.testingDelay;
+      _testedCount = 0;
+      _totalCount = group.all.length;
+      _frozenRecommendedName = recommended?.name;
+    });
+    try {
+      await delayTest(
+        group.all,
+        testUrl: group.testUrl,
+        onProgress: (completed, total) {
+          if (!mounted || _task != _ProxyMaintenanceTask.testingDelay) return;
+          setState(() {
+            _testedCount = completed;
+            _totalCount = total;
+          });
+        },
+      );
+      if (mounted) {
+        context.showNotifier(context.appLocalizations.delayTestCompleted);
+      }
+    } catch (error) {
+      if (mounted) {
+        commonPrint.log(error.toString(), logLevel: LogLevel.warning);
+        context.showNotifier(context.appLocalizations.delayTestFailed);
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _task = _ProxyMaintenanceTask.idle;
+          _frozenRecommendedName = null;
+        });
+      }
+    }
+  }
+
+  Widget _buildConfigurationAction(BuildContext context, bool isMobile) {
+    final syncing = _task == _ProxyMaintenanceTask.syncingConfiguration;
+    final icon = syncing
+        ? const SizedBox.square(
+            dimension: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        : const Icon(Icons.sync);
+    if (isMobile) {
+      return IconButton(
+        tooltip: context.appLocalizations.refreshNodeConfiguration,
+        onPressed: _isBusy ? null : _refreshConfiguration,
+        icon: icon,
+      );
+    }
+    return TextButton.icon(
+      onPressed: _isBusy ? null : _refreshConfiguration,
+      icon: icon,
+      label: Text(context.appLocalizations.refreshNodeConfiguration),
+    );
+  }
+
+  Widget _buildDelayAction(
+    BuildContext context,
+    bool isMobile,
+    Group? group,
+  ) {
+    final testing = _task == _ProxyMaintenanceTask.testingDelay;
+    final icon = testing
+        ? const SizedBox.square(
+            dimension: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        : const Icon(Icons.speed_outlined);
+    final enabled = !_isBusy && group != null && group.all.isNotEmpty;
+    final progress = testing
+        ? context.appLocalizations.delayTestProgress(
+            _testedCount,
+            _totalCount,
+          )
+        : context.appLocalizations.delayTest;
+    if (isMobile) {
+      return IconButton(
+        tooltip: progress,
+        onPressed: enabled ? () => _testAllDelays(group!) : null,
+        icon: icon,
+      );
+    }
+    return TextButton.icon(
+      onPressed: enabled ? () => _testAllDelays(group!) : null,
+      icon: icon,
+      label: Text(progress),
+    );
   }
 
   Proxy? _recommendedProxy(List<Proxy> proxies, Map<String, int?> delays) {
@@ -75,18 +222,16 @@ class _HomeProxySelectorViewState extends ConsumerState<HomeProxySelectorView> {
           delayProvider(proxyName: proxy.name, testUrl: group?.testUrl),
         ),
     };
-    final recommended = _recommendedProxy(proxies, delays);
     final proxiesByName = {for (final proxy in proxies) proxy.name: proxy};
+    final recommended = _task == _ProxyMaintenanceTask.testingDelay
+        ? proxiesByName[_frozenRecommendedName]
+        : _recommendedProxy(proxies, delays);
     return CommonScaffold(
       title: context.appLocalizations.proxies,
       centerTitle: true,
-      isLoading: _isTesting,
       actions: [
-        IconButton(
-          tooltip: context.appLocalizations.refresh,
-          onPressed: group == null || _isTesting ? null : () => _refresh(group),
-          icon: const Icon(Icons.refresh),
-        ),
+        _buildConfigurationAction(context, isMobile),
+        _buildDelayAction(context, isMobile, group),
       ],
       body: Align(
         alignment: Alignment.topCenter,
@@ -114,6 +259,11 @@ class _HomeProxySelectorViewState extends ConsumerState<HomeProxySelectorView> {
                           proxiesByName: proxiesByName,
                           isSelected: recommended.name == selectedProxyName,
                           compact: !isMobile,
+                          enabled:
+                              _task !=
+                              _ProxyMaintenanceTask.syncingConfiguration,
+                          testing:
+                              _task == _ProxyMaintenanceTask.testingDelay,
                         ),
                       SizedBox(height: isMobile ? 40 : 24),
                       Text(
@@ -138,6 +288,13 @@ class _HomeProxySelectorViewState extends ConsumerState<HomeProxySelectorView> {
                                             proxy.name == selectedProxyName &&
                                             recommended?.name != proxy.name,
                                         compact: !isMobile,
+                                        enabled:
+                                            _task !=
+                                            _ProxyMaintenanceTask
+                                                .syncingConfiguration,
+                                        testing:
+                                            _task ==
+                                            _ProxyMaintenanceTask.testingDelay,
                                       ),
                                   ]
                                   .separated(
@@ -173,6 +330,8 @@ class _RecommendedProxy extends StatelessWidget {
   final Map<String, Proxy> proxiesByName;
   final bool isSelected;
   final bool compact;
+  final bool enabled;
+  final bool testing;
 
   const _RecommendedProxy({
     required this.group,
@@ -181,6 +340,8 @@ class _RecommendedProxy extends StatelessWidget {
     required this.proxiesByName,
     required this.isSelected,
     required this.compact,
+    required this.enabled,
+    required this.testing,
   });
 
   @override
@@ -195,19 +356,21 @@ class _RecommendedProxy extends StatelessWidget {
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () {
-          if (!isSelected) {
-            changeProxySelection(
-              groupName: group.name,
-              groupType: group.type,
-              proxy: proxy,
-            );
-          }
-          if (group.type.isComputedSelected ||
-              group.type == GroupType.Selector) {
-            Navigator.of(context).pop();
-          }
-        },
+        onTap: enabled
+            ? () {
+                if (!isSelected) {
+                  changeProxySelection(
+                    groupName: group.name,
+                    groupType: group.type,
+                    proxy: proxy,
+                  );
+                }
+                if (group.type.isComputedSelected ||
+                    group.type == GroupType.Selector) {
+                  Navigator.of(context).pop();
+                }
+              }
+            : null,
         child: ConstrainedBox(
           constraints: BoxConstraints(minHeight: compact ? 64 : 72),
           child: Padding(
@@ -243,7 +406,11 @@ class _RecommendedProxy extends StatelessWidget {
                     ],
                   ),
                 ),
-                _DelayStatus(delay: delay, highlighted: true),
+                _DelayStatus(
+                  delay: delay,
+                  highlighted: true,
+                  testing: testing,
+                ),
                 const SizedBox(width: 8),
                 Icon(
                   isSelected
@@ -270,6 +437,8 @@ class _ProxyRow extends StatelessWidget {
   final bool isSelected;
   final bool showSelected;
   final bool compact;
+  final bool enabled;
+  final bool testing;
 
   const _ProxyRow({
     required this.group,
@@ -279,6 +448,8 @@ class _ProxyRow extends StatelessWidget {
     required this.isSelected,
     required this.showSelected,
     required this.compact,
+    required this.enabled,
+    required this.testing,
   });
 
   @override
@@ -286,18 +457,21 @@ class _ProxyRow extends StatelessWidget {
     final displayName = ProxyDisplayName.parse(proxy.name);
     final countryCode = resolveProxyCountryCode(proxy, proxiesByName);
     return InkWell(
-      onTap: () {
-        if (!isSelected) {
-          changeProxySelection(
-            groupName: group.name,
-            groupType: group.type,
-            proxy: proxy,
-          );
-        }
-        if (group.type.isComputedSelected || group.type == GroupType.Selector) {
-          Navigator.of(context).pop();
-        }
-      },
+      onTap: enabled
+          ? () {
+              if (!isSelected) {
+                changeProxySelection(
+                  groupName: group.name,
+                  groupType: group.type,
+                  proxy: proxy,
+                );
+              }
+              if (group.type.isComputedSelected ||
+                  group.type == GroupType.Selector) {
+                Navigator.of(context).pop();
+              }
+            }
+          : null,
       child: SizedBox(
         height: compact ? 48 : 56,
         child: Padding(
@@ -314,7 +488,7 @@ class _ProxyRow extends StatelessWidget {
                   style: context.textTheme.bodyLarge,
                 ),
               ),
-              _DelayStatus(delay: delay),
+              _DelayStatus(delay: delay, testing: testing),
               Icon(
                 showSelected
                     ? Icons.radio_button_checked
@@ -334,8 +508,13 @@ class _ProxyRow extends StatelessWidget {
 class _DelayStatus extends StatelessWidget {
   final int? delay;
   final bool highlighted;
+  final bool testing;
 
-  const _DelayStatus({required this.delay, this.highlighted = false});
+  const _DelayStatus({
+    required this.delay,
+    required this.testing,
+    this.highlighted = false,
+  });
 
   Color _color(BuildContext context) {
     final value = delay;
@@ -350,6 +529,17 @@ class _DelayStatus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final value = delay;
+    if (testing && (value == null || value == 0)) {
+      return const SizedBox(
+        width: 56,
+        child: Center(
+          child: SizedBox.square(
+            dimension: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      );
+    }
     return SizedBox(
       width: 56,
       child: Column(

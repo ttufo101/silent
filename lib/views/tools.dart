@@ -112,8 +112,10 @@ class _ToolViewState extends ConsumerState<ToolsView> {
         if (system.isDesktop) const AutoLaunchItem(),
         if (system.isDesktop) const SilentLaunchItem(),
         const AutoRunItem(),
-        const AutoCheckUpdateItem(),
-        const _CheckUpdateItem(),
+        if (system.isAndroid || system.isWindows) ...[
+          const AutoCheckUpdateItem(),
+          const _CheckUpdateItem(),
+        ],
       ],
     );
   }
@@ -517,13 +519,29 @@ class _CheckUpdateItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final phase = ref.watch(
+      updateControllerProvider.select((state) => state.phase),
+    );
+    final checking = phase == UpdatePhase.checking;
     return ListItem(
       leading: const _SettingsIcon('check_update'),
       title: Text(context.appLocalizations.checkUpdate),
-      subtitle: Text('v${globalState.packageInfo.version}'),
-      onTap: () {
-        unawaited(checkForUpdateAndShow(context, ref));
-      },
+      subtitle: Text(
+        checking
+            ? context.appLocalizations.updateChecking
+            : 'v${globalState.packageInfo.version}',
+      ),
+      trailing: checking
+          ? const SizedBox.square(
+              dimension: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : null,
+      onTap: checking
+          ? null
+          : () {
+              unawaited(checkForUpdateAndShow(context, ref));
+            },
     );
   }
 }

@@ -63,18 +63,32 @@ class UpdateController extends Notifier<UpdateState> {
     final cached = state.info?.forceUpdate == true ? state.info : null;
     state = UpdateState(phase: UpdatePhase.checking, info: cached);
     try {
-      final info = await ref
+      final responseInfo = await ref
           .read(starcoreApiProvider)
           .checkUpdate(
             platform: Platform.isAndroid ? 'android' : 'windows',
             currentVersion: globalState.packageInfo.version,
           );
-      if (info.updateAvailable &&
+      final belowMinimumVersion =
           utils.compareVersions(
-                info.latestVersion,
-                globalState.packageInfo.version,
-              ) >
-              0) {
+            globalState.packageInfo.version,
+            responseInfo.minimumVersion,
+          ) <
+          0;
+      final newerVersion =
+          utils.compareVersions(
+            responseInfo.latestVersion,
+            globalState.packageInfo.version,
+          ) >
+          0;
+      if (belowMinimumVersion &&
+          (!responseInfo.updateAvailable || !newerVersion)) {
+        throw const FormatException('Minimum version requires an update');
+      }
+      final info = belowMinimumVersion && !responseInfo.forceUpdate
+          ? responseInfo.asForcedUpdate()
+          : responseInfo;
+      if (info.updateAvailable && newerVersion) {
         if (!_matchesPlatform(info)) {
           throw const FormatException('Unexpected update package type');
         }
