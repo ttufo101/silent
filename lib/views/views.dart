@@ -7,6 +7,8 @@ export 'connection/connections.dart';
 export 'connection/requests.dart';
 export 'dashboard/dashboard.dart';
 export 'developer.dart';
+export '../feedback/views/diagnostic_upload_view.dart';
+export '../feedback/views/feedback_view.dart';
 export 'logs.dart';
 export 'personal_center/personal_center.dart';
 export 'proxies/proxies.dart';

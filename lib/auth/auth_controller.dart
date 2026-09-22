@@ -131,12 +131,12 @@ class AuthController extends ChangeNotifier {
     }
   }
 
-  Future<void> ensureValidAccessToken() async {
+  Future<void> ensureValidAccessToken({bool forceRefresh = false}) async {
     final current = session;
     if (status != AuthStatus.authenticated || current == null) {
       throw const GatewayException('Authentication required');
     }
-    if (current.isAccessValid) return;
+    if (current.isAccessValid && !forceRefresh) return;
     final existing = _refreshTask;
     if (existing != null) return existing;
     final task = _refresh(current);

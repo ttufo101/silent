@@ -25,7 +25,7 @@ var
   i: Integer;
   ResultCode: Integer;
 begin
-  Processes := ['silent.exe', 'FlClashCore.exe', 'FlClashHelperService.exe'];
+  Processes := ['silent.exe', 'silent-core.exe', 'silent-helper.exe', 'FlClashCore.exe', 'FlClashHelperService.exe'];
 
   for i := 0 to GetArrayLength(Processes)-1 do
   begin
@@ -38,6 +38,11 @@ var
   HelperPath: String;
   ResultCode: Integer;
 begin
+  HelperPath := ExpandConstant('{app}\\silent-helper.exe');
+  if FileExists(HelperPath) then
+  begin
+    Exec(HelperPath, 'uninstall', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+  end;
   HelperPath := ExpandConstant('{app}\\FlClashHelperService.exe');
   if FileExists(HelperPath) then
   begin

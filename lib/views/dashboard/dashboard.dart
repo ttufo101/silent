@@ -395,7 +395,7 @@ class _SpeedPanel extends ConsumerWidget {
     required bool compact,
     required Color color,
     required String label,
-    required num value,
+    required String value,
   }) {
     return _DashboardSegment(
       compact: compact,
@@ -418,7 +418,7 @@ class _SpeedPanel extends ConsumerWidget {
             style: context.textTheme.bodyMedium,
           ),
           Text(
-            '${value.traffic.show}/s',
+            value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: context.textTheme.bodySmall?.copyWith(
@@ -436,11 +436,15 @@ class _SpeedPanel extends ConsumerWidget {
     final traffic = ref.watch(
       trafficsProvider.select((state) => state.list.safeLast(const Traffic())),
     );
+    final totalTraffic = ref.watch(totalTrafficProvider);
+    final showSessionTraffic = !isMobile && system.isWindows;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          context.appLocalizations.networkSpeed,
+          showSessionTraffic
+              ? context.appLocalizations.trafficUsage
+              : context.appLocalizations.networkSpeed,
           style: context.textTheme.bodyLarge,
         ),
         SizedBox(height: isMobile ? 8 : 6),
@@ -458,7 +462,7 @@ class _SpeedPanel extends ConsumerWidget {
                   compact: !isMobile,
                   color: context.tDesign.warning.color,
                   label: context.appLocalizations.upload,
-                  value: traffic.up,
+                  value: '${traffic.up.traffic.show}/s',
                 ),
               ),
               SizedBox(
@@ -475,9 +479,28 @@ class _SpeedPanel extends ConsumerWidget {
                   compact: !isMobile,
                   color: context.tDesign.success.color,
                   label: context.appLocalizations.download,
-                  value: traffic.down,
+                  value: '${traffic.down.traffic.show}/s',
                 ),
               ),
+              if (showSessionTraffic) ...[
+                SizedBox(
+                  height: 32,
+                  child: VerticalDivider(
+                    width: 1,
+                    color: context.tDesign.componentStroke,
+                  ),
+                ),
+                Expanded(
+                  child: _item(
+                    context,
+                    icon: Icons.data_usage_outlined,
+                    compact: true,
+                    color: context.colorScheme.primary,
+                    label: context.appLocalizations.sessionTraffic,
+                    value: (totalTraffic.up + totalTraffic.down).traffic.show,
+                  ),
+                ),
+              ],
             ],
           ),
         ),

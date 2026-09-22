@@ -5,8 +5,13 @@ enum _SetupTaskResult { completed, handoffToCoreRestart }
 class _RunRequest {
   final bool running;
   final bool initialize;
+  final bool newSession;
 
-  const _RunRequest({required this.running, required this.initialize});
+  const _RunRequest({
+    required this.running,
+    required this.initialize,
+    required this.newSession,
+  });
 }
 
 @Riverpod(keepAlive: true)
@@ -96,11 +101,17 @@ class SetupAction extends _$SetupAction {
       return Future.value();
     }
 
+    final newSession = running && !_isRunning;
     final request = _RunRequest(
       running: running,
       initialize: running && initialize,
+      newSession: newSession,
     );
     _latestRunRequest = request;
+    if (newSession) {
+      ref.read(trafficsProvider.notifier).clear();
+      ref.read(totalTrafficProvider.notifier).beginSession();
+    }
     _setLocalRunning(running);
     if (request.initialize) {
       globalState.needInitStatus = false;
@@ -113,7 +124,10 @@ class SetupAction extends _$SetupAction {
       try {
         await applyProfile(
           force: true,
-          preloadInvoke: () => _setCoreRunning(request),
+          preloadInvoke: () async {
+            await _setCoreRunning(request);
+            await _resetTrafficForNewSession(request);
+          },
         );
       } catch (_) {
         if (_isCurrent(request)) {
@@ -124,6 +138,7 @@ class SetupAction extends _$SetupAction {
     }
 
     await _setCoreRunning(request);
+    await _resetTrafficForNewSession(request);
     if (_isCurrent(request)) {
       applyProfileDebounce(force: true, silence: true);
     }
@@ -134,9 +149,17 @@ class SetupAction extends _$SetupAction {
     if (!_isCurrent(request)) {
       return;
     }
-    resetCoreTraffic();
+    await resetCoreTraffic();
     ref.read(trafficsProvider.notifier).clear();
-    ref.read(totalTrafficProvider.notifier).value = const Traffic();
+    ref.read(totalTrafficProvider.notifier).clear();
+  }
+
+  Future<void> _resetTrafficForNewSession(_RunRequest request) async {
+    if (!request.newSession || !_isCurrent(request)) return;
+    await resetCoreTraffic();
+    if (!_isCurrent(request)) return;
+    ref.read(trafficsProvider.notifier).clear();
+    ref.read(totalTrafficProvider.notifier).beginSession();
   }
 
   Future<void> _setCoreRunning(_RunRequest request) {
@@ -225,8 +248,8 @@ class SetupAction extends _$SetupAction {
   }
 
   @protected
-  void resetCoreTraffic() {
-    coreController.resetTraffic();
+  Future<void> resetCoreTraffic() {
+    return coreController.resetTraffic();
   }
 
   @visibleForTesting

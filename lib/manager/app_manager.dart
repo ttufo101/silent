@@ -298,18 +298,20 @@ class _DesktopAccountSummary extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(authControllerProvider).session;
-    final info = ref.watch(userInfoProvider(session?.uid ?? '')).asData?.value;
+    final userInfo = ref.watch(userInfoProvider(session?.uid ?? ''));
+    final info = userInfo.asData?.value;
     final email = info?.username.isNotEmpty == true
         ? info!.username
         : session?.email ?? '';
     final planName = info?.currentPlan?.name;
+    final hasNoPlan = info != null && info.currentPlan == null;
     return SizedBox(
       width: 216,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const AppIcon(),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           SizedBox(
             width: double.infinity,
             child: Text(
@@ -338,8 +340,26 @@ class _DesktopAccountSummary extends ConsumerWidget {
                 ),
               ),
             ),
+          ] else if (hasNoPlan) ...[
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: context.colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                context.appLocalizations.personalNoPlanShort,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.textTheme.labelLarge?.copyWith(
+                  color: context.colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           ],
-          if (info != null) ...[
+          if (info != null && info.currentPlan != null) ...[
             const SizedBox(height: 8),
             Container(
               width: double.infinity,
@@ -365,6 +385,51 @@ class _DesktopAccountSummary extends ConsumerWidget {
                         : info.remainingTrafficBytes.traffic.show,
                   ),
                 ],
+              ),
+            ),
+          ] else if (hasNoPlan) ...[
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: Material(
+                color: context.colorScheme.surface,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(TDesignRadius.card),
+                  side: BorderSide(color: context.tDesign.componentStroke),
+                ),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(TDesignRadius.card),
+                  onTap: () => ref
+                      .read(currentPageLabelProvider.notifier)
+                      .toPage(PageLabel.shop),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 12,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.shopping_bag_outlined,
+                          size: 18,
+                          color: context.colorScheme.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            context.appLocalizations
+                                .personalNoPlanSidebarDescription,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: context.textTheme.bodySmall,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
           ],

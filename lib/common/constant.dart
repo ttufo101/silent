@@ -10,7 +10,7 @@ import 'package:fl_clash/models/models.dart';
 import 'package:flutter/material.dart';
 
 const appName = 'silent';
-const appHelperService = 'FlClashHelperService';
+const appHelperService = 'silent-helper';
 const coreManifestName = 'manifest.json';
 const coreName = 'clash.meta';
 const browserUa =

@@ -1,5 +1,5 @@
 display_name: silent
-package_name: FlClash
+package_name: silent
 maintainer:
   name: chen08209
   email: chen08209@gmail.com
@@ -16,7 +16,7 @@ dependencies:
   - libsecret-1-0
 
 keywords:
-  - FlClash
+  - silent
   - Clash
   - ClashMeta
   - Proxy

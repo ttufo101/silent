@@ -1,5 +1,6 @@
 import 'package:fl_clash/auth/providers.dart';
 import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/providers/app.dart';
 import 'package:fl_clash/starcore/models/user_info.dart';
 import 'package:fl_clash/starcore/providers.dart';
@@ -18,9 +19,30 @@ class PersonalCenterView extends ConsumerStatefulWidget {
 
 class _PersonalCenterViewState extends ConsumerState<PersonalCenterView> {
   bool _loggingOut = false;
+  bool _refreshingPlan = false;
 
   Future<void> _refresh(String uid) {
     return ref.refresh(userInfoProvider(uid).future);
+  }
+
+  void _openShop() {
+    ref.read(currentPageLabelProvider.notifier).toPage(PageLabel.shop);
+  }
+
+  Future<void> _refreshPlan(String uid) async {
+    if (_refreshingPlan) return;
+    setState(() => _refreshingPlan = true);
+    try {
+      await ref.read(serverProfileSyncProvider).synchronize();
+      ref.invalidate(userInfoProvider(uid));
+      await ref.read(userInfoProvider(uid).future);
+    } catch (_) {
+      if (mounted) {
+        context.showNotifier(context.appLocalizations.personalLoadFailed);
+      }
+    } finally {
+      if (mounted) setState(() => _refreshingPlan = false);
+    }
   }
 
   Future<void> _logout() async {
@@ -75,10 +97,15 @@ class _PersonalCenterViewState extends ConsumerState<PersonalCenterView> {
               SizedBox(height: isMobile ? 17 : 16),
               _ProfileWidth(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isMobile ? 16 : 0,
+                  ),
                   child: _PlanSection(
                     value: userInfo,
                     onRetry: () => ref.invalidate(userInfoProvider(uid)),
+                    onOpenShop: _openShop,
+                    onRefreshPlan: () => _refreshPlan(uid),
+                    refreshingPlan: _refreshingPlan,
                   ),
                 ),
               ),
@@ -169,10 +196,16 @@ class _PlanSection extends StatelessWidget {
   const _PlanSection({
     required this.value,
     required this.onRetry,
+    required this.onOpenShop,
+    required this.onRefreshPlan,
+    required this.refreshingPlan,
   });
 
   final AsyncValue<UserInfo> value;
   final VoidCallback onRetry;
+  final VoidCallback onOpenShop;
+  final Future<void> Function() onRefreshPlan;
+  final bool refreshingPlan;
 
   @override
   Widget build(BuildContext context) {
@@ -239,15 +272,102 @@ class _PlanSection extends StatelessWidget {
             const _PlanStatus(child: CircularProgressIndicator())
           else if (info == null || plan == null)
             _PlanStatus(
-              child: Text(
-                context.appLocalizations.personalNoActivePlan,
-                textAlign: TextAlign.center,
+              child: _NoPlanState(
+                desktop: desktop,
+                refreshing: refreshingPlan,
+                onOpenShop: onOpenShop,
+                onRefresh: onRefreshPlan,
               ),
             )
           else
             Padding(
               padding: const EdgeInsetsDirectional.only(start: 3),
               child: _PlanDetails(info: info),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NoPlanState extends StatelessWidget {
+  const _NoPlanState({
+    required this.desktop,
+    required this.refreshing,
+    required this.onOpenShop,
+    required this.onRefresh,
+  });
+
+  final bool desktop;
+  final bool refreshing;
+  final VoidCallback onOpenShop;
+  final Future<void> Function() onRefresh;
+
+  @override
+  Widget build(BuildContext context) {
+    final actions = [
+      SizedBox(
+        width: desktop ? 144 : double.infinity,
+        height: 44,
+        child: FilledButton(
+          onPressed: onOpenShop,
+          child: Text(context.appLocalizations.personalViewPlans),
+        ),
+      ),
+      TextButton(
+        onPressed: refreshing ? null : onRefresh,
+        child: refreshing
+            ? const SizedBox.square(
+                dimension: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Text(context.appLocalizations.personalRefreshPlan),
+      ),
+    ];
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 0, 16, desktop ? 8 : 12),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.shopping_bag_outlined,
+            size: desktop ? 40 : 48,
+            color: context.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            context.appLocalizations.personalNoActivePlan,
+            textAlign: TextAlign.center,
+            style: context.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            context.appLocalizations.personalNoPlanDescription,
+            textAlign: TextAlign.center,
+            style: context.textTheme.bodyMedium?.copyWith(
+              color: context.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          SizedBox(height: desktop ? 14 : 18),
+          if (desktop)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                actions.first,
+                const SizedBox(width: 8),
+                actions.last,
+              ],
+            )
+          else
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                actions.first,
+                const SizedBox(height: 4),
+                actions.last,
+              ],
             ),
         ],
       ),

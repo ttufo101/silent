@@ -41,7 +41,7 @@ class AppPath {
   }
 
   String get corePath {
-    return join(executableDirPath, 'FlClashCore$executableExtension');
+    return join(executableDirPath, 'silent-core$executableExtension');
   }
 
   String get helperPath {

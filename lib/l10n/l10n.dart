@@ -239,6 +239,16 @@ class AppLocalizations {
     );
   }
 
+  /// `Session traffic`
+  String get sessionTraffic {
+    return Intl.message(
+      'Session traffic',
+      name: 'sessionTraffic',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Outbound mode`
   String get outboundMode {
     return Intl.message(
@@ -5154,6 +5164,56 @@ class AppLocalizations {
     );
   }
 
+  /// `Purchase a plan to use the proxy service`
+  String get personalNoPlanDescription {
+    return Intl.message(
+      'Purchase a plan to use the proxy service',
+      name: 'personalNoPlanDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `View plans`
+  String get personalViewPlans {
+    return Intl.message(
+      'View plans',
+      name: 'personalViewPlans',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Already purchased? Refresh plan`
+  String get personalRefreshPlan {
+    return Intl.message(
+      'Already purchased? Refresh plan',
+      name: 'personalRefreshPlan',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No plan`
+  String get personalNoPlanShort {
+    return Intl.message(
+      'No plan',
+      name: 'personalNoPlanShort',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Purchase a plan to get started`
+  String get personalNoPlanSidebarDescription {
+    return Intl.message(
+      'Purchase a plan to get started',
+      name: 'personalNoPlanSidebarDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Unable to load profile`
   String get personalLoadFailed {
     return Intl.message(
@@ -5494,11 +5554,331 @@ class AppLocalizations {
     );
   }
 
-  /// `This feature will be available in a future version`
-  String get featureComingSoon {
+  /// `Feedback type`
+  String get feedbackType {
     return Intl.message(
-      'This feature will be available in a future version',
-      name: 'featureComingSoon',
+      'Feedback type',
+      name: 'feedbackType',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Issue`
+  String get feedbackTypeIssue {
+    return Intl.message('Issue', name: 'feedbackTypeIssue', desc: '', args: []);
+  }
+
+  /// `Suggestion`
+  String get feedbackTypeSuggestion {
+    return Intl.message(
+      'Suggestion',
+      name: 'feedbackTypeSuggestion',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Other`
+  String get feedbackTypeOther {
+    return Intl.message('Other', name: 'feedbackTypeOther', desc: '', args: []);
+  }
+
+  /// `Feedback`
+  String get feedbackContent {
+    return Intl.message(
+      'Feedback',
+      name: 'feedbackContent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Describe the issue or your suggestion`
+  String get feedbackContentHint {
+    return Intl.message(
+      'Describe the issue or your suggestion',
+      name: 'feedbackContentHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter your feedback`
+  String get feedbackContentRequired {
+    return Intl.message(
+      'Enter your feedback',
+      name: 'feedbackContentRequired',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Contact (optional)`
+  String get feedbackContact {
+    return Intl.message(
+      'Contact (optional)',
+      name: 'feedbackContact',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Email or another contact method`
+  String get feedbackContactHint {
+    return Intl.message(
+      'Email or another contact method',
+      name: 'feedbackContactHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Feedback submitted`
+  String get feedbackSubmitted {
+    return Intl.message(
+      'Feedback submitted',
+      name: 'feedbackSubmitted',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Feedback ID: {id}`
+  String feedbackNumber(Object id) {
+    return Intl.message(
+      'Feedback ID: $id',
+      name: 'feedbackNumber',
+      desc: '',
+      args: [id],
+    );
+  }
+
+  /// `Submit feedback`
+  String get submitFeedback {
+    return Intl.message(
+      'Submit feedback',
+      name: 'submitFeedback',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Submitting…`
+  String get submitting {
+    return Intl.message('Submitting…', name: 'submitting', desc: '', args: []);
+  }
+
+  /// `Upload contents`
+  String get diagnosticPrivacyTitle {
+    return Intl.message(
+      'Upload contents',
+      name: 'diagnosticPrivacyTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This uploads redacted runtime logs from the current session, app and system versions, and runtime status. Passwords, access tokens, and proxy configurations are excluded.`
+  String get diagnosticPrivacyDescription {
+    return Intl.message(
+      'This uploads redacted runtime logs from the current session, app and system versions, and runtime status. Passwords, access tokens, and proxy configurations are excluded.',
+      name: 'diagnosticPrivacyDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} log entries collected`
+  String diagnosticLogCount(Object count) {
+    return Intl.message(
+      '$count log entries collected',
+      name: 'diagnosticLogCount',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Issue description (optional)`
+  String get diagnosticDescription {
+    return Intl.message(
+      'Issue description (optional)',
+      name: 'diagnosticDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Describe when the issue occurred and the steps involved`
+  String get diagnosticDescriptionHint {
+    return Intl.message(
+      'Describe when the issue occurred and the steps involved',
+      name: 'diagnosticDescriptionHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Preparing diagnostic package…`
+  String get diagnosticPreparing {
+    return Intl.message(
+      'Preparing diagnostic package…',
+      name: 'diagnosticPreparing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Uploading diagnostic package…`
+  String get diagnosticUploading {
+    return Intl.message(
+      'Uploading diagnostic package…',
+      name: 'diagnosticUploading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Registering diagnostic information…`
+  String get diagnosticRegistering {
+    return Intl.message(
+      'Registering diagnostic information…',
+      name: 'diagnosticRegistering',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `An unfinished diagnostic task exists`
+  String get diagnosticPendingTitle {
+    return Intl.message(
+      'An unfinished diagnostic task exists',
+      name: 'diagnosticPendingTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Continuing will retry from where the previous attempt stopped.`
+  String get diagnosticPendingDescription {
+    return Intl.message(
+      'Continuing will retry from where the previous attempt stopped.',
+      name: 'diagnosticPendingDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Diagnostic logs uploaded`
+  String get diagnosticSubmitted {
+    return Intl.message(
+      'Diagnostic logs uploaded',
+      name: 'diagnosticSubmitted',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Diagnostic ID: {id}`
+  String diagnosticNumber(Object id) {
+    return Intl.message(
+      'Diagnostic ID: $id',
+      name: 'diagnosticNumber',
+      desc: '',
+      args: [id],
+    );
+  }
+
+  /// `Discard`
+  String get discard {
+    return Intl.message('Discard', name: 'discard', desc: '', args: []);
+  }
+
+  /// `Could not submit feedback. Try again later`
+  String get feedbackSubmitFailed {
+    return Intl.message(
+      'Could not submit feedback. Try again later',
+      name: 'feedbackSubmitFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Could not upload diagnostic logs. Try again later`
+  String get diagnosticUploadFailed {
+    return Intl.message(
+      'Could not upload diagnostic logs. Try again later',
+      name: 'diagnosticUploadFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Upload cancelled. You can continue later`
+  String get diagnosticCancelled {
+    return Intl.message(
+      'Upload cancelled. You can continue later',
+      name: 'diagnosticCancelled',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The diagnostic package is too large to upload`
+  String get diagnosticFileTooLarge {
+    return Intl.message(
+      'The diagnostic package is too large to upload',
+      name: 'diagnosticFileTooLarge',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The diagnostic package format is not supported`
+  String get diagnosticUnsupportedFile {
+    return Intl.message(
+      'The diagnostic package format is not supported',
+      name: 'diagnosticUnsupportedFile',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Diagnostic package verification failed. Generate it again`
+  String get diagnosticVerificationFailed {
+    return Intl.message(
+      'Diagnostic package verification failed. Generate it again',
+      name: 'diagnosticVerificationFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The server is processing this package. Try again later`
+  String get diagnosticUploadInProgress {
+    return Intl.message(
+      'The server is processing this package. Try again later',
+      name: 'diagnosticUploadInProgress',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This diagnostic task is no longer valid. Discard it and start again`
+  String get diagnosticTaskConflict {
+    return Intl.message(
+      'This diagnostic task is no longer valid. Discard it and start again',
+      name: 'diagnosticTaskConflict',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log storage is temporarily unavailable. Try again later`
+  String get diagnosticStorageUnavailable {
+    return Intl.message(
+      'Log storage is temporarily unavailable. Try again later',
+      name: 'diagnosticStorageUnavailable',
       desc: '',
       args: [],
     );

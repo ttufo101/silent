@@ -114,9 +114,44 @@ class Traffics extends _$Traffics with AutoDisposeNotifierMixin {
 
 @Riverpod(keepAlive: true)
 class TotalTraffic extends _$TotalTraffic with AutoDisposeNotifierMixin {
+  Traffic? _lastCoreTraffic;
+  int _revision = 0;
+
+  int get revision => _revision;
+
   @override
   Traffic build() {
     return const Traffic();
+  }
+
+  void beginSession() {
+    _revision++;
+    _lastCoreTraffic = null;
+    value = const Traffic();
+  }
+
+  void addCoreSnapshot(Traffic snapshot, int revision) {
+    if (revision != _revision) return;
+    final previous = _lastCoreTraffic;
+    _lastCoreTraffic = snapshot;
+    if (previous == null) {
+      value = snapshot;
+      return;
+    }
+    final upDelta = snapshot.up >= previous.up
+        ? snapshot.up - previous.up
+        : snapshot.up;
+    final downDelta = snapshot.down >= previous.down
+        ? snapshot.down - previous.down
+        : snapshot.down;
+    value = Traffic(
+      up: state.up + (upDelta > 0 ? upDelta : 0),
+      down: state.down + (downDelta > 0 ? downDelta : 0),
+    );
+  }
+
+  void clear() {
+    beginSession();
   }
 }
 

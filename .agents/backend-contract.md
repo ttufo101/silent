@@ -84,3 +84,9 @@
 3. 沿调用方追踪 Token、状态、存储和 UI 消费，避免只改接口字段而遗漏配置同步或会话恢复。
 4. 新业务调用复用 Gateway 封装；保持远程 Starland API、本地 Core IPC 与 Windows Helper loopback HTTP 的边界。
 5. 修改接口或流程后同步更新本文；不要手改生成文件，也不要把协议定义列表描述成已上线功能列表。
+## Feedback and diagnostic uploads
+
+- Client feedback uses Gateway module `starland.feedback.com` with `SubmitFeedback` and `SubmitDiagnosticLog` from `../proto/starland/feedback.proto`.
+- Diagnostic archives are uploaded before metadata registration through `POST http://106.52.77.108/api/v1/log-files` using Bearer authentication, multipart field `file`, and a persistent UUID v4 `Idempotency-Key`.
+- The upload response maps `filename` to `file_name` and `size` to `size_bytes`. The client verifies returned size and SHA-256 before calling `SubmitDiagnosticLog`.
+- Android temporarily permits cleartext traffic only to the configured Gateway and upload hosts. HTTPS migration remains tracked in `iss.md`.

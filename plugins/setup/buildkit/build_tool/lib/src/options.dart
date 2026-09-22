@@ -33,11 +33,11 @@ class BuildConfig {
     tags: 'with_gvisor',
     goLdflags: '-w -s',
     coreDir: 'core',
-    coreName: 'FlClashCore',
+    coreName: 'silent-core',
     libName: 'libclash',
     outputDir: 'libclash',
     helperDir: 'services/helper',
-    helperName: 'FlClashHelperService',
+    helperName: 'silent-helper',
     distDir: 'dist',
   );
 
@@ -64,14 +64,14 @@ class BuildConfig {
   }
 
   Map<String, String> toFingerprintMap() => {
-        'tags': tags,
-        'go_ldflags': goLdflags,
-        'core_dir': coreDir,
-        'core_name': coreName,
-        'lib_name': libName,
-        'output_dir': outputDir,
-        'helper_dir': helperDir,
-        'helper_name': helperName,
-        'dist_dir': distDir,
-      };
+    'tags': tags,
+    'go_ldflags': goLdflags,
+    'core_dir': coreDir,
+    'core_name': coreName,
+    'lib_name': libName,
+    'output_dir': outputDir,
+    'helper_dir': helperDir,
+    'helper_name': helperName,
+    'dist_dir': distDir,
+  };
 }

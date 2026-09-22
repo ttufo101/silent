@@ -14,7 +14,7 @@ requires:
   - libsecret
 
 keywords:
-  - FlClash
+  - silent
   - Clash
   - ClashMeta
   - Proxy

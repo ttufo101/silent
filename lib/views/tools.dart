@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
+import 'package:fl_clash/feedback/views/diagnostic_upload_view.dart';
+import 'package:fl_clash/feedback/views/feedback_view.dart';
 import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
@@ -125,8 +127,8 @@ class _ToolViewState extends ConsumerState<ToolsView> {
       title: context.appLocalizations.other,
       preserveHeaderStyle: true,
       items: [
-        const _ComingSoonItem(type: _ComingSoonType.diagnosticLogs),
-        const _ComingSoonItem(type: _ComingSoonType.feedback),
+        const _DiagnosticLogsItem(),
+        const _FeedbackItem(),
         if (enableDeveloperMode) const _DeveloperItem(),
         const _InfoItem(),
       ],
@@ -485,31 +487,34 @@ class _ConnectionsItem extends StatelessWidget {
   }
 }
 
-enum _ComingSoonType { diagnosticLogs, feedback }
-
-class _ComingSoonItem extends StatelessWidget {
-  const _ComingSoonItem({required this.type});
-
-  final _ComingSoonType type;
+class _DiagnosticLogsItem extends StatelessWidget {
+  const _DiagnosticLogsItem();
 
   @override
   Widget build(BuildContext context) {
-    final diagnostic = type == _ComingSoonType.diagnosticLogs;
-    return ListItem(
-      leading: _SettingsIcon(diagnostic ? 'diagnostic_logs' : 'feedback'),
-      title: Text(
-        diagnostic
-            ? context.appLocalizations.uploadDiagnosticLogs
-            : context.appLocalizations.feedback,
-      ),
-      subtitle: Text(
-        diagnostic
-            ? context.appLocalizations.uploadDiagnosticLogsDesc
-            : context.appLocalizations.feedbackDesc,
-      ),
-      onTap: () {
-        context.showNotifier(context.appLocalizations.featureComingSoon);
-      },
+    return ListItem.open(
+      leading: const _SettingsIcon('diagnostic_logs'),
+      title: Text(context.appLocalizations.uploadDiagnosticLogs),
+      subtitle: Text(context.appLocalizations.uploadDiagnosticLogsDesc),
+      widget: const DiagnosticUploadView(),
+      maxWidth: 400,
+      forceFull: false,
+    );
+  }
+}
+
+class _FeedbackItem extends StatelessWidget {
+  const _FeedbackItem();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListItem.open(
+      leading: const _SettingsIcon('feedback'),
+      title: Text(context.appLocalizations.feedback),
+      subtitle: Text(context.appLocalizations.feedbackDesc),
+      widget: const FeedbackView(),
+      maxWidth: 400,
+      forceFull: false,
     );
   }
 }
