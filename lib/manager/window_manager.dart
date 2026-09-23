@@ -276,22 +276,13 @@ class AppIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox.square(
       dimension: 60,
-      child: Container(
-        decoration: ShapeDecoration(
-          color: context.colorScheme.primaryContainer.withValues(alpha: 0.7),
-          shape: RoundedSuperellipseBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: context.tDesign.componentStroke),
-          ),
-        ),
-        padding: const EdgeInsets.all(8),
-        child: Transform.translate(
-          offset: const Offset(0, -1),
-          child: Image.asset(
-            'assets/images/icon.png',
-            width: 44,
-            height: 44,
-          ),
+      child: Padding(
+        padding: const EdgeInsets.all(2),
+        child: Image.asset(
+          'assets/images/icon.png',
+          width: 56,
+          height: 56,
+          filterQuality: FilterQuality.high,
         ),
       ),
     );

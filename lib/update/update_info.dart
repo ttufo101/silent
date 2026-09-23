@@ -55,10 +55,9 @@ class UpdateInfo {
       throw const FormatException('Invalid forced update state');
     }
     if (updateAvailable) {
-      final validScheme =
-          updateUrl?.scheme == 'http' || updateUrl?.scheme == 'https';
-      if (!validScheme ||
-          updateUrl!.host.isEmpty ||
+      if (updateUrl == null ||
+          (updateUrl.scheme != 'http' && updateUrl.scheme != 'https') ||
+          updateUrl.host.isEmpty ||
           packageSizeBytes <= 0 ||
           packageSizeBytes > 536870912 ||
           !RegExp(r'^[0-9a-f]{64}$').hasMatch(packageSha256) ||

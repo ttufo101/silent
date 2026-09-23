@@ -20,6 +20,8 @@ Android 前景使用 108 单位画布，关键图形位于中央安全区域。�
 
 Android 12+ 的启动主题放在 `values-v31` 和 `values-night-v31`。FlutterActivity 通过 Manifest 中的 NormalTheme 元数据切换主题，不依赖未调用的 AndroidX postSplashScreenTheme。
 
-托盘和通知图标承担连接状态或系统单色显示用途，保持独立。旧 `start.png`、`start_screen.png` 和位图前景已退出启动/桌面图标引用链，保留为历史资源。
+托盘图标与桌面图标由同一脚本生成。停止状态使用减号角标，系统代理状态使用无角标蓝色图标，TUN 状态使用绿色角标；ICO 包含系统缩放所需的独立小尺寸帧。
+
+旧 `start.png`、`start_screen.png`、位图前景和未引用的 Flutter 启动图已从运行时资源中移除。
 
 发布前检查 Windows 桌面及任务栏的 100%、125%、150% 缩放效果，Android 圆形与圆角蒙版、主题图标、亮暗冷启动，以及 macOS/Linux 的实际桌面效果。Windows 可能缓存旧快捷方式图标，应先确认安装的是新包。

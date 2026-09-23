@@ -9,8 +9,8 @@ function write(file, data) {
   fs.mkdirSync(path.dirname(target), {recursive: true});
   fs.writeFileSync(target, data);
 }
-function mark(color = 'white') {
-  return `<g transform="translate(12 8) scale(.76)"><path fill="${color}" fill-rule="evenodd" d="${brand.shield}${brand.letter}"/></g>`;
+function mark(color = 'white', x = 12, y = 8, scale = '.76') {
+  return `<g transform="translate(${x} ${y}) scale(${scale})"><path fill="${color}" fill-rule="evenodd" d="${brand.shield}${brand.letter}"/></g>`;
 }
 function svg(body, width = 100, height = width) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">${body}</svg>`;
@@ -18,16 +18,31 @@ function svg(body, width = 100, height = width) {
 function tile(inset = 0, round = false) {
   return svg(`<g transform="translate(${inset} ${inset}) scale(${1-inset/50})"><rect width="100" height="100" rx="${round ? 50 : 24}" fill="${brand.blue}"/>${mark()}</g>`);
 }
-async function png(file, source, size, height = size) {
+function smallTile(inset = 2) {
+  return svg(`<g transform="translate(${inset} ${inset}) scale(${1-inset/50})"><rect width="100" height="100" rx="24" fill="${brand.blue}"/>${mark('white', 8, 4, '.84')}</g>`);
+}
+function statusTile(state) {
+  const color = state === 'off' ? '#98A0AE' : brand.blue;
+  const badge = state === 'tun'
+    ? '<circle cx="82" cy="82" r="15" fill="#20B486" stroke="white" stroke-width="5"/>'
+    : state === 'off'
+      ? '<circle cx="82" cy="82" r="15" fill="#667085" stroke="white" stroke-width="5"/><path d="M74 82H90" stroke="white" stroke-width="5" stroke-linecap="round"/>'
+      : '';
+  return svg(`<g transform="translate(4 4) scale(.92)"><rect width="100" height="100" rx="24" fill="${color}"/>${mark()}${badge}</g>`);
+}
+async function raster(source, size, height = size) {
   const data = await sharp(Buffer.from(source)).resize(size * 4, height * 4).png().toBuffer();
-  const output = await sharp(data).resize(size, height).png().toBuffer();
+  return sharp(data).resize(size, height).png().toBuffer();
+}
+async function png(file, source, size, height = size) {
+  const output = await raster(source, size, height);
   write(file, output);
   return output;
 }
 function vector(splash = false) {
-  const scale = '.76';
-  const x = 12;
-  const y = 8;
+  const scale = splash ? '.76' : '.82';
+  const x = splash ? 12 : 9;
+  const y = splash ? 8 : 5;
   const geometry = `<group android:translateX="${x}" android:translateY="${y}" android:scaleX="${scale}" android:scaleY="${scale}"><path android:fillColor="#FFFFFF" android:fillType="evenOdd" android:pathData="${brand.shield}${brand.letter}"/></group>`;
   const body = splash ? `<path android:fillColor="${brand.blue}" android:pathData="M116,96H172C183.05,96 192,104.95 192,116V172C192,183.05 183.05,192 172,192H116C104.95,192 96,183.05 96,172V116C96,104.95 104.95,96 116,96Z"/><group android:translateX="96" android:translateY="96" android:scaleX=".96" android:scaleY=".96">${geometry}</group>` : `<group android:translateX="15" android:translateY="15" android:scaleX=".78" android:scaleY=".78">${geometry}</group>`;
   const size = splash ? 288 : 108;
@@ -41,9 +56,12 @@ async function main() {
   await png('assets/images/icon.png', tile(), 512);
   await png('assets/pic/appicon.png', tile(), 1024);
   await png('assets/pic/logo.png', svg(mark(brand.blue)), 1024);
-  const desktopSizes = [16, 24, 32, 48, 64, 128, 256];
+  const desktopSizes = [16, 20, 24, 32, 40, 48, 64, 128, 256];
   const frames = [];
-  for (const size of desktopSizes) frames.push(await png(`design/brand/desktop-${size}.png`, tile(6), size));
+  for (const size of desktopSizes) {
+    const source = size <= 24 ? smallTile() : tile(6);
+    frames.push(await png(`design/brand/desktop-${size}.png`, source, size));
+  }
   const header = Buffer.alloc(6 + frames.length * 16);
   header.writeUInt16LE(1, 2);
   header.writeUInt16LE(frames.length, 4);
@@ -60,6 +78,27 @@ async function main() {
   const ico = Buffer.concat([header, ...frames]);
   write('windows/runner/resources/app_icon.ico', ico);
   write('assets/images/icon.ico', ico);
+  const statusSizes = [16, 20, 24, 32, 40, 48, 64];
+  for (const [name, state] of [['status_1', 'off'], ['status_2', 'proxy'], ['status_3', 'tun']]) {
+    const source = statusTile(state);
+    const statusFrames = [];
+    for (const size of statusSizes) statusFrames.push(await raster(source, size));
+    const statusHeader = Buffer.alloc(6 + statusFrames.length * 16);
+    statusHeader.writeUInt16LE(1, 2);
+    statusHeader.writeUInt16LE(statusFrames.length, 4);
+    let statusOffset = statusHeader.length;
+    statusFrames.forEach((frame, i) => {
+      const at = 6 + i * 16;
+      statusHeader[at] = statusHeader[at + 1] = statusSizes[i];
+      statusHeader.writeUInt16LE(1, at + 4);
+      statusHeader.writeUInt16LE(32, at + 6);
+      statusHeader.writeUInt32LE(frame.length, at + 8);
+      statusHeader.writeUInt32LE(statusOffset, at + 12);
+      statusOffset += frame.length;
+    });
+    write(`assets/images/icon/${name}.ico`, Buffer.concat([statusHeader, ...statusFrames]));
+    await png(`assets/images/icon/${name}.png`, source, 128);
+  }
   for (const size of [16, 32, 64, 128, 256, 512, 1024]) await png(`macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_${size}.png`, tile(5), size);
   await png('assets/images/icon-linux.png', tile(6), 512);
   const densities = {mdpi: 48, hdpi: 72, xhdpi: 96, xxhdpi: 144, xxxhdpi: 192};
@@ -81,8 +120,7 @@ async function main() {
     for (const name of folder.includes('television') ? ['ic_launcher'] : ['ic_launcher', 'ic_launcher_round']) write(`${res}/${folder}/${name}.xml`, '<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@color/ic_launcher_background"/><foreground android:drawable="@drawable/ic_launcher_foreground"/><monochrome android:drawable="@drawable/ic_launcher_monochrome"/></adaptive-icon>\n');
   }
   const splash = svg(`<rect x="96" y="96" width="96" height="96" rx="20" fill="${brand.blue}"/><g transform="translate(96 96) scale(.96)">${mark()}</g>`, 288);
-  await png('assets/images/splash.png', splash, 864);
-  write('design/brand/splash.svg', splash);
+  write('design/brand/splash.svg', `${splash}\n`);
   console.log('Brand assets generated.');
 }
 main().catch(error => {console.error(error); process.exitCode = 1;});

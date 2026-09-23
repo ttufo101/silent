@@ -120,11 +120,14 @@ class ApplicationState extends ConsumerState<Application> {
       } finally {
         _updatePromptVisible = false;
       }
-    } on Object catch (error) {
+    } on Object catch (error, stackTrace) {
       commonPrint.log(
-        'update check failed: $error',
+        'update check failed: $error\n$stackTrace',
         logLevel: LogLevel.warning,
       );
+      if (mounted) {
+        globalState.showNotifier(currentAppLocalizations.updateCheckFailed);
+      }
     }
   }
 
