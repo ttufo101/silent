@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:fl_clash/auth/data/gateway_client.dart';
 import 'package:fl_clash/common/path.dart';
 import 'package:path/path.dart' as path;
@@ -10,18 +11,33 @@ import 'package:path/path.dart' as path;
 import 'update_info.dart';
 
 class UpdateDownloader {
-  UpdateDownloader({Dio? dio})
-    : _dio =
-          dio ??
-          Dio(
-            BaseOptions(
-              connectTimeout: const Duration(seconds: 15),
-              receiveTimeout: const Duration(minutes: 10),
-              sendTimeout: const Duration(seconds: 15),
-            ),
-          );
+  UpdateDownloader({Dio? dio}) : _dio = dio ?? _createDio();
 
   final Dio _dio;
+
+  static Dio _createDio() {
+    final dio = Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 15),
+        receiveTimeout: const Duration(minutes: 10),
+        sendTimeout: const Duration(seconds: 15),
+      ),
+    );
+    // 更新服务器使用自签名证书：仅对内置更新服务器放行，
+    // 且要求证书 SHA-256 指纹与固定值完全一致（pinning）。
+    dio.httpClientAdapter = IOHttpClientAdapter(
+      createHttpClient: () {
+        final client = HttpClient();
+        client.badCertificateCallback = (cert, host, port) {
+          return GatewayClient.isUpdateServerHost(host) &&
+              sha256.convert(cert.der).toString() ==
+                  GatewayClient.updateServerCertSha256;
+        };
+        return client;
+      },
+    );
+    return dio;
+  }
 
   Future<String> download(
     UpdateInfo info, {

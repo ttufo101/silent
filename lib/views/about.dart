@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
+import 'package:fl_clash/update/update_controller.dart';
+import 'package:fl_clash/update/update_dialog.dart';
+import 'package:fl_clash/update/update_state.dart';
 import 'package:fl_clash/widgets/list.dart';
 import 'package:fl_clash/widgets/scaffold.dart';
 import 'package:flutter/material.dart';
@@ -67,6 +70,34 @@ class AboutView extends StatelessWidget {
             ),
           ],
         ),
+      ),
+      Consumer(
+        builder: (_, ref, _) {
+          final phase = ref.watch(
+            updateControllerProvider.select((state) => state.phase),
+          );
+          final checking = phase == UpdatePhase.checking;
+          return ListItem(
+            leading: const Icon(Icons.system_update_outlined),
+            title: Text(appLocalizations.checkUpdate),
+            subtitle: Text(
+              checking
+                  ? appLocalizations.updateChecking
+                  : 'v${globalState.packageInfo.version}',
+            ),
+            trailing: checking
+                ? const SizedBox.square(
+                    dimension: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : null,
+            onTap: checking
+                ? null
+                : () {
+                    unawaited(checkForUpdateAndShow(context, ref));
+                  },
+          );
+        },
       ),
     ];
     return BaseScaffold(

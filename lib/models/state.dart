@@ -167,13 +167,6 @@ abstract class NavigationItemsState with _$NavigationItemsState {
 }
 
 @freezed
-abstract class MoreToolsSelectorState with _$MoreToolsSelectorState {
-  const factory MoreToolsSelectorState({
-    required List<NavigationItem> navigationItems,
-  }) = _MoreToolsSelectorState;
-}
-
-@freezed
 abstract class PackageListSelectorState with _$PackageListSelectorState {
   const factory PackageListSelectorState({
     required List<Package> packages,

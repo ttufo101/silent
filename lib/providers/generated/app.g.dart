@@ -407,7 +407,7 @@ final class TotalTrafficProvider
   }
 }
 
-String _$totalTrafficHash() => r'fc933692cd103acc8bcf02054a399659c08d9054';
+String _$totalTrafficHash() => r'3c9c547014e480d928bd55912cb2a822da894678';
 
 abstract class _$TotalTraffic extends $Notifier<Traffic> {
   Traffic build();

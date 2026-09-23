@@ -181,6 +181,21 @@ class _DiagnosticUploadViewState
                     ),
                   ),
                 ),
+                const SizedBox(height: 16),
+                Card(
+                  child: SwitchListTile(
+                    title: Text(l10n.logcat),
+                    subtitle: Text(l10n.logcatDesc),
+                    value: ref.watch(
+                      appSettingProvider.select((state) => state.openLogs),
+                    ),
+                    onChanged: (value) {
+                      ref
+                          .read(appSettingProvider.notifier)
+                          .update((state) => state.copyWith(openLogs: value));
+                    },
+                  ),
+                ),
                 if (!_loadingPending && _pendingTask != null) ...[
                   const SizedBox(height: 16),
                   Card(

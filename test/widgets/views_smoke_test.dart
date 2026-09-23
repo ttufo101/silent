@@ -4,22 +4,27 @@ import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/app.dart';
-import 'package:fl_clash/providers/config.dart';
 import 'package:fl_clash/providers/database.dart';
 import 'package:fl_clash/state.dart';
-import 'package:fl_clash/views/config/advanced.dart';
-import 'package:fl_clash/views/config/dns.dart';
-import 'package:fl_clash/views/config/general.dart';
-import 'package:fl_clash/views/config/network.dart';
-import 'package:fl_clash/views/config/on_demand.dart';
 import 'package:fl_clash/views/hotkey.dart';
+import 'package:fl_clash/views/routing_domain_rules.dart';
 import 'package:fl_clash/views/views.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 void main() {
+  setUpAll(() {
+    globalState.packageInfo = PackageInfo(
+      appName: 'Silent',
+      packageName: 'com.example.silent',
+      version: '1.2.1',
+      buildNumber: '1',
+    );
+  });
+
   final cases = <String, Widget>{
     'dashboard': const DashboardView(),
     'proxies': const ProxiesView(),
@@ -27,11 +32,6 @@ void main() {
     'resources': const ResourcesView(),
     'logs': const LogsView(),
     'tools': const ToolsView(),
-    'basic config': const ConfigView(),
-    'dns config': const Scaffold(body: DnsListView()),
-    'network config': const Scaffold(body: NetworkListView()),
-    'advanced config': const AdvancedConfigView(),
-    'on demand config': const OnDemandView(),
     'backup and restore': const BackupAndRestore(),
     'hotkeys': const HotKeyView(),
     'access control': const AccessView(),
@@ -75,14 +75,17 @@ void main() {
     });
   }
 
-  final toolDestinations = <String, Type>{
-    'Backup and Restore': BackupAndRestore,
-    'Basic configuration': ConfigView,
-    'Advanced configuration': AdvancedConfigView,
-  };
+  const toolDestinations = <({String category, String title, Type view})>[
+    (
+      category: 'Proxy rules',
+      title: 'Custom proxy domains',
+      view: RoutingDomainRulesView,
+    ),
+    (category: 'Other', title: 'Feedback', view: FeedbackView),
+  ];
 
-  for (final entry in toolDestinations.entries) {
-    testWidgets('tools opens ${entry.key}', (tester) async {
+  for (final destination in toolDestinations) {
+    testWidgets('tools opens ${destination.title}', (tester) async {
       tester.view.physicalSize = const Size(1400, 1000);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
@@ -105,140 +108,22 @@ void main() {
       );
       await tester.pump();
 
-      final target = find.text(entry.key);
+      await tester.tap(find.text(destination.category));
+      await tester.pumpAndSettle();
+
+      final target = find.text(destination.title);
       await tester.scrollUntilVisible(
         target,
         500,
-        scrollable: find.byType(Scrollable).first,
+        scrollable: find.byType(Scrollable).last,
       );
       await tester.tap(target);
       await tester.pumpAndSettle();
 
-      expect(find.byType(entry.value), findsOneWidget);
+      expect(find.byType(destination.view), findsOneWidget);
       expect(tester.takeException(), null);
     });
   }
-
-  testWidgets('user agent dialog applies a preset', (tester) async {
-    tester.view.physicalSize = const Size(1000, 800);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    final container = ProviderContainer(
-      overrides: [profilesProvider.overrideWith(_TestProfiles.new)],
-    );
-    addTearDown(container.dispose);
-    globalState.container = container;
-    container
-        .read(viewSizeProvider.notifier)
-        .update((_) => const Size(1000, 800));
-
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: _TestApp(
-          child: Scaffold(body: ListView(children: const [UaItem()])),
-        ),
-      ),
-    );
-    await tester.pump();
-
-    await tester.tap(find.text('User-Agent'));
-    await tester.pumpAndSettle();
-    expect(find.text('clash-verge/v2.5.2'), findsOneWidget);
-
-    await tester.tap(find.text('clash-verge/v2.5.2'));
-    await tester.pumpAndSettle();
-
-    expect(
-      container.read(patchClashConfigProvider).globalUa,
-      'clash-verge/v2.5.2',
-    );
-    expect(tester.takeException(), null);
-  });
-
-  testWidgets('DNS mode options update the patch configuration', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(1000, 800);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    final container = ProviderContainer(
-      overrides: [profilesProvider.overrideWith(_TestProfiles.new)],
-    );
-    addTearDown(container.dispose);
-    globalState.container = container;
-    container
-        .read(viewSizeProvider.notifier)
-        .update((_) => const Size(1000, 800));
-
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: const _TestApp(child: Scaffold(body: DnsModeItem())),
-      ),
-    );
-    await tester.pump();
-
-    await tester.tap(find.text('DNS mode'));
-    await tester.pumpAndSettle();
-    expect(find.text('fakeIp'), findsWidgets);
-
-    await tester.tap(find.text('fakeIp').last);
-    await tester.pumpAndSettle();
-
-    expect(
-      container.read(patchClashConfigProvider).dns.enhancedMode,
-      DnsMode.fakeIp,
-    );
-
-    final previousOverride = container.read(overrideDnsProvider);
-    final previousDns = container.read(patchClashConfigProvider).dns;
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: const _TestApp(
-          child: Scaffold(
-            body: Column(
-              children: [
-                OverrideItem(),
-                StatusItem(),
-                PreferH3Item(),
-                IPv6Item(),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-    await tester.pump();
-    await tester.tap(find.text('Override Dns'));
-    await tester.pump();
-    await tester.tap(find.text('Status'));
-    await tester.pump();
-    await tester.tap(find.text('PreferH3'));
-    await tester.pump();
-    await tester.tap(find.text('IPv6'));
-    await tester.pump();
-
-    expect(container.read(overrideDnsProvider), !previousOverride);
-    expect(
-      container.read(patchClashConfigProvider).dns.enable,
-      !previousDns.enable,
-    );
-    expect(
-      container.read(patchClashConfigProvider).dns.preferH3,
-      !previousDns.preferH3,
-    );
-    expect(
-      container.read(patchClashConfigProvider).dns.ipv6,
-      !previousDns.ipv6,
-    );
-    expect(tester.takeException(), null);
-  });
 }
 
 class _TestProfiles extends Profiles {
@@ -259,6 +144,10 @@ class _TestApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       navigatorKey: globalState.navigatorKey,
+      theme: TDesignThemeData.build(
+        brightness: Brightness.light,
+        viewMode: ViewMode.desktop,
+      ),
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,

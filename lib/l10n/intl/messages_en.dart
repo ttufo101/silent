@@ -113,14 +113,8 @@ class MessageLookup extends MessageLookupByLibrary {
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "about": MessageLookupByLibrary.simpleMessage("About"),
     "accessControl": MessageLookupByLibrary.simpleMessage("AccessControl"),
-    "accessControlAllowDesc": MessageLookupByLibrary.simpleMessage(
-      "Only allow selected app to enter VPN",
-    ),
     "accessControlDesc": MessageLookupByLibrary.simpleMessage(
       "Configure application access proxy",
-    ),
-    "accessControlNotAllowDesc": MessageLookupByLibrary.simpleMessage(
-      "The selected application will be excluded from VPN",
     ),
     "accessControlSettings": MessageLookupByLibrary.simpleMessage(
       "Access Control Settings",
@@ -151,12 +145,6 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "addressTip": MessageLookupByLibrary.simpleMessage(
       "Please enter a valid WebDAV address",
-    ),
-    "advancedConfig": MessageLookupByLibrary.simpleMessage(
-      "Advanced configuration",
-    ),
-    "advancedConfigDesc": MessageLookupByLibrary.simpleMessage(
-      "Provide diverse configuration options",
     ),
     "advancedFeatures": MessageLookupByLibrary.simpleMessage(
       "Advanced features",
@@ -278,10 +266,6 @@ class MessageLookup extends MessageLookupByLibrary {
       "Sync data via WebDAV or files",
     ),
     "backupSuccess": MessageLookupByLibrary.simpleMessage("Backup success"),
-    "basicConfig": MessageLookupByLibrary.simpleMessage("Basic configuration"),
-    "basicConfigDesc": MessageLookupByLibrary.simpleMessage(
-      "Modify the basic configuration globally",
-    ),
     "basicInfo": MessageLookupByLibrary.simpleMessage("Basic info"),
     "basicStrategy": MessageLookupByLibrary.simpleMessage("Basic strategy"),
     "batteryOptimizationDesc": MessageLookupByLibrary.simpleMessage(
@@ -692,6 +676,17 @@ class MessageLookup extends MessageLookupByLibrary {
     "intelligentSelected": MessageLookupByLibrary.simpleMessage(
       "Intelligent selection",
     ),
+    "excludedFromVpnTag": MessageLookupByLibrary.simpleMessage(
+      "Excluded from VPN",
+    ),
+    "includedToVpnTag": MessageLookupByLibrary.simpleMessage(
+      "Through VPN",
+    ),
+    "packageLoadFailed": MessageLookupByLibrary.simpleMessage(
+      "Failed to load app list",
+    ),
+    "on": MessageLookupByLibrary.simpleMessage("On"),
+    "off": MessageLookupByLibrary.simpleMessage("Off"),
     "internet": MessageLookupByLibrary.simpleMessage("Internet"),
     "interval": MessageLookupByLibrary.simpleMessage("Interval"),
     "intranetIP": MessageLookupByLibrary.simpleMessage("Intranet IP"),
@@ -798,6 +793,13 @@ class MessageLookup extends MessageLookupByLibrary {
       "No custom domains",
     ),
     "noData": MessageLookupByLibrary.simpleMessage("No data"),
+    "noMatchResult": MessageLookupByLibrary.simpleMessage("No matching apps found"),
+    "accessControlDisabledHint": MessageLookupByLibrary.simpleMessage("Enable to control network access per app"),
+    "exportedToClipboard": MessageLookupByLibrary.simpleMessage("Copied {count} items to clipboard"),
+    "importedFromClipboard": MessageLookupByLibrary.simpleMessage("Imported {count} items"),
+    "clipboardEmpty": MessageLookupByLibrary.simpleMessage("Clipboard is empty"),
+    "modeSwitchedHint": MessageLookupByLibrary.simpleMessage("Switched to {modeName}; the {count} selected apps now have reversed meaning"),
+    "importOverwriteConfirm": MessageLookupByLibrary.simpleMessage("Importing will overwrite the current list. Continue?"),
     "noHotKey": MessageLookupByLibrary.simpleMessage("No HotKey"),
     "noInfo": MessageLookupByLibrary.simpleMessage("No info"),
     "noNetwork": MessageLookupByLibrary.simpleMessage("No network"),
@@ -822,18 +824,12 @@ class MessageLookup extends MessageLookupByLibrary {
       "Configure the program running state for specific scenarios",
     ),
     "onlyIcon": MessageLookupByLibrary.simpleMessage("Icon"),
-    "onlyStatisticsProxy": MessageLookupByLibrary.simpleMessage(
-      "Only statistics proxy",
-    ),
-    "onlyStatisticsProxyDesc": MessageLookupByLibrary.simpleMessage(
-      "When turned on, only statistics proxy traffic",
-    ),
     "optimalPerformance": MessageLookupByLibrary.simpleMessage(
       "Optimal performance",
     ),
     "optional": MessageLookupByLibrary.simpleMessage("Optional"),
     "options": MessageLookupByLibrary.simpleMessage("Options"),
-    "other": MessageLookupByLibrary.simpleMessage("Other"),
+    "feedbackAndHelp": MessageLookupByLibrary.simpleMessage("Feedback and Help"),
     "otherContributors": MessageLookupByLibrary.simpleMessage(
       "Other contributors",
     ),

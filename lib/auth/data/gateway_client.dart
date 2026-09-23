@@ -116,7 +116,9 @@ class GatewayClient {
   static bool isTrustedUpdateUri(Uri uri) {
     if (uri.scheme != 'http' && uri.scheme != 'https') return false;
     if (uri.host == _updateServerHost) {
-      return uri.scheme == 'http' && uri.port == 80;
+      // 更新服务器走自签名证书的 HTTPS（下载层用证书指纹固定校验），
+      // 保留 http:80 以兼容旧的服务端配置。
+      return uri.scheme == 'https' || (uri.scheme == 'http' && uri.port == 80);
     }
     final gatewayHost = Uri.parse(gatewayBaseUrl).host.toLowerCase();
     final configuredHosts = _configuredUpdateHosts
@@ -125,6 +127,15 @@ class GatewayClient {
         .where((host) => host.isNotEmpty);
     return {gatewayHost, ...configuredHosts}.contains(uri.host.toLowerCase());
   }
+
+  /// 是否为内置更新服务器（用于下载层的证书指纹固定）。
+  static bool isUpdateServerHost(String host) {
+    return host.toLowerCase() == _updateServerHost;
+  }
+
+  /// 内置更新服务器自签名证书的 SHA-256 指纹（小写 hex）。
+  static const updateServerCertSha256 =
+      'a2845a4912d2858173f9ec02a757eb372cc908f37b7c3abb443a7721cabcdbf';
 
   Future<Map<String, String>> _getCommonFields() async {
     final existing = _commonFields;

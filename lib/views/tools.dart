@@ -1,19 +1,14 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/feedback/views/diagnostic_upload_view.dart';
 import 'package:fl_clash/feedback/views/feedback_view.dart';
 import 'package:fl_clash/l10n/l10n.dart';
-import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
-import 'package:fl_clash/update/update.dart';
 import 'package:fl_clash/views/about.dart';
 import 'package:fl_clash/views/access.dart';
 import 'package:fl_clash/views/application_setting.dart';
-import 'package:fl_clash/views/config/config.dart';
 import 'package:fl_clash/views/connection/connections.dart';
 import 'package:fl_clash/views/hotkey.dart';
 import 'package:fl_clash/views/routing_domain_rules.dart';
@@ -24,7 +19,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart' show dirname, join;
 
-import 'config/advanced.dart';
 import 'developer.dart';
 
 class _SettingsIcon extends StatelessWidget {
@@ -54,19 +48,6 @@ class ToolsView extends ConsumerStatefulWidget {
 class _ToolViewState extends ConsumerState<ToolsView> {
   var _selectedDesktopSection = 0;
 
-  Widget _buildNavigationMenuItem(NavigationItem navigationItem) {
-    return ListItem.open(
-      leading: navigationItem.icon,
-      title: Text(Intl.message(navigationItem.label.name)),
-      subtitle: navigationItem.description != null
-          ? Text(Intl.message(navigationItem.description!))
-          : null,
-      widget: navigationItem.builder(context),
-      maxWidth: 400,
-      forceFull: false,
-    );
-  }
-
   _SettingsSection _getAppearanceList() {
     return _SettingsSection(
       title: context.appLocalizations.appearanceSettings,
@@ -82,25 +63,8 @@ class _ToolViewState extends ConsumerState<ToolsView> {
         const _RoutingDomainItem(type: RoutingDomainType.proxy),
         const _RoutingDomainItem(type: RoutingDomainType.direct),
         const _ConnectionsItem(),
-        if (system.isAndroid) const _AccessItem(),
-      ],
-    );
-  }
-
-  _SettingsSection _getAdvancedFeaturesList(
-    List<NavigationItem> navigationItems,
-  ) {
-    return _SettingsSection(
-      title: context.appLocalizations.advancedFeatures,
-      preserveHeaderStyle: true,
-      items: [
-        const _ConfigItem(),
-        const _AdvancedConfigItem(),
         if (system.isWindows) const _LoopbackItem(),
-        const CloseConnectionsItem(),
-        const UsageItem(),
-        const OpenLogsItem(),
-        ...navigationItems.map(_buildNavigationMenuItem),
+        if (system.isAndroid) const _AccessItem(),
       ],
     );
   }
@@ -114,23 +78,31 @@ class _ToolViewState extends ConsumerState<ToolsView> {
         if (system.isDesktop) const AutoLaunchItem(),
         if (system.isDesktop) const SilentLaunchItem(),
         const AutoRunItem(),
-        if (system.isAndroid || system.isWindows) ...[
+        const CloseConnectionsItem(),
+        if (system.isAndroid || system.isWindows)
           const AutoCheckUpdateItem(),
-          const _CheckUpdateItem(),
-        ],
       ],
     );
   }
 
-  _SettingsSection _getOtherList(bool enableDeveloperMode) {
+  _SettingsSection _getFeedbackHelpList() {
     return _SettingsSection(
-      title: context.appLocalizations.other,
+      title: context.appLocalizations.feedbackAndHelp,
+      preserveHeaderStyle: true,
+      items: const [
+        _DiagnosticLogsItem(),
+        _FeedbackItem(),
+      ],
+    );
+  }
+
+  _SettingsSection _getAboutList(bool enableDeveloperMode) {
+    return _SettingsSection(
+      title: context.appLocalizations.about,
       preserveHeaderStyle: true,
       items: [
-        const _DiagnosticLogsItem(),
-        const _FeedbackItem(),
-        if (enableDeveloperMode) const _DeveloperItem(),
         const _InfoItem(),
+        if (enableDeveloperMode) const _DeveloperItem(),
       ],
     );
   }
@@ -140,37 +112,14 @@ class _ToolViewState extends ConsumerState<ToolsView> {
     final enableDeveloperMode = ref.watch(
       appSettingProvider.select((state) => state.developerMode),
     );
-    final navigationItems = ref.watch(
-      moreToolsSelectorStateProvider.select((state) => state.navigationItems),
-    );
     final isMobile = ref.watch(isMobileViewProvider);
-    final desktopAdvancedItems = navigationItems
-        .where((item) => item.label != PageLabel.connections)
-        .toList(growable: false);
-    final sections = isMobile
-        ? [
-            _getAppearanceList(),
-            _getProxyRulesList(),
-            _getSystemList(),
-            _getOtherList(false),
-            _SettingsSection(
-              title: context.appLocalizations.advancedFeatures,
-              preserveHeaderStyle: true,
-              items: [
-                _AdvancedSettingsItem(
-                  navigationItems: desktopAdvancedItems,
-                  enableDeveloperMode: enableDeveloperMode,
-                ),
-              ],
-            ),
-          ]
-        : [
-            _getAppearanceList(),
-            _getProxyRulesList(),
-            _getSystemList(),
-            _getAdvancedFeaturesList(desktopAdvancedItems),
-            _getOtherList(enableDeveloperMode),
-          ];
+    final sections = [
+      _getAppearanceList(),
+      _getProxyRulesList(),
+      _getSystemList(),
+      _getFeedbackHelpList(),
+      _getAboutList(isMobile ? false : enableDeveloperMode),
+    ];
     if (isMobile) {
       final list = ListView.separated(
         key: toolsStoreKey,
@@ -515,142 +464,6 @@ class _FeedbackItem extends StatelessWidget {
       widget: const FeedbackView(),
       maxWidth: 400,
       forceFull: false,
-    );
-  }
-}
-
-class _CheckUpdateItem extends ConsumerWidget {
-  const _CheckUpdateItem();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final phase = ref.watch(
-      updateControllerProvider.select((state) => state.phase),
-    );
-    final checking = phase == UpdatePhase.checking;
-    return ListItem(
-      leading: const _SettingsIcon('check_update'),
-      title: Text(context.appLocalizations.checkUpdate),
-      subtitle: Text(
-        checking
-            ? context.appLocalizations.updateChecking
-            : 'v${globalState.packageInfo.version}',
-      ),
-      trailing: checking
-          ? const SizedBox.square(
-              dimension: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : null,
-      onTap: checking
-          ? null
-          : () {
-              unawaited(checkForUpdateAndShow(context, ref));
-            },
-    );
-  }
-}
-
-class _AdvancedSettingsItem extends StatelessWidget {
-  const _AdvancedSettingsItem({
-    required this.navigationItems,
-    required this.enableDeveloperMode,
-  });
-
-  final List<NavigationItem> navigationItems;
-  final bool enableDeveloperMode;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListItem.open(
-      leading: const Icon(Icons.tune_outlined),
-      title: Text(context.appLocalizations.advancedFeatures),
-      subtitle: Text(context.appLocalizations.advancedSettingsDesc),
-      widget: _AdvancedSettingsView(
-        navigationItems: navigationItems,
-        enableDeveloperMode: enableDeveloperMode,
-      ),
-    );
-  }
-}
-
-class _AdvancedSettingsView extends StatelessWidget {
-  const _AdvancedSettingsView({
-    required this.navigationItems,
-    required this.enableDeveloperMode,
-  });
-
-  final List<NavigationItem> navigationItems;
-  final bool enableDeveloperMode;
-
-  Widget _buildNavigationItem(
-    BuildContext context,
-    NavigationItem navigationItem,
-  ) {
-    return ListItem.open(
-      leading: navigationItem.icon,
-      title: Text(Intl.message(navigationItem.label.name)),
-      subtitle: navigationItem.description == null
-          ? null
-          : Text(Intl.message(navigationItem.description!)),
-      widget: navigationItem.builder(context),
-      maxWidth: 400,
-      forceFull: false,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final items = <Widget>[
-      const _ConfigItem(),
-      const _AdvancedConfigItem(),
-      const CloseConnectionsItem(),
-      const UsageItem(),
-      const OpenLogsItem(),
-      ...navigationItems.map((item) => _buildNavigationItem(context, item)),
-      if (enableDeveloperMode) const _DeveloperItem(),
-    ];
-    return CommonScaffold(
-      title: context.appLocalizations.advancedFeatures,
-      body: ListView(
-        padding: const EdgeInsets.only(bottom: 24),
-        children: [
-          _SettingsSection(
-            title: context.appLocalizations.advancedFeatures,
-            preserveHeaderStyle: true,
-            items: items,
-            isFirst: true,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ConfigItem extends StatelessWidget {
-  const _ConfigItem();
-
-  @override
-  Widget build(BuildContext context) {
-    return ListItem.open(
-      leading: const Icon(Icons.edit),
-      title: Text(context.appLocalizations.basicConfig),
-      subtitle: Text(context.appLocalizations.basicConfigDesc),
-      widget: const ConfigView(),
-    );
-  }
-}
-
-class _AdvancedConfigItem extends StatelessWidget {
-  const _AdvancedConfigItem();
-
-  @override
-  Widget build(BuildContext context) {
-    return ListItem.open(
-      leading: const Icon(Icons.build),
-      title: Text(context.appLocalizations.advancedConfig),
-      subtitle: Text(context.appLocalizations.advancedConfigDesc),
-      widget: const AdvancedConfigView(),
     );
   }
 }

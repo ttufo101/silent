@@ -423,6 +423,9 @@ class _SpeedPanel extends ConsumerWidget {
             overflow: TextOverflow.ellipsis,
             style: context.textTheme.bodySmall?.copyWith(
               color: context.colorScheme.onSurfaceVariant,
+              // 规范 data-figure：实时速率每数百毫秒刷新，
+              // 必须用等宽数字，否则数字会因字宽差异左右抖动。
+              fontFeatures: dataFigureFeatures,
             ),
           ),
         ],

@@ -79,6 +79,12 @@ class TDesignTokens extends ThemeExtension<TDesignTokens> {
   /// 四级文字（禁用）：浅色 #000 26% / 深色 #FFF 22%
   final Color textDisabled;
 
+  /// 遮罩层（dialog / drawer / bottomSheet 共用）。
+  /// 浅色 rgba(0,0,0,.6)；深色桌面 .7 / 移动 .4
+  final Color mask;
+
+  /// 禁用态填充（输入框、禁用控件底）
+
   const TDesignTokens({
     required this.pageBackground,
     required this.container,
@@ -92,67 +98,135 @@ class TDesignTokens extends ThemeExtension<TDesignTokens> {
     required this.error,
     required this.textPlaceholder,
     required this.textDisabled,
+    required this.mask,
   });
 
-  static const light = TDesignTokens(
+  /// 按主题与端型取得令牌。
+  /// 桌面端与移动端官方色板在以下维度存在明确差异，必须分流：
+  /// - 浅色：page、container-hover、border-default、control
+  /// - 深色：brand / success / warning / error 基色、container-active、次级文字透明度、遮罩
+  factory TDesignTokens.of({
+    required Brightness brightness,
+    required ViewMode viewMode,
+  }) {
+    final isMobile = viewMode == ViewMode.mobile;
+    if (brightness == Brightness.dark) {
+      return isMobile ? darkMobile : darkDesktop;
+    }
+    return isMobile ? lightMobile : lightDesktop;
+  }
+
+  // ------------------------------------------------------------------
+  // 浅色 · 桌面端
+  // page #eeeeee / container #ffffff / container-hover #f3f3f3 /
+  // container-active #e8e8e8 / border-default #dddddd
+  // 语义色与移动端共用同一套浅色官方值。
+  // ------------------------------------------------------------------
+  static const lightDesktop = TDesignTokens(
     pageBackground: Color(0xFFEEEEEE),
     container: Color(0xFFFFFFFF),
     secondaryContainer: Color(0xFFF3F3F3),
     component: Color(0xFFE8E8E8),
     componentStroke: Color(0xFFE8E8E8),
     componentBorder: Color(0xFFDDDDDD),
-    // brand light: 7/6/2/8/3/1/2
-    brand: TDesignStateColor(
-      color: Color(0xFF0052D9),
-      hover: Color(0xFF366EF4),
-      focus: Color(0xFFD9E1FF),
-      active: Color(0xFF003CAB),
-      disabled: Color(0xFFB5C7FF),
-      light: Color(0xFFF2F3FF),
-      lightHover: Color(0xFFD9E1FF),
-    ),
-    // success light: 5/4/2/6/3/1/2
-    success: TDesignStateColor(
-      color: Color(0xFF2BA471),
-      hover: Color(0xFF56C08D),
-      focus: Color(0xFFC6F3D7),
-      active: Color(0xFF008858),
-      disabled: Color(0xFF92DAB2),
-      light: Color(0xFFE3F9E9),
-      lightHover: Color(0xFFC6F3D7),
-    ),
-    // warning light: 5/4/2/6/3/1/2
-    warning: TDesignStateColor(
-      color: Color(0xFFE37318),
-      hover: Color(0xFFFA9550),
-      focus: Color(0xFFFFD9C2),
-      active: Color(0xFFBE5A00),
-      disabled: Color(0xFFFFB98C),
-      light: Color(0xFFFFF1E9),
-      lightHover: Color(0xFFFFD9C2),
-    ),
-    // error light: 6/5/2/7/3/1/2
-    error: TDesignStateColor(
-      color: Color(0xFFD54941),
-      hover: Color(0xFFF6685D),
-      focus: Color(0xFFFFD8D2),
-      active: Color(0xFFAD352F),
-      disabled: Color(0xFFFFB9B0),
-      light: Color(0xFFFFF0ED),
-      lightHover: Color(0xFFFFD8D2),
-    ),
-    textPlaceholder: Color(0x66000000),
-    textDisabled: Color(0x42000000),
+    brand: _lightBrand,
+    success: _lightSuccess,
+    warning: _lightWarning,
+    error: _lightError,
+    textPlaceholder: _lightTextPlaceholder,
+    textDisabled: _lightTextDisabled,
+    mask: _lightMask,
   );
 
-  static const dark = TDesignTokens(
+  // ------------------------------------------------------------------
+  // 浅色 · 移动端
+  // 官方移动端表面值：page #f3f3f3 / container-hover #eeeeee /
+  // control #e7e7e7 / border-default #dcdcdc
+  // ------------------------------------------------------------------
+  static const lightMobile = TDesignTokens(
+    pageBackground: Color(0xFFF3F3F3),
+    container: Color(0xFFFFFFFF),
+    secondaryContainer: Color(0xFFEEEEEE),
+    component: Color(0xFFE7E7E7),
+    componentStroke: Color(0xFFE7E7E7),
+    componentBorder: Color(0xFFDCDCDC),
+    brand: _lightBrand,
+    success: _lightSuccess,
+    warning: _lightWarning,
+    error: _lightError,
+    textPlaceholder: _lightTextPlaceholder,
+    textDisabled: _lightTextDisabled,
+    mask: _lightMask,
+  );
+
+  // ------------------------------------------------------------------
+  // 深色 · 桌面端
+  // 官方桌面深色值（明显比移动端更亮，保证深色下对比度）：
+  // brand #69a1ff / success #07a872 / warning #ed8139 / error #fb6e77 /
+  // container-active #4b4b4b / mask rgba(0,0,0,.7)
+  // ------------------------------------------------------------------
+  static const darkDesktop = TDesignTokens(
     pageBackground: Color(0xFF181818),
     container: Color(0xFF242424),
     secondaryContainer: Color(0xFF2C2C2C),
-    component: Color(0xFF393939),
-    componentStroke: Color(0xFF393939),
+    component: Color(0xFF4B4B4B),
+    componentStroke: Color(0xFF4B4B4B),
     componentBorder: Color(0xFF5E5E5E),
-    // brand dark: 沿用现有主色 8 级；深色模式下 hover 更亮(+1)、active 更暗(-1)
+    brand: TDesignStateColor(
+      color: Color(0xFF69A1FF),
+      hover: Color(0xFF478DFF),
+      focus: Color(0xFF173463),
+      active: Color(0xFF8CB8FF),
+      disabled: Color(0xFF073AB5),
+      light: Color(0xFF1B2F51),
+      lightHover: Color(0xFF173463),
+    ),
+    // TDesign 未发布深色语义色的状态级（hover/active/light），
+    // 此处沿用既有派生值；基色取官方桌面深色值。
+    success: TDesignStateColor(
+      color: Color(0xFF07A872),
+      hover: Color(0xFF43AF8A),
+      focus: Color(0xFF1A4230),
+      active: Color(0xFF0D7A55),
+      disabled: Color(0xFF17533D),
+      light: Color(0xFF193A2A),
+      lightHover: Color(0xFF1A4230),
+    ),
+    warning: TDesignStateColor(
+      color: Color(0xFFED8139),
+      hover: Color(0xFFDC7633),
+      focus: Color(0xFF582F21),
+      active: Color(0xFFA75D2B),
+      disabled: Color(0xFF733C23),
+      light: Color(0xFF4F2A1D),
+      lightHover: Color(0xFF582F21),
+    ),
+    error: TDesignStateColor(
+      color: Color(0xFFFB6E77),
+      hover: Color(0xFFDE6670),
+      focus: Color(0xFF5E2A2D),
+      active: Color(0xFFA03F46),
+      disabled: Color(0xFF703439),
+      light: Color(0xFF472324),
+      lightHover: Color(0xFF5E2A2D),
+    ),
+    textPlaceholder: _darkTextPlaceholder,
+    textDisabled: _darkTextDisabled,
+    mask: _darkDesktopMask,
+  );
+
+  // ------------------------------------------------------------------
+  // 深色 · 移动端
+  // 官方移动端深色值：brand #4582e6 / success #059465 /
+  // warning #cf6e2d / error #c64751 / mask rgba(0,0,0,.4)
+  // ------------------------------------------------------------------
+  static const darkMobile = TDesignTokens(
+    pageBackground: Color(0xFF181818),
+    container: Color(0xFF242424),
+    secondaryContainer: Color(0xFF2C2C2C),
+    component: Color(0xFF2C2C2C),
+    componentStroke: Color(0xFF2C2C2C),
+    componentBorder: Color(0xFF5E5E5E),
     brand: TDesignStateColor(
       color: Color(0xFF4582E6),
       hover: Color(0xFF699EF5),
@@ -162,7 +236,6 @@ class TDesignTokens extends ThemeExtension<TDesignTokens> {
       light: Color(0xFF1B2F51),
       lightHover: Color(0xFF173463),
     ),
-    // success dark: 5/6/2/4/3/1/2
     success: TDesignStateColor(
       color: Color(0xFF059465),
       hover: Color(0xFF43AF8A),
@@ -172,7 +245,6 @@ class TDesignTokens extends ThemeExtension<TDesignTokens> {
       light: Color(0xFF193A2A),
       lightHover: Color(0xFF1A4230),
     ),
-    // warning dark: 5/6/2/4/3/1/2
     warning: TDesignStateColor(
       color: Color(0xFFCF6E2D),
       hover: Color(0xFFDC7633),
@@ -182,7 +254,6 @@ class TDesignTokens extends ThemeExtension<TDesignTokens> {
       light: Color(0xFF4F2A1D),
       lightHover: Color(0xFF582F21),
     ),
-    // error dark: 6/7/2/5/3/1/2
     error: TDesignStateColor(
       color: Color(0xFFC64751),
       hover: Color(0xFFDE6670),
@@ -192,9 +263,59 @@ class TDesignTokens extends ThemeExtension<TDesignTokens> {
       light: Color(0xFF472324),
       lightHover: Color(0xFF5E2A2D),
     ),
-    textPlaceholder: Color(0x59FFFFFF),
-    textDisabled: Color(0x38FFFFFF),
+    textPlaceholder: _darkTextPlaceholder,
+    textDisabled: _darkTextDisabled,
+    mask: _darkMobileMask,
   );
+
+  // ---- 两端共用的基元色 -----------------------------------------------
+  // brand light: 7/6/2/8/3/1/2
+  static const _lightBrand = TDesignStateColor(
+    color: Color(0xFF0052D9),
+    hover: Color(0xFF366EF4),
+    focus: Color(0xFFD9E1FF),
+    active: Color(0xFF003CAB),
+    disabled: Color(0xFFB5C7FF),
+    light: Color(0xFFF2F3FF),
+    lightHover: Color(0xFFD9E1FF),
+  );
+  // success light: 5/4/2/6/3/1/2
+  static const _lightSuccess = TDesignStateColor(
+    color: Color(0xFF2BA471),
+    hover: Color(0xFF56C08D),
+    focus: Color(0xFFC6F3D7),
+    active: Color(0xFF008858),
+    disabled: Color(0xFF92DAB2),
+    light: Color(0xFFE3F9E9),
+    lightHover: Color(0xFFC6F3D7),
+  );
+  // warning light: 5/4/2/6/3/1/2
+  static const _lightWarning = TDesignStateColor(
+    color: Color(0xFFE37318),
+    hover: Color(0xFFFA9550),
+    focus: Color(0xFFFFD9C2),
+    active: Color(0xFFBE5A00),
+    disabled: Color(0xFFFFB98C),
+    light: Color(0xFFFFF1E9),
+    lightHover: Color(0xFFFFD9C2),
+  );
+  // error light: 6/5/2/7/3/1/2
+  static const _lightError = TDesignStateColor(
+    color: Color(0xFFD54941),
+    hover: Color(0xFFF6685D),
+    focus: Color(0xFFFFD8D2),
+    active: Color(0xFFAD352F),
+    disabled: Color(0xFFFFB9B0),
+    light: Color(0xFFFFF0ED),
+    lightHover: Color(0xFFFFD8D2),
+  );
+  static const _lightTextPlaceholder = Color(0x66000000); // #000 40%
+  static const _lightTextDisabled = Color(0x42000000); // #000 26%
+  static const _lightMask = Color(0x99000000); // rgba(0,0,0,.6)
+  static const _darkTextPlaceholder = Color(0x59FFFFFF); // #FFF 35%
+  static const _darkTextDisabled = Color(0x38FFFFFF); // #FFF 22%
+  static const _darkDesktopMask = Color(0xB3000000); // rgba(0,0,0,.7)
+  static const _darkMobileMask = Color(0x66000000); // rgba(0,0,0,.4)
 
   @override
   TDesignTokens copyWith({
@@ -210,6 +331,7 @@ class TDesignTokens extends ThemeExtension<TDesignTokens> {
     TDesignStateColor? error,
     Color? textPlaceholder,
     Color? textDisabled,
+    Color? mask,
   }) {
     return TDesignTokens(
       pageBackground: pageBackground ?? this.pageBackground,
@@ -224,6 +346,7 @@ class TDesignTokens extends ThemeExtension<TDesignTokens> {
       error: error ?? this.error,
       textPlaceholder: textPlaceholder ?? this.textPlaceholder,
       textDisabled: textDisabled ?? this.textDisabled,
+      mask: mask ?? this.mask,
     );
   }
 
@@ -247,6 +370,7 @@ class TDesignTokens extends ThemeExtension<TDesignTokens> {
       error: error.lerp(other.error, t),
       textPlaceholder: Color.lerp(textPlaceholder, other.textPlaceholder, t)!,
       textDisabled: Color.lerp(textDisabled, other.textDisabled, t)!,
+      mask: Color.lerp(mask, other.mask, t)!,
     );
   }
 }
@@ -257,13 +381,17 @@ class TDesignThemeData {
     required ViewMode viewMode,
   }) {
     final isDark = brightness == Brightness.dark;
-    final tokens = isDark ? TDesignTokens.dark : TDesignTokens.light;
+    final tokens = TDesignTokens.of(brightness: brightness, viewMode: viewMode);
+    // 深色下次级文字透明度两端不同：桌面 60%，移动端 55%
+    final darkSecondary = viewMode == ViewMode.mobile
+        ? const Color(0x8CFFFFFF)
+        : const Color(0x99FFFFFF);
     final brand = tokens.brand.color;
     final error = tokens.error.color;
     final baseScheme = isDark
         ? ColorScheme.dark(
             primary: brand,
-            secondary: const Color(0x8CFFFFFF),
+            secondary: darkSecondary,
             tertiary: tokens.warning.color,
             surface: const Color(0xFF242424),
             error: error,
@@ -292,9 +420,7 @@ class TDesignThemeData {
           : const Color(0xFF001A57),
       surface: tokens.container,
       onSurface: isDark ? const Color(0xE5FFFFFF) : const Color(0xE5000000),
-      onSurfaceVariant: isDark
-          ? const Color(0x8CFFFFFF)
-          : const Color(0x99000000),
+      onSurfaceVariant: isDark ? darkSecondary : const Color(0x99000000),
       surfaceContainerLowest: tokens.container,
       surfaceContainerLow: tokens.container,
       surfaceContainer: tokens.secondaryContainer,
@@ -413,7 +539,8 @@ class TDesignThemeData {
         unselectedLabelTextStyle: textTheme.bodySmall,
       ),
       dialogTheme: DialogThemeData(
-        elevation: 8,
+        elevation: TDesignElevation.level3,
+        barrierColor: tokens.mask,
         backgroundColor: tokens.container,
         surfaceTintColor: Colors.transparent,
         titleTextStyle: textTheme.titleLarge?.copyWith(
@@ -428,7 +555,8 @@ class TDesignThemeData {
         ),
       ),
       bottomSheetTheme: BottomSheetThemeData(
-        elevation: 8,
+        elevation: TDesignElevation.level3,
+        modalBarrierColor: tokens.mask,
         backgroundColor: tokens.container,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
@@ -438,7 +566,7 @@ class TDesignThemeData {
         ),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        elevation: 1,
+        elevation: TDesignElevation.level1,
         shape: RoundedRectangleBorder(borderRadius: radiusControl),
       ),
       radioTheme: RadioThemeData(
@@ -513,25 +641,31 @@ class TDesignThemeData {
   }
 }
 
-/// 圆角单一来源。注意：移动端规范与桌面端规范在多处存在硬性冲突，需按 ViewMode 区分
-/// （见下方 control/sheet/tag 的方法式取值）：
-///   - 控件圆角：移动 10–12 vs 桌面 6–8
-///   - 面板/对话框圆角：移动 20–24 vs 桌面 12–16
-///   - 标签圆角：移动 6 vs 桌面 4
-/// 而「卡片圆角 12」在两端规范（移动 12–16 / 桌面 8–12）都满足，作为共享常量，无需按端区分。
+/// 圆角单一来源。取值对照 TDesign 官方双端规范：
+///   - 移动端：sm 3 / default 6 / md 9 / lg 12 / pill 999
+///   - 桌面端：sm 2 / default 3 / md 6 / lg 9 / xl 12 / pill 999
+/// 官方明确禁止把圆角「现代化」放大到 8–16px。
+///
+/// 产品决策：silent 是 C 端订阅制客户端，不是中后台。因此
+///   - **移动端全部对齐官方值**（6/9/12/3）；
+///   - **桌面端适度放大**（在官方 2/3/6 的基础上各抬一档到 2/4/8），
+///     避免变成 IDE 般的工具观感，同时仍明显小于移动端以维持密度差。
+/// 卡片圆角取 **9**（移动端 md 官方值），两端共享，无需按端区分。
 class TDesignRadius {
-  // 共享：卡片圆角 12，两端规范都满足
-  static const double card = 12; // 卡片
+  /// 卡片：9 —— 移动端 md 官方值，桌面端适度放大后的取值
+  static const double card = 9;
 
-  // 仅移动端取值（触控优先，圆角偏大）
-  static const double _mobileControl = 12; // 按钮、输入框、FAB
-  static const double _mobileSheet = 20; // 底部面板、对话框
-  static const double _mobileTag = 6; // 小标签 / Chip
+  /// 标签 / Chip：移动 3（官方 sm）、桌面 2（官方 sm）
+  static const double _mobileTag = 3;
+  static const double _desktopTag = 2;
 
-  // 仅桌面端取值（高密度，圆角偏小）
-  static const double _desktopControl = 8;
-  static const double _desktopSheet = 12;
-  static const double _desktopTag = 4;
+  /// 控件（按钮、输入框、选择器）：移动 6（官方 default）、桌面 4（官方 default 3 抬一档）
+  static const double _mobileControl = 6;
+  static const double _desktopControl = 4;
+
+  /// 面板 / 对话框 / 底部弹层：移动 12（官方 lg）、桌面 8（官方 md 6 抬一档）
+  static const double _mobileSheet = 12;
+  static const double _desktopSheet = 8;
 
   /// 控件圆角：按端区分
   static double control(ViewMode viewMode) =>
@@ -544,6 +678,40 @@ class TDesignRadius {
   /// 标签圆角：按端区分
   static double tag(ViewMode viewMode) =>
       viewMode == ViewMode.mobile ? _mobileTag : _desktopTag;
+}
+
+/// 景深令牌。TDesign 刻意扁平：优先级永远是 1px 边框，
+/// 阴影仅保留给浮层与静止态卡片，且**一个表面只用一层**。
+class TDesignElevation {
+  static const double level1 = 1; // 卡片、表格、浮层静止态
+  static const double level2 = 4; // 抬升的浮层 / 下拉 / 工具提示
+  static const double level3 = 8; // 对话框与抽屉
+}
+
+/// data-figure：表格数字与实时指标的**等宽数字**特性（`tnum`）。
+/// 规范用于金额、计数、速率等一列数字，避免刷新时因字宽差异左右抖动。
+const List<FontFeature> dataFigureFeatures = <FontFeature>[
+  FontFeature.tabularFigures(),
+];
+
+/// 图表分类色板（TDesign 官方「扩展色」）。
+/// 与 UI 语义色**相互独立**：不得拿 success / warning / error 充当数据序列，
+/// 否则会把「数据」与「状态」混为一谈。超出 10 系列后循环复用，不重新随机。
+class TDesignChart {
+  static const List<Color> palette = [
+    Color(0xFF0052D9), // cat-1 腾讯蓝（默认单系列色）
+    Color(0xFF029CD4), // cat-2 青
+    Color(0xFF2BA471), // cat-3 绿
+    Color(0xFFF5BA18), // cat-4 黄
+    Color(0xFFE37318), // cat-5 橙
+    Color(0xFFD54941), // cat-6 红
+    Color(0xFF8E56DD), // cat-7 紫
+    Color(0xFFE851B3), // cat-8 粉
+    Color(0xFF618DFF), // cat-9 浅蓝
+    Color(0xFF0080B0), // cat-10 深青
+  ];
+
+  static Color series(int index) => palette[index % palette.length];
 }
 
 extension TDesignBuildContext on BuildContext {

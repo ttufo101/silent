@@ -59,29 +59,6 @@ class CloseConnectionsItem extends ConsumerWidget {
   }
 }
 
-class UsageItem extends ConsumerWidget {
-  const UsageItem({super.key});
-
-  @override
-  Widget build(BuildContext context, ref) {
-    final appLocalizations = context.appLocalizations;
-    final onlyStatisticsProxy = ref.watch(
-      appSettingProvider.select((state) => state.onlyStatisticsProxy),
-    );
-    return ListItem.toggle(
-      leading: const Icon(Icons.data_usage_outlined),
-      title: Text(appLocalizations.onlyStatisticsProxy),
-      subtitle: Text(appLocalizations.onlyStatisticsProxyDesc),
-      value: onlyStatisticsProxy,
-      onChanged: (bool value) async {
-        ref
-            .read(appSettingProvider.notifier)
-            .update((state) => state.copyWith(onlyStatisticsProxy: value));
-      },
-    );
-  }
-}
-
 class MinimizeItem extends ConsumerWidget {
   const MinimizeItem({super.key});
 
@@ -169,29 +146,6 @@ class AutoRunItem extends ConsumerWidget {
         ref
             .read(appSettingProvider.notifier)
             .update((state) => state.copyWith(autoRun: value));
-      },
-    );
-  }
-}
-
-class OpenLogsItem extends ConsumerWidget {
-  const OpenLogsItem({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final appLocalizations = context.appLocalizations;
-    final openLogs = ref.watch(
-      appSettingProvider.select((state) => state.openLogs),
-    );
-    return ListItem.toggle(
-      leading: const Icon(Icons.receipt_long_outlined),
-      title: Text(appLocalizations.logcat),
-      subtitle: Text(appLocalizations.logcatDesc),
-      value: openLogs,
-      onChanged: (bool value) {
-        ref
-            .read(appSettingProvider.notifier)
-            .update((state) => state.copyWith(openLogs: value));
       },
     );
   }

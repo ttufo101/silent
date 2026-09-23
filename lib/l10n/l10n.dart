@@ -299,9 +299,9 @@ class AppLocalizations {
     return Intl.message('More', name: 'more', desc: '', args: []);
   }
 
-  /// `Other`
-  String get other {
-    return Intl.message('Other', name: 'other', desc: '', args: []);
+  /// `Feedback and Help`
+  String get feedbackAndHelp {
+    return Intl.message('Feedback and Help', name: 'feedbackAndHelp', desc: '', args: []);
   }
 
   /// `Appearance`
@@ -694,26 +694,6 @@ class AppLocalizations {
     return Intl.message(
       'App access control',
       name: 'appAccessControl',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Only allow selected app to enter VPN`
-  String get accessControlAllowDesc {
-    return Intl.message(
-      'Only allow selected app to enter VPN',
-      name: 'accessControlAllowDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `The selected application will be excluded from VPN`
-  String get accessControlNotAllowDesc {
-    return Intl.message(
-      'The selected application will be excluded from VPN',
-      name: 'accessControlNotAllowDesc',
       desc: '',
       args: [],
     );
@@ -1450,24 +1430,8 @@ class AppLocalizations {
   }
 
   /// `Only statistics proxy`
-  String get onlyStatisticsProxy {
-    return Intl.message(
-      'Only statistics proxy',
-      name: 'onlyStatisticsProxy',
-      desc: '',
-      args: [],
-    );
-  }
 
   /// `When turned on, only statistics proxy traffic`
-  String get onlyStatisticsProxyDesc {
-    return Intl.message(
-      'When turned on, only statistics proxy traffic',
-      name: 'onlyStatisticsProxyDesc',
-      desc: '',
-      args: [],
-    );
-  }
 
   /// `Pure black mode`
   String get pureBlackMode {
@@ -1552,6 +1516,46 @@ class AppLocalizations {
       desc: '',
       args: [],
     );
+  }
+
+  /// `Excluded from VPN`
+  String get excludedFromVpnTag {
+    return Intl.message(
+      'Excluded from VPN',
+      name: 'excludedFromVpnTag',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Through VPN`
+  String get includedToVpnTag {
+    return Intl.message(
+      'Through VPN',
+      name: 'includedToVpnTag',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Failed to load app list`
+  String get packageLoadFailed {
+    return Intl.message(
+      'Failed to load app list',
+      name: 'packageLoadFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `On`
+  String get on {
+    return Intl.message('On', name: 'on', desc: '', args: []);
+  }
+
+  /// `Off`
+  String get off {
+    return Intl.message('Off', name: 'off', desc: '', args: []);
   }
 
   /// `Clipboard import`
@@ -2114,6 +2118,66 @@ class AppLocalizations {
     return Intl.message('No data', name: 'noData', desc: '', args: []);
   }
 
+  /// `No matching apps found`
+  String get noMatchResult {
+    return Intl.message('No matching apps found', name: 'noMatchResult', desc: '', args: []);
+  }
+
+  /// `Enable to control network access per app`
+  String get accessControlDisabledHint {
+    return Intl.message(
+      'Enable to control network access per app',
+      name: 'accessControlDisabledHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Copied {count} items to clipboard`
+  String exportedToClipboard(Object count) {
+    return Intl.message(
+      'Copied $count items to clipboard',
+      name: 'exportedToClipboard',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Imported {count} items`
+  String importedFromClipboard(Object count) {
+    return Intl.message(
+      'Imported $count items',
+      name: 'importedFromClipboard',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Clipboard is empty`
+  String get clipboardEmpty {
+    return Intl.message('Clipboard is empty', name: 'clipboardEmpty', desc: '', args: []);
+  }
+
+  /// `Switched to {modeName}; the {count} selected apps now have reversed meaning`
+  String modeSwitchedHint(Object modeName, Object count) {
+    return Intl.message(
+      'Switched to $modeName; the $count selected apps now have reversed meaning',
+      name: 'modeSwitchedHint',
+      desc: '',
+      args: [modeName, count],
+    );
+  }
+
+  /// `Importing will overwrite the current list. Continue?`
+  String get importOverwriteConfirm {
+    return Intl.message(
+      'Importing will overwrite the current list. Continue?',
+      name: 'importOverwriteConfirm',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `FontFamily`
   String get fontFamily {
     return Intl.message('FontFamily', name: 'fontFamily', desc: '', args: []);
@@ -2295,44 +2359,12 @@ class AppLocalizations {
   }
 
   /// `Basic configuration`
-  String get basicConfig {
-    return Intl.message(
-      'Basic configuration',
-      name: 'basicConfig',
-      desc: '',
-      args: [],
-    );
-  }
 
   /// `Modify the basic configuration globally`
-  String get basicConfigDesc {
-    return Intl.message(
-      'Modify the basic configuration globally',
-      name: 'basicConfigDesc',
-      desc: '',
-      args: [],
-    );
-  }
 
   /// `Advanced configuration`
-  String get advancedConfig {
-    return Intl.message(
-      'Advanced configuration',
-      name: 'advancedConfig',
-      desc: '',
-      args: [],
-    );
-  }
 
   /// `Provide diverse configuration options`
-  String get advancedConfigDesc {
-    return Intl.message(
-      'Provide diverse configuration options',
-      name: 'advancedConfigDesc',
-      desc: '',
-      args: [],
-    );
-  }
 
   /// `{count} items have been selected`
   String selectedCountTitle(Object count) {

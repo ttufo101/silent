@@ -229,48 +229,6 @@ PackageListSelectorState packageListSelectorState(Ref ref) {
   );
 }
 
-@riverpod
-MoreToolsSelectorState moreToolsSelectorState(Ref ref) {
-  final viewMode = ref.watch(viewModeProvider);
-  if (viewMode != ViewMode.mobile) {
-    const labels = [
-      PageLabel.proxies,
-      PageLabel.connections,
-      PageLabel.requests,
-      PageLabel.resources,
-      PageLabel.logs,
-    ];
-    final items = ref.watch(navigationItemsStateProvider).value;
-    final itemsByLabel = {for (final item in items) item.label: item};
-    return MoreToolsSelectorState(
-      navigationItems: labels
-          .map((label) => itemsByLabel[label])
-          .whereType<NavigationItem>()
-          .toList(growable: false),
-    );
-  }
-  final navigationItems = ref
-      .watch(
-        navigationItemsStateProvider.select((state) {
-          return VM(
-            state.value.where((element) {
-              final isMore = element.modes.contains(NavigationItemMode.more);
-              final isDesktop = element.modes.contains(
-                NavigationItemMode.desktop,
-              );
-              if (isMore && !isDesktop) return true;
-              if (viewMode != ViewMode.mobile || !isMore) {
-                return false;
-              }
-              return true;
-            }).toList(),
-          );
-        }),
-      )
-      .a;
-
-  return MoreToolsSelectorState(navigationItems: navigationItems);
-}
 
 @riverpod
 bool isCurrentPage(

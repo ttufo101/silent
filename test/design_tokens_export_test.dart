@@ -155,55 +155,86 @@ String _markdown(Map<String, dynamic> android, Map<String, dynamic> desktop) {
     )
     ..writeln();
 
-  // 颜色（两端一致）
+  // 颜色：部分取值按端型分流
   final light = android['tokensLight'] as TDesignTokens;
   final dark = android['tokensDark'] as TDesignTokens;
+  final lightD = desktop['tokensLight'] as TDesignTokens;
+  final darkD = desktop['tokensDark'] as TDesignTokens;
+
+  /// 两端取值不同时并列标注来源，避免文档误导使用者。
+  String both(Color mobile, Color desktopColor) => mobile == desktopColor
+      ? _hex(mobile)
+      : '${_hex(mobile)} 移动 · ${_hex(desktopColor)} 桌面';
 
   b
-    ..writeln('## 中性色 / 文字色（两端一致）')
+    ..writeln('## 中性色 / 文字色')
+    ..writeln()
+    ..writeln('> 浅色的页面背景 / 次级容器 / 组件填充 / 边框，以及深色的组件填充与遮罩按端型分流。')
+    ..writeln('> 「A 移动 · B 桌面」表示两端取值不同；单一取值表示两端共用。')
     ..writeln()
     ..writeln('| Token | 浅色 | 深色 | 说明 |')
     ..writeln('| --- | --- | --- | --- |');
   final neutrals = <String, List<dynamic>>{
-    'pageBackground': [light.pageBackground, dark.pageBackground, '页面背景'],
-    'container': [light.container, dark.container, '卡片 / 容器'],
+    'pageBackground': [
+      both(light.pageBackground, lightD.pageBackground),
+      both(dark.pageBackground, darkD.pageBackground),
+      '页面背景',
+    ],
+    'container': [
+      both(light.container, lightD.container),
+      both(dark.container, darkD.container),
+      '卡片 / 容器',
+    ],
     'secondaryContainer': [
-      light.secondaryContainer,
-      dark.secondaryContainer,
+      both(light.secondaryContainer, lightD.secondaryContainer),
+      both(dark.secondaryContainer, darkD.secondaryContainer),
       '次级容器',
     ],
-    'component': [light.component, dark.component, '组件填充'],
+    'component': [
+      both(light.component, lightD.component),
+      both(dark.component, darkD.component),
+      '组件填充',
+    ],
     'componentStroke': [
-      light.componentStroke,
-      dark.componentStroke,
+      both(light.componentStroke, lightD.componentStroke),
+      both(dark.componentStroke, darkD.componentStroke),
       '分割线 / 描边（细）',
     ],
     'componentBorder': [
-      light.componentBorder,
-      dark.componentBorder,
+      both(light.componentBorder, lightD.componentBorder),
+      both(dark.componentBorder, darkD.componentBorder),
       '边框',
     ],
+    'mask': [
+      both(light.mask, lightD.mask),
+      both(dark.mask, darkD.mask),
+      '遮罩层',
+    ],
     'textPlaceholder': [
-      light.textPlaceholder,
-      dark.textPlaceholder,
+      both(light.textPlaceholder, lightD.textPlaceholder),
+      both(dark.textPlaceholder, darkD.textPlaceholder),
       '三级文字（占位符）',
     ],
-    'textDisabled': [light.textDisabled, dark.textDisabled, '四级文字（禁用）'],
+    'textDisabled': [
+      both(light.textDisabled, lightD.textDisabled),
+      both(dark.textDisabled, darkD.textDisabled),
+      '四级文字（禁用）',
+    ],
   };
   for (final entry in neutrals.entries) {
     b.writeln(
-      '| `${entry.key}` | ${_hex(entry.value[0] as Color)} | '
-      '${_hex(entry.value[1] as Color)} | ${entry.value[2]} |',
+      '| `${entry.key}` | ${entry.value[0]} | '
+      '${entry.value[1]} | ${entry.value[2]} |',
     );
   }
   b.writeln();
 
   // 语义色
   final semantics = <String, List<TDesignStateColor>>{
-    'brand': [light.brand, dark.brand],
-    'success': [light.success, dark.success],
-    'warning': [light.warning, dark.warning],
-    'error': [light.error, dark.error],
+    'brand': [light.brand, dark.brand, lightD.brand, darkD.brand],
+    'success': [light.success, dark.success, lightD.success, darkD.success],
+    'warning': [light.warning, dark.warning, lightD.warning, darkD.warning],
+    'error': [light.error, dark.error, lightD.error, darkD.error],
   };
   const stateDesc = {
     'color': '常规',
@@ -225,7 +256,10 @@ String _markdown(Map<String, dynamic> android, Map<String, dynamic> desktop) {
       };
 
   b
-    ..writeln('## 语义色 Semantic（两端一致）')
+    ..writeln('## 语义色 Semantic')
+    ..writeln()
+    ..writeln('> 浅色两端一致；深色下的品牌色与成功 / 警告 / 错误用**官方桌面深色色板**'
+        '（比移动端更亮以保证对比度），故深色列并列标注两端。')
     ..writeln()
     ..writeln('| Token | 状态 | 浅色 | 深色 |')
     ..writeln('| --- | --- | --- | --- |');
@@ -233,8 +267,8 @@ String _markdown(Map<String, dynamic> android, Map<String, dynamic> desktop) {
     for (final state in stateDesc.keys) {
       b.writeln(
         '| `${entry.key}` | $state（${stateDesc[state]}） | '
-        '${_hex(stateColor(entry.value[0], state))} | '
-        '${_hex(stateColor(entry.value[1], state))} |',
+        '${both(stateColor(entry.value[0], state), stateColor(entry.value[2], state))} | '
+        '${both(stateColor(entry.value[1], state), stateColor(entry.value[3], state))} |',
       );
     }
   }

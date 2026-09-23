@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:fl_clash/common/constant.dart';
+import 'package:fl_clash/common/tdesign.dart';
 import 'package:flutter/material.dart';
 
 @immutable
@@ -121,7 +122,8 @@ class BarChartPainter extends CustomPainter {
     final newRectMap = getRectMap(newData, size);
 
     final paint = Paint()
-      ..color = Colors.blue
+      // 使用官方图表分类色板首色（腾讯蓝 #0052d9），而非 Material 裸色
+      ..color = TDesignChart.palette.first
       ..style = PaintingStyle.fill;
     final newRectEntries = newRectMap.entries.toList();
     for (int i = 0; i < newRectEntries.length; i++) {

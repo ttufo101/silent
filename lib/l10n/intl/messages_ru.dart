@@ -113,14 +113,8 @@ class MessageLookup extends MessageLookupByLibrary {
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
     "about": MessageLookupByLibrary.simpleMessage("О программе"),
     "accessControl": MessageLookupByLibrary.simpleMessage("Контроль доступа"),
-    "accessControlAllowDesc": MessageLookupByLibrary.simpleMessage(
-      "Разрешить только выбранным приложениям доступ к VPN",
-    ),
     "accessControlDesc": MessageLookupByLibrary.simpleMessage(
       "Настройка доступа приложений к прокси",
-    ),
-    "accessControlNotAllowDesc": MessageLookupByLibrary.simpleMessage(
-      "Выбранные приложения будут исключены из VPN",
     ),
     "accessControlSettings": MessageLookupByLibrary.simpleMessage(
       "Настройки контроля доступа",
@@ -151,12 +145,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "addressHelp": MessageLookupByLibrary.simpleMessage("Адрес сервера WebDAV"),
     "addressTip": MessageLookupByLibrary.simpleMessage(
       "Пожалуйста, введите действительный адрес WebDAV",
-    ),
-    "advancedConfig": MessageLookupByLibrary.simpleMessage(
-      "Расширенная конфигурация",
-    ),
-    "advancedConfigDesc": MessageLookupByLibrary.simpleMessage(
-      "Предоставляет разнообразные варианты конфигурации",
     ),
     "advancedFeatures": MessageLookupByLibrary.simpleMessage(
       "Расширенные функции",
@@ -277,10 +265,6 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "backupSuccess": MessageLookupByLibrary.simpleMessage(
       "Резервное копирование успешно",
-    ),
-    "basicConfig": MessageLookupByLibrary.simpleMessage("Базовая конфигурация"),
-    "basicConfigDesc": MessageLookupByLibrary.simpleMessage(
-      "Глобальное изменение базовых настроек",
     ),
     "basicInfo": MessageLookupByLibrary.simpleMessage("Основная информация"),
     "basicStrategy": MessageLookupByLibrary.simpleMessage("Базовая стратегия"),
@@ -712,6 +696,11 @@ class MessageLookup extends MessageLookupByLibrary {
     "intelligentSelected": MessageLookupByLibrary.simpleMessage(
       "Интеллектуальный выбор",
     ),
+    "excludedFromVpnTag": MessageLookupByLibrary.simpleMessage("Исключено из VPN"),
+    "includedToVpnTag": MessageLookupByLibrary.simpleMessage("Через VPN"),
+    "packageLoadFailed": MessageLookupByLibrary.simpleMessage("Не удалось загрузить список приложений"),
+    "on": MessageLookupByLibrary.simpleMessage("Вкл"),
+    "off": MessageLookupByLibrary.simpleMessage("Выкл"),
     "internet": MessageLookupByLibrary.simpleMessage("Интернет"),
     "interval": MessageLookupByLibrary.simpleMessage("Интервал"),
     "intranetIP": MessageLookupByLibrary.simpleMessage("Внутренний IP"),
@@ -826,6 +815,13 @@ class MessageLookup extends MessageLookupByLibrary {
       "Нет пользовательских доменов",
     ),
     "noData": MessageLookupByLibrary.simpleMessage("Нет данных"),
+    "noMatchResult": MessageLookupByLibrary.simpleMessage("Подходящие приложения не найдены"),
+    "accessControlDisabledHint": MessageLookupByLibrary.simpleMessage("Включите, чтобы управлять доступом в сети для каждого приложения"),
+    "exportedToClipboard": MessageLookupByLibrary.simpleMessage("Скопировано {count} элементов в буфер обмена"),
+    "importedFromClipboard": MessageLookupByLibrary.simpleMessage("Импортировано {count} элементов"),
+    "clipboardEmpty": MessageLookupByLibrary.simpleMessage("Буфер обмена пуст"),
+    "modeSwitchedHint": MessageLookupByLibrary.simpleMessage("Переключено на {modeName}; у {count} выбранных приложений смысл изменился на противоположный"),
+    "importOverwriteConfirm": MessageLookupByLibrary.simpleMessage("Импорт перезапишет текущий список. Продолжить?"),
     "noHotKey": MessageLookupByLibrary.simpleMessage("Нет горячей клавиши"),
     "noInfo": MessageLookupByLibrary.simpleMessage("Нет информации"),
     "noNetwork": MessageLookupByLibrary.simpleMessage("Нет сети"),
@@ -850,18 +846,12 @@ class MessageLookup extends MessageLookupByLibrary {
       "Configure the program running state for specific scenarios",
     ),
     "onlyIcon": MessageLookupByLibrary.simpleMessage("Только иконка"),
-    "onlyStatisticsProxy": MessageLookupByLibrary.simpleMessage(
-      "Только статистика прокси",
-    ),
-    "onlyStatisticsProxyDesc": MessageLookupByLibrary.simpleMessage(
-      "При включении будет учитываться только трафик прокси",
-    ),
     "optimalPerformance": MessageLookupByLibrary.simpleMessage(
       "Оптимальная производительность",
     ),
     "optional": MessageLookupByLibrary.simpleMessage("Необязательно"),
     "options": MessageLookupByLibrary.simpleMessage("Опции"),
-    "other": MessageLookupByLibrary.simpleMessage("Другое"),
+    "feedbackAndHelp": MessageLookupByLibrary.simpleMessage("Обратная связь и помощь"),
     "otherContributors": MessageLookupByLibrary.simpleMessage(
       "Другие участники",
     ),
