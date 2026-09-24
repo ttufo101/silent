@@ -43,14 +43,41 @@ class CoreController {
 
   Future<CoreLifecycleResult> close() => _interface.close();
 
-  static Future<void> initGeo() async {
+  static Future<void>? _initGeoFuture;
+
+  /// 由应用层注册的「核心预热」任务（登录页阶段就开始初始化核心）。
+  /// 核心方法调用（如校验配置）会先等它完成，避免核心未就绪时白等超时。
+  static Future<void>? warmUpFuture;
+
+  static Future<void> initGeo() {
+    return _initGeoFuture ??= _initGeoInternal();
+  }
+
+  /// 等待预热完成。没有预热任务、或预热失败/超时时直接返回，
+  /// 由调用方的超时逻辑兜底，保证不会比预热前更差。
+  static Future<void> waitForWarmUp() async {
+    final pending = warmUpFuture;
+    if (pending == null) {
+      return;
+    }
+    try {
+      await pending.timeout(const Duration(seconds: 30));
+    } on Object catch (_) {
+      return;
+    }
+  }
+
+  static Future<void> _initGeoInternal() async {
+    startupTiming.mark('geo copy start');
     final homePath = await appPath.homeDirPath;
     final homeDir = Directory(homePath);
     final isExists = await homeDir.exists();
     if (!isExists) {
       await homeDir.create(recursive: true);
     }
-    const geoFileNameList = [MMDB, GEOIP, GEOSITE, ASN];
+    const geoFileNameList = [MMDB, GEOSITE, ASN];
+    var copiedCount = 0;
+    var copiedBytes = 0;
     try {
       for (final geoFileName in geoFileNameList) {
         final geoFile = File(join(homePath, geoFileName));
@@ -69,8 +96,14 @@ class CoreController {
         }
         await temporaryFile.writeAsBytes(bytes);
         await temporaryFile.rename(geoFile.path);
+        copiedCount++;
+        copiedBytes += bytes.lengthInBytes;
       }
+      startupTiming.mark(
+        'geo copy finished files=$copiedCount bytes=$copiedBytes',
+      );
     } catch (e) {
+      _initGeoFuture = null;
       commonPrint.log(
         'Failed to initialize geo data: $e',
         logLevel: LogLevel.error,
@@ -88,6 +121,7 @@ class CoreController {
   FutureOr<bool> get isInit => _interface.isInit;
 
   Future<String> validateConfig(String path) async {
+    await waitForWarmUp();
     final res = await _interface.validateConfig(path);
     return res;
   }
@@ -96,6 +130,7 @@ class CoreController {
     final path = await appPath.tempFilePath;
     final file = File(path);
     await file.safeWriteAsString(data);
+    await waitForWarmUp();
     final res = await _interface.validateConfig(path);
     await File(path).safeDelete();
     return res;

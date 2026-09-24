@@ -55,7 +55,6 @@ const midDuration = Duration(milliseconds: 200);
 const commonDuration = Duration(milliseconds: 300);
 const MMDB = 'GEOIP.metadb';
 const ASN = 'ASN.mmdb';
-const GEOIP = 'GEOIP.dat';
 const GEOSITE = 'GEOSITE.dat';
 final double kHeaderHeight = system.isDesktop
     ? !system.isMacOS

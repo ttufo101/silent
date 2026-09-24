@@ -15,8 +15,6 @@ const defaultGeoXUrl = {
       'https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.metadb',
   GeoResource.ASN:
       'https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/GeoLite2-ASN.mmdb',
-  GeoResource.GEOIP:
-      'https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.dat',
   GeoResource.GEOSITE:
       'https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat',
 };
@@ -480,9 +478,17 @@ Map<GeoResource, String> _geoXUrlFromJson(Map<String, Object?>? json) {
   if (json == null) {
     return defaultGeoXUrl;
   }
-  return json.map(
-    (key, value) => MapEntry(GeoResource.fromJson(key), value as String),
-  );
+  final result = <GeoResource, String>{};
+  for (final entry in json.entries) {
+    // 旧版本配置里可能残留已移除的 geoip 条目，忽略未知键，
+    // 避免升级后解析配置时抛异常。
+    final resource = GeoResource.tryFromJson(entry.key);
+    if (resource == null) {
+      continue;
+    }
+    result[resource] = entry.value as String;
+  }
+  return result;
 }
 
 Map<String, String> _geoXUrlToJson(Map<GeoResource, String> value) {

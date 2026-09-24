@@ -114,7 +114,6 @@ class _GeoResourceListItemState extends ConsumerState<_GeoResourceListItem> {
     return switch (widget.type) {
       GeoResource.MMDB => MMDB,
       GeoResource.ASN => ASN,
-      GeoResource.GEOIP => GEOIP,
       GeoResource.GEOSITE => GEOSITE,
     };
   }

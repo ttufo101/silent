@@ -140,7 +140,9 @@ Future<VM2<String, String>> _makeRealProfileTask(
   rawConfig['tun']['stack'] = realPatchConfig.tun.stack.name;
   rawConfig['tun']['route-address'] = realPatchConfig.tun.routeAddress;
   rawConfig['tun']['auto-route'] = realPatchConfig.tun.autoRoute;
-  rawConfig['geodata-loader'] = realPatchConfig.geodataLoader.name;
+  // 固定使用 mmdb 模式：GEOIP.dat 已从打包资源中移除，
+  // 必须覆盖后端订阅下发的 geodata-mode，否则核心会联网补下载 dat。
+  rawConfig['geodata-mode'] = false;
   if (rawConfig['sniffer']?['sniff'] != null) {
     for (final value in (rawConfig['sniffer']?['sniff'] as Map).values) {
       if (value['ports'] != null && value['ports'] is List) {

@@ -119,7 +119,11 @@ class _CoreContainerState extends ConsumerState<CoreManager>
 
   @override
   void onGeoUpdate(String geoType, bool updating, bool skipped, String? error) {
-    final geoResource = GeoResource.fromJson(geoType.toLowerCase());
+    final geoResource = GeoResource.tryFromJson(geoType.toLowerCase());
+    if (geoResource == null) {
+      super.onGeoUpdate(geoType, updating, skipped, error);
+      return;
+    }
     final key = geoResource.updatingKey;
     final l10n = currentAppLocalizations;
     if (updating) {

@@ -609,12 +609,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "geoSkipped": m14,
     "geoUpdated": m15,
     "geoUpdating": m16,
-    "geodataLoader": MessageLookupByLibrary.simpleMessage(
-      "Geo Low Memory Mode",
-    ),
-    "geodataLoaderDesc": MessageLookupByLibrary.simpleMessage(
-      "Enabling will use the Geo low memory loader",
-    ),
     "geoipCode": MessageLookupByLibrary.simpleMessage("Geoip code"),
     "global": MessageLookupByLibrary.simpleMessage("Global"),
     "go": MessageLookupByLibrary.simpleMessage("Go"),
@@ -664,6 +658,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "infiniteTime": MessageLookupByLibrary.simpleMessage("Long term effective"),
     "init": MessageLookupByLibrary.simpleMessage("Init"),
+    "initializingCore": MessageLookupByLibrary.simpleMessage("Initializing core"),
     "inputCorrectHotkey": MessageLookupByLibrary.simpleMessage(
       "Please enter the correct hotkey",
     ),

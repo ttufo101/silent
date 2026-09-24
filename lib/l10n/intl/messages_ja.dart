@@ -489,10 +489,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "geoSkipped": m14,
     "geoUpdated": m15,
     "geoUpdating": m16,
-    "geodataLoader": MessageLookupByLibrary.simpleMessage("Geo低メモリモード"),
-    "geodataLoaderDesc": MessageLookupByLibrary.simpleMessage(
-      "有効化するとGeo低メモリローダーを使用",
-    ),
     "geoipCode": MessageLookupByLibrary.simpleMessage("GeoIPコード"),
     "global": MessageLookupByLibrary.simpleMessage("グローバル"),
     "go": MessageLookupByLibrary.simpleMessage("移動"),
@@ -534,6 +530,7 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "infiniteTime": MessageLookupByLibrary.simpleMessage("長期有効"),
     "init": MessageLookupByLibrary.simpleMessage("初期化"),
+    "initializingCore": MessageLookupByLibrary.simpleMessage("コアを初期化中"),
     "inputCorrectHotkey": MessageLookupByLibrary.simpleMessage("正しいホットキーを入力"),
     "inputProxyGroupName": MessageLookupByLibrary.simpleMessage("プロキシグループ名を入力"),
     "inputRuleContent": MessageLookupByLibrary.simpleMessage("ルール内容を入力"),

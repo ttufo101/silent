@@ -790,7 +790,49 @@ class _CurrentNodeSection extends ConsumerWidget {
     if (!hasProfile && syncError != null) {
       return const _ProfileSyncFailureCard();
     }
+    // 配置文件已就绪但核心尚未加载出分组时给出「初始化中」反馈，
+    // 避免这一小段窗口显示空白或「暂无节点」造成误导。
+    if (hasProfile && group == null) {
+      return const _CurrentNodeLoadingCard();
+    }
     return _CurrentProxyCard(group: group);
+  }
+}
+
+class _CurrentNodeLoadingCard extends ConsumerWidget {
+  const _CurrentNodeLoadingCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isMobile = ref.watch(isMobileViewProvider);
+    return Container(
+      height: isMobile ? 72 : 60,
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 12),
+      decoration: BoxDecoration(
+        color: context.tDesign.container,
+        borderRadius: BorderRadius.circular(TDesignRadius.card),
+        border: Border.all(color: context.tDesign.componentBorder),
+      ),
+      child: Row(
+        children: [
+          const SizedBox.square(
+            dimension: 20,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+          SizedBox(width: isMobile ? 16 : 12),
+          Expanded(
+            child: Text(
+              context.appLocalizations.initializingCore,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.textTheme.bodyMedium?.copyWith(
+                color: context.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

@@ -1199,26 +1199,6 @@ class AppLocalizations {
     );
   }
 
-  /// `Geo Low Memory Mode`
-  String get geodataLoader {
-    return Intl.message(
-      'Geo Low Memory Mode',
-      name: 'geodataLoader',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Enabling will use the Geo low memory loader`
-  String get geodataLoaderDesc {
-    return Intl.message(
-      'Enabling will use the Geo low memory loader',
-      name: 'geodataLoaderDesc',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Requests`
   String get requests {
     return Intl.message('Requests', name: 'requests', desc: '', args: []);
@@ -1247,6 +1227,16 @@ class AppLocalizations {
   /// `Init`
   String get init {
     return Intl.message('Init', name: 'init', desc: '', args: []);
+  }
+
+  /// `Initializing core`
+  String get initializingCore {
+    return Intl.message(
+      'Initializing core',
+      name: 'initializingCore',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Long term effective`

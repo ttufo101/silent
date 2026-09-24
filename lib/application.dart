@@ -6,6 +6,7 @@ import 'package:fl_clash/auth/auth_controller.dart';
 import 'package:fl_clash/auth/providers.dart';
 import 'package:fl_clash/auth/views/login.dart';
 import 'package:fl_clash/common/common.dart';
+import 'package:fl_clash/core/controller.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/manager/hotkey_manager.dart';
@@ -76,6 +77,9 @@ class ApplicationState extends ConsumerState<Application> {
         setState(() => _showSplash = false);
         startupTiming.mark('interactive shell requested');
       }
+      final warmUpTask = _warmUpCore();
+      CoreController.warmUpFuture = warmUpTask;
+      unawaited(warmUpTask);
       unawaited(_initializeUpdateFlow());
     });
   }
@@ -131,6 +135,37 @@ class ApplicationState extends ConsumerState<Application> {
     }
   }
 
+  Future<void>? _coreWarmUpTask;
+
+  /// 在登录页/首页首帧之后立刻预热核心（初始化 geo + 拉起核心服务），
+  /// 把核心启动的耗时藏进用户操作（输入账号密码）的时间窗里。
+  Future<void> _warmUpCore() {
+    return _coreWarmUpTask ??= _runWarmUpCore();
+  }
+
+  Future<void> _runWarmUpCore() async {
+    final stopwatch = Stopwatch()..start();
+    startupTiming.mark('core warmup requested');
+    try {
+      // 预热期间明确禁止 VPN 启动，避免未登录就拉起 tun。
+      await app?.setVpnStartAllowed(false);
+      await CoreController.initGeo();
+      await globalState.ensureCoreReady();
+      startupTiming.mark('core warmup completed');
+      commonPrint.log(
+        'core warmup completed in ${stopwatch.elapsedMilliseconds}ms',
+      );
+    } on Object catch (error, stackTrace) {
+      // 预热失败不影响主流程：登录后仍会走正常的 ensureCoreReady。
+      _coreWarmUpTask = null;
+      startupTiming.mark('core warmup failed');
+      commonPrint.log(
+        'core warmup failed: $error\n$stackTrace',
+        logLevel: LogLevel.warning,
+      );
+    }
+  }
+
   Future<void> _initializeAuth() async {
     await _authController.initialize();
     startupTiming.mark('authentication restored');
@@ -146,7 +181,6 @@ class ApplicationState extends ConsumerState<Application> {
     if (_authController.status == AuthStatus.authenticated) {
       final uid = _authController.session!.uid;
       unawaited(app?.setVpnStartAllowed(true));
-      unawaited(_prefetchUserInfo(uid));
       if (!_authenticatedStartupStarted) {
         _authenticatedStartupStarted = true;
         if (!startupTiming.isActive) {
@@ -154,6 +188,11 @@ class ApplicationState extends ConsumerState<Application> {
         }
         startupTiming.mark('authenticated session ready');
       }
+      // 尽早开始拷贝 geo 资源（约 24MB），让它与订阅同步的网络等待重叠，
+      // 避免核心启动阶段再串行等待文件写入。initGeo 内部幂等，不会重复拷贝。
+      // 必须放在 startupTiming.start() 之后，否则耗时打点会被丢弃。
+      unawaited(CoreController.initGeo());
+      unawaited(_prefetchUserInfo(uid));
       ref.read(serverProfileSyncErrorProvider.notifier).set(null);
       if (mounted) {
         setState(() => _showSplash = false);

@@ -237,19 +237,24 @@ enum GeoResource {
   MMDB,
   @JsonValue('asn')
   ASN,
-  @JsonValue('geoip')
-  GEOIP,
   @JsonValue('geosite')
   GEOSITE;
 
-  static GeoResource fromJson(String value) {
+  static GeoResource? tryFromJson(String value) {
     return switch (value) {
       'mmdb' => GeoResource.MMDB,
       'asn' => GeoResource.ASN,
-      'geo-ip' || 'geoip' => GeoResource.GEOIP,
       'geo-site' || 'geosite' => GeoResource.GEOSITE,
-      _ => throw ArgumentError.value(value, 'value', 'Invalid geo resource'),
+      _ => null,
     };
+  }
+
+  static GeoResource fromJson(String value) {
+    final resource = tryFromJson(value);
+    if (resource == null) {
+      throw ArgumentError.value(value, 'value', 'Invalid geo resource');
+    }
+    return resource;
   }
 }
 
@@ -258,7 +263,6 @@ extension GeoResourceExt on GeoResource {
     return switch (this) {
       GeoResource.MMDB => 'mmdb',
       GeoResource.ASN => 'asn',
-      GeoResource.GEOIP => 'geoip',
       GeoResource.GEOSITE => 'geosite',
     };
   }

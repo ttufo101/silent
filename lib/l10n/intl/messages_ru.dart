@@ -625,12 +625,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "geoSkipped": m14,
     "geoUpdated": m15,
     "geoUpdating": m16,
-    "geodataLoader": MessageLookupByLibrary.simpleMessage(
-      "Режим низкого потребления памяти для геоданных",
-    ),
-    "geodataLoaderDesc": MessageLookupByLibrary.simpleMessage(
-      "Включение будет использовать загрузчик геоданных с низким потреблением памяти",
-    ),
     "geoipCode": MessageLookupByLibrary.simpleMessage("Код Geoip"),
     "global": MessageLookupByLibrary.simpleMessage("Глобальный"),
     "go": MessageLookupByLibrary.simpleMessage("Перейти"),
@@ -684,6 +678,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Долгосрочное действие",
     ),
     "init": MessageLookupByLibrary.simpleMessage("Инициализация"),
+    "initializingCore": MessageLookupByLibrary.simpleMessage("Инициализация ядра"),
     "inputCorrectHotkey": MessageLookupByLibrary.simpleMessage(
       "Пожалуйста, введите правильную горячую клавишу",
     ),
